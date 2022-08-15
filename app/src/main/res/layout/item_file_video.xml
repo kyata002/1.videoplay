@@ -18,8 +18,21 @@
             android:textSize="17sp"
             android:text="hellqewqweqqweqwqweo"/>
         <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="@dimen/_120sdp"
-            android:layout_height=""
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="size"/>
+            <TextView
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:text="day"/>
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>
