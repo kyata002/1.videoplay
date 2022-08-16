@@ -6,13 +6,10 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.mtg.voicerecoder.StorageCommon;
-import com.mtg.voicerecoder.edit.OnActionCallback;
 
 import java.util.List;
 
 abstract public class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    protected OnActionCallback mCallback;
     protected List<T> mList;
     protected Context context;
 
@@ -21,9 +18,6 @@ abstract public class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
         this.context = context;
     }
 
-    public void setmCallback(OnActionCallback mCallback) {
-        this.mCallback = mCallback;
-    }
 
     @NonNull
     @Override
@@ -47,8 +41,5 @@ abstract public class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.V
     }
 
 
-    protected StorageCommon getStorageCommon() {
-        return StorageCommon.getInstance();
-    }
 
 }

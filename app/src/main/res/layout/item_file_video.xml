@@ -3,35 +3,76 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <LinearLayout
-        android:layout_width="match_parent"
+        android:id="@+id/rlselect"
+        android:layout_width="wrap_content"
         android:layout_marginStart="@dimen/_8sdp"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-        <ImageView
-            android:layout_width="@dimen/_120sdp"
-            android:layout_height="@dimen/_80sdp"/>
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:src="#FFF"
+                android:layout_width="@dimen/_120sdp"
+                android:layout_height="@dimen/_80sdp"
+                />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|bottom"
+                android:layout_marginRight="@dimen/_8sdp"
+                android:layout_marginBottom="@dimen/_8sdp"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_play_time" />
+                <TextView
+                    android:id="@+id/txtDuration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="00:00"
+                    android:layout_gravity="center"
+                    android:textSize="@dimen/_5sdp"/>
+            </LinearLayout>
+
+
+        </FrameLayout>
         <TextView
+            android:id="@+id/filename"
             android:layout_width="@dimen/_120sdp"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
             android:textSize="17sp"
+            android:textStyle="bold"
             android:text="hellqewqweqqweqwqweo"/>
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="@dimen/_120sdp"
             android:layout_height="wrap_content">
             <TextView
+
+                android:id="@+id/txtSize"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/_2sdp"
                 android:text="size"/>
             <TextView
+                android:id="@+id/txtTime"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="right"
+                android:layout_gravity="center"
+                android:paddingBottom="@dimen/_2sdp"
                 android:text="day"/>
+            <ImageView
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_more"/>
         </LinearLayout>
     </LinearLayout>
 

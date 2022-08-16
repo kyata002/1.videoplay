@@ -4,10 +4,6 @@ import com.mtg.videoplay.R;
 import com.mtg.videoplay.base.BaseFragment;
 
 public class FolderFragment extends BaseFragment {
-    @Override
-    protected void initPresenter() {
-
-    }
 
     @Override
     protected int getLayoutId() {
