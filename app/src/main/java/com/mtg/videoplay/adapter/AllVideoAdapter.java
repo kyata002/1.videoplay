@@ -69,7 +69,7 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
         retriever.setDataSource(videoList.get(position));
         String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
         retriever.release();
-        long seconds = Long.parseLong(time);
+        long seconds = Long.valueOf( time );
         String vidLength = String.format("%02d:%02d",
                 TimeUnit.MILLISECONDS.toMinutes(seconds) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(seconds)),
                 TimeUnit.MILLISECONDS.toSeconds(seconds) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(seconds)));
@@ -92,7 +92,8 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
 //        }
         holder.itemView.setOnClickListener(view -> {
             Intent intent = new Intent(context, VideoPlayActivity.class);
-            intent.putExtra("file",videoList.get(position));
+            intent.putExtra("file",position);
+            intent.putExtra("list",videoList);
             context.startActivity(intent);
         });
     }

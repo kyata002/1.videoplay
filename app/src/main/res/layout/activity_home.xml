@@ -40,7 +40,7 @@
                 android:layout_gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_share"/>
+                android:src="@drawable/ic_sreach"/>
             <ImageView
                 android:layout_weight="1"
                 android:layout_gravity="center"
