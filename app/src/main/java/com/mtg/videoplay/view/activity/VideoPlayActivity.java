@@ -47,6 +47,7 @@ public class VideoPlayActivity extends BaseActivity {
     Boolean ck_Dh,ck_pause;
     ConstraintLayout videoPlay;
     int stopPosition,position;
+    public static float speeb;
     CountDownTimer Timer;
 
     @Override
@@ -115,7 +116,7 @@ public class VideoPlayActivity extends BaseActivity {
                 PlaybackParams myPlayBackParams = null;
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                     myPlayBackParams = new PlaybackParams();
-                    myPlayBackParams.setSpeed(1f); //you can set speed here
+                    myPlayBackParams.setSpeed(speeb); //you can set speed here
                     mediaPlayer.setPlaybackParams(myPlayBackParams);
                 }
             }
@@ -167,13 +168,23 @@ public class VideoPlayActivity extends BaseActivity {
                 @Override
                 public boolean onMenuItemClick(MenuItem menuItem) {
                     switch (menuItem.getItemId()){
-                        case R.id.:
+                        case R.id.sp05:
+                            speeb = 0.5F;
                             break;
-                        case R.id.rename:
+                        case R.id.sp75:
+                            speeb = 0.75F;
                             break;
-                        case R.id.delete:
+                        case R.id.sp1:
+                            speeb = 1F;
                             break;
-                        case R.id.info:
+                        case R.id.sp15:
+                            speeb=1.5F;
+                            break;
+                        case R.id.sp175:
+                            speeb=1.75F;
+                            break;
+                        case R.id.sp2:
+                            speeb=2F;
                             break;
                     }
                     return false;

@@ -1,10 +1,12 @@
 package com.mtg.videoplay.view.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.widget.ImageView;
 
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
@@ -25,6 +27,7 @@ public class HomeActicity extends BaseActivity {
     TabLayout tab;
     ViewPager viewPager;
     boolean isFromFolder;
+    ImageView bt_search,bt_setting;
     private Cursor csr;
     String[] allvidFile;
 
@@ -48,6 +51,8 @@ public class HomeActicity extends BaseActivity {
 
     @Override
     protected void initView() {
+        bt_search = findViewById(R.id.bt_search);
+        bt_setting = findViewById(R.id.bt_setting);
 
         getdata();
         getdataFolder();
@@ -61,6 +66,14 @@ public class HomeActicity extends BaseActivity {
 
     @Override
     protected void addEvent() {
+        bt_search.setOnClickListener(view -> {
+
+        });
+        bt_setting.setOnClickListener(view -> {
+            Intent intent = new Intent(this, SettingActivity.class);
+            this.startActivity(intent);
+        });
+
 
     }
     public Collection<? extends String> getdata() {

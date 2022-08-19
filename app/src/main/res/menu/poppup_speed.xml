@@ -2,14 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/sp05"
         android:title="0.5x"/>
-    <item android:id="sp75"
+    <item android:id="@+id/sp75"
         android:title="0.75x"/>
-    <item android:id="sp1"
+    <item android:id="@+id/sp1"
         android:title="1x (Normal)"/>
-    <item android:id="sp15"
+    <item android:id="@+id/sp15"
         android:title="1.5x"/>
-    <item android:id="sp175"
+    <item android:id="@+id/sp175"
         android:title="1.75x"/>
-    <item android:id="sp2"
+    <item android:id="@+id/sp2"
         android:title="2.0x"/>
 </menu>

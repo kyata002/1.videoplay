@@ -7,24 +7,16 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.mtg.videoplay.R;
 import com.mtg.videoplay.Util.Utils;
-import com.mtg.videoplay.view.activity.HomeActicity;
 import com.mtg.videoplay.view.activity.VideoPlayActivity;
-import com.mtg.videoplay.view.fragment.VideoFragment;
 
 import java.io.File;
 import java.text.DecimalFormat;
@@ -66,10 +58,10 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
     @Override
     public void onBindViewHolder(@NonNull ListViewHolder holder, int position) {
         if(videoList == null) return;
-        RequestOptions requestOptions = new RequestOptions();
-        requestOptions.placeholder(R.drawable.ic_defaut);
-        Glide.with(context).setDefaultRequestOptions(requestOptions).load(videoList.get(position))
-                .into(holder.imgFile);
+//        RequestOptions requestOptions = new RequestOptions();
+//        requestOptions.placeholder(R.drawable.ic_defaut);
+//        Glide.with(context).setDefaultRequestOptions(requestOptions).load(videoList.get(position))
+//                .into(holder.imgFile);
 
 
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
