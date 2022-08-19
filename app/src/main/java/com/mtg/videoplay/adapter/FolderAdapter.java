@@ -1,6 +1,7 @@
 package com.mtg.videoplay.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.mtg.videoplay.R;
 import com.mtg.videoplay.Util.Utils;
 import com.mtg.videoplay.model.Folder;
+import com.mtg.videoplay.view.activity.VideoListActivity;
+import com.mtg.videoplay.view.activity.VideoPlayActivity;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -40,6 +43,12 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.ListViewHo
         holder.txtfile.setText(folderList.get(position).getFoldersize()+"");
         holder.foldername.setText(new File(folderList.get(position).getFolderpath()).getName());
 //        int occurrences = Collections.frequency(allfolderpath, folderPath.get(i));
+        holder.itemView.setOnClickListener(view -> {
+            Intent intent = new Intent(context, VideoListActivity.class);
+            intent.putExtra("folder",folderList.get(position).getFolderpath());
+//            intent.putExtra("list",videoList);
+            context.startActivity(intent);
+        });
     }
 
     @Override

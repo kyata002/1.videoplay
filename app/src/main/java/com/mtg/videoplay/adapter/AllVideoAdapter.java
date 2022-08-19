@@ -4,12 +4,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.MediaMetadataRetriever;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -25,6 +31,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
@@ -96,6 +103,27 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
             intent.putExtra("list",videoList);
             context.startActivity(intent);
         });
+        holder.bt_more.setOnClickListener(view -> {
+            PopupMenu popupMenu = new PopupMenu(context,holder.bt_more);
+            popupMenu.getMenuInflater().inflate(R.menu.menu_poppup_list_video,popupMenu.getMenu());
+            popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem menuItem) {
+                    switch (menuItem.getItemId()){
+                        case R.id.share:
+                            break;
+                        case R.id.rename:
+                            break;
+                        case R.id.delete:
+                            break;
+                        case R.id.info:
+                            break;
+                    }
+                    return false;
+                }
+            });
+            popupMenu.show();
+        });
     }
 
     @Override
@@ -155,7 +183,7 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
         TextView txtDuration;
         TextView txtSize;
         TextView txtTime;
-        ImageView imgFile;
+        ImageView imgFile,bt_more;
 
         public ListViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -164,6 +192,9 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
             txtSize = itemView.findViewById(R.id.txtSize);
             txtTime = itemView.findViewById(R.id.txtTime);
             imgFile = itemView.findViewById(R.id.imgFile);
+            bt_more = itemView.findViewById(R.id.bt_more);
         }
     }
+
+
 }

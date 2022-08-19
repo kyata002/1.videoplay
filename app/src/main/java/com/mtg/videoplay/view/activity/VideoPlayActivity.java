@@ -12,11 +12,13 @@ import android.media.PlaybackParams;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.PowerManager;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -132,6 +134,14 @@ public class VideoPlayActivity extends BaseActivity {
         dh_bottom.setVisibility(View.VISIBLE);
         bt_lock.setVisibility(View.VISIBLE);
         ck_Dh=true;
+        CountDownTimer Timer = new CountDownTimer(4000, 1000) {
+            public void onTick(long millisUntilFinished) {
+            }
+
+            public void onFinish() {
+                hideDH();
+            }
+        }.start();
     }
     private void hideDH(){
         dh_top.setVisibility(GONE);
@@ -144,15 +154,33 @@ public class VideoPlayActivity extends BaseActivity {
     @Override
     protected void addEvent() {
         videoPlay.setOnClickListener(view -> {
-//            if(ck_Dh){
-//                hideDH();
-//            }else{
-//                showDH();
-//            }
-            videoPlay.setFocusable(true);
-            updateTimeCount();
+            if(ck_Dh){
+                hideDH();
+            }else{
+                showDH();
+            }
         });
-
+        bt_speed.setOnClickListener(view -> {
+            PopupMenu popupMenu = new PopupMenu(this,bt_speed);
+            popupMenu.getMenuInflater().inflate(R.menu.poppup_speed,popupMenu.getMenu());
+            popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem menuItem) {
+                    switch (menuItem.getItemId()){
+                        case R.id.:
+                            break;
+                        case R.id.rename:
+                            break;
+                        case R.id.delete:
+                            break;
+                        case R.id.info:
+                            break;
+                    }
+                    return false;
+                }
+            });
+            popupMenu.show();
+        });
 
         dhAdmin();
         dhTop();
@@ -211,22 +239,7 @@ public class VideoPlayActivity extends BaseActivity {
     public void onBackPressed() {
         super.onBackPressed();
     }
-    private void updateTimeCount(){
-        Handler handler = new Handler();
-        Runnable  refresh = new Runnable() {
-            public void run() {
-                if (videoPlay.isFocusable()){
-                    showDH();
-                }else{
-                    hideDH();
-                    return;
-                }
-                handler.postDelayed(this, 1000);
-            }
-        };
-        handler.post(refresh);
 
-    }
     private String fomartMaxTime(int position){
         SimpleDateFormat timeMax = new SimpleDateFormat("mm:ss");
         return timeMax.format(position);
