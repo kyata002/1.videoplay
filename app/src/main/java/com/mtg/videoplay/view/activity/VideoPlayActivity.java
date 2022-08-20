@@ -47,7 +47,7 @@ public class VideoPlayActivity extends BaseActivity {
     Boolean ck_Dh,ck_pause;
     ConstraintLayout videoPlay;
     int stopPosition,position;
-    public static float speeb;
+    public static float speeb=1;
     CountDownTimer Timer;
 
     @Override

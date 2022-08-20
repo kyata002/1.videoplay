@@ -33,6 +33,7 @@
         android:padding="@dimen/_8sdp"
         android:orientation="vertical">
         <LinearLayout
+            android:id="@+id/bt_rate"
             android:background="@drawable/bg_item_setting"
             android:layout_width="match_parent"
             android:layout_marginTop="@dimen/_8sdp"
@@ -60,6 +61,7 @@
                 android:src="@drawable/ic_next_setting"/>
         </LinearLayout>
         <LinearLayout
+            android:id="@+id/bt_share_app"
             android:layout_marginTop="@dimen/_8sdp"
             android:background="@drawable/bg_item_setting"
             android:layout_width="match_parent"
@@ -87,6 +89,7 @@
                 android:src="@drawable/ic_next_setting"/>
         </LinearLayout>
         <LinearLayout
+            android:id="@+id/bt_feed_back"
             android:background="@drawable/bg_item_setting"
             android:layout_width="match_parent"
             android:layout_marginTop="@dimen/_8sdp"
@@ -114,6 +117,7 @@
                 android:src="@drawable/ic_next_setting"/>
         </LinearLayout>
         <LinearLayout
+            android:id="@+id/bt_pri"
             android:background="@drawable/bg_item_setting"
             android:layout_width="match_parent"
             android:layout_marginTop="@dimen/_8sdp"

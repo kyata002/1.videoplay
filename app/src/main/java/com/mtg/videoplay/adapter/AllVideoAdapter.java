@@ -1,8 +1,12 @@
 package com.mtg.videoplay.adapter;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaMetadataRetriever;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -10,20 +14,32 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.mtg.videoplay.R;
 import com.mtg.videoplay.Util.Utils;
+import com.mtg.videoplay.view.activity.HomeActicity;
 import com.mtg.videoplay.view.activity.VideoPlayActivity;
+import com.mtg.videoplay.view.dialog.DeleteDialog;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import com.mtg.videoplay.OnActionCallback;
+import com.mtg.videoplay.view.dialog.InfoDialog;
+import com.mtg.videoplay.view.dialog.RenameDialog;
+
 import java.util.concurrent.TimeUnit;
 
 
@@ -58,10 +74,10 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
     @Override
     public void onBindViewHolder(@NonNull ListViewHolder holder, int position) {
         if(videoList == null) return;
-//        RequestOptions requestOptions = new RequestOptions();
-//        requestOptions.placeholder(R.drawable.ic_defaut);
-//        Glide.with(context).setDefaultRequestOptions(requestOptions).load(videoList.get(position))
-//                .into(holder.imgFile);
+        RequestOptions requestOptions = new RequestOptions();
+        requestOptions.placeholder(R.drawable.ic_defaut);
+        Glide.with(context).setDefaultRequestOptions(requestOptions).load(videoList.get(position))
+                .into(holder.imgFile);
 
 
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
@@ -105,10 +121,13 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
                         case R.id.share:
                             break;
                         case R.id.rename:
+                            dialogRename(videoList.get(position));
                             break;
                         case R.id.delete:
+                            dialogDelete(videoList.get(position));
                             break;
                         case R.id.info:
+                            dialogInfo(videoList.get(position));
                             break;
                     }
                     return false;
@@ -187,6 +206,65 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
             bt_more = itemView.findViewById(R.id.bt_more);
         }
     }
+
+    public void dialogDelete(String path){
+        DeleteDialog dialog = new DeleteDialog(context);
+        dialog.setCallback((key, data) -> {
+            if(key.equals("delete")){
+                if (new File(path).delete()) {
+                    videoList.remove(path);
+                    notifyItemRemoved(videoList.indexOf(path));
+                    dialog.dismiss();
+                }
+            }
+            if(key.equals("no")){
+
+            }
+        });
+//        dialog.setOnDismissListener(this);
+        dialog.show();
+    }
+    public void dialogRename(String path){
+        final  File file = new File(path);
+        RenameDialog dialog = new RenameDialog(context);
+        dialog.setCallback((key, data) -> {
+
+            if(key.equals("rename")){
+                String newName = (String) data;
+                String onlyPath = file.getParentFile().getAbsolutePath();
+                String ext = file.getAbsolutePath();
+                ext = ext.substring(ext.lastIndexOf("."));
+                String newPath = onlyPath+"/"+newName+ext;
+                File newFile = new File(newPath);
+                boolean rename = file.renameTo(newFile);
+                if(rename)
+                {
+                    ContentResolver resolver = context.getApplicationContext().getContentResolver();
+                    resolver.delete(
+                            MediaStore.Files.getContentUri("external")
+                            , MediaStore.MediaColumns.DATA + "=?", new String[] { file.getAbsolutePath() });
+                    Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+                    intent.setData(Uri.fromFile(newFile));
+                    context.getApplicationContext().sendBroadcast(intent);
+
+                    Toast.makeText(context, "SuccessFull!", Toast.LENGTH_SHORT).show();
+                }else
+                {
+                    Toast.makeText(context, "Oops! rename failed", Toast.LENGTH_SHORT).show();
+                }
+                notifyDataSetChanged();
+                notifyItemChanged(videoList.indexOf(path));
+            }
+        });
+        dialog.show();
+    }
+    public void dialogInfo(String path){
+        InfoDialog dialog = new InfoDialog(context);
+        OnActionCallback callback = null;
+        callback.callback("info",path);
+        dialog.show();
+    }
+
 
 
 }

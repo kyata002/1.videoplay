@@ -12,10 +12,22 @@ public class SettingActivity extends BaseActivity {
     @Override
     protected void initView() {
 
+
     }
 
     @Override
     protected void addEvent() {
+        findViewById(R.id.bt_back).setOnClickListener(view -> {
+            onBackPressed();
+        });
+        findViewById(R.id.bt_rate).setOnClickListener(view -> {
 
+        });
+        findViewById(R.id.bt_feed_back).setOnClickListener(view -> {
+
+        });
+        findViewById(R.id.bt_pri).setOnClickListener(view -> {
+
+        });
     }
 }

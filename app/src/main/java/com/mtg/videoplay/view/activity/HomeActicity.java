@@ -26,9 +26,9 @@ public class HomeActicity extends BaseActivity {
     ViewPagerAdapter viewPagerAdapter;
     TabLayout tab;
     ViewPager viewPager;
-    boolean isFromFolder;
+    static boolean isFromFolder;
     ImageView bt_search,bt_setting;
-    private Cursor csr;
+    private  Cursor csr;
     String[] allvidFile;
 
 

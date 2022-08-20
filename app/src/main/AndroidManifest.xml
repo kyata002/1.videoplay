@@ -41,6 +41,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".view.activity.VideoPlayActivity" />
+        <activity android:name=".view.activity.SettingActivity" />
     </application>
 
 </manifest>
