@@ -6,6 +6,7 @@
         <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/drawable/backgroud.xml" value="0.295" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/drawable/bg_dialog.xml" value="0.2995" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/drawable/bg_item.xml" value="0.192" />
+        <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/drawable/bg_tab_layout.xml" value="0.296" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/drawable/bg_time_file.xml" value="0.192" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/drawable/border_bg.xml" value="0.295" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/drawable/ic_back.xml" value="0.193" />
@@ -15,9 +16,11 @@
         <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/drawable/ic_phone_screen.xml" value="0.193" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/drawable/ic_play_time.xml" value="0.193" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/drawable/ic_share.xml" value="0.295" />
+        <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/drawable/ic_unicon.xml" value="0.296" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/drawable/ic_unlock.xml" value="0.193" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/drawable/progess.xml" value="0.295" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/drawable/seekbar_progess.xml" value="0.295" />
+        <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/drawable/selector.xml" value="0.296" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/layout/activity_home.xml" value="0.29411764705882354" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/layout/activity_play.xml" value="0.33" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/layout/activity_setting.xml" value="0.18802083333333333" />
@@ -32,6 +35,7 @@
         <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/layout/home_activity.xml" value="0.3423913043478261" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/layout/item_file_video.xml" value="0.8255813953488372" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/layout/item_folder.xml" value="0.3423913043478261" />
+        <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/layout/layout_more.xml" value="0.67" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/menu/menu_poppup_list_video.xml" value="0.5" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/videoplay/app/src/main/res/menu/poppup_speed.xml" value="0.3609375" />
       </map>

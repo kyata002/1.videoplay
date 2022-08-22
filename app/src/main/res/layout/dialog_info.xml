@@ -32,8 +32,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginLeft="15dp"
+                    android:layout_marginTop="@dimen/_8sdp"
+                    android:layout_marginLeft="@dimen/_8sdp"
                     android:layout_marginBottom="10dp">
 
                     <TextView
@@ -41,8 +41,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="TextView"
+                        android:textColor="#000"
                         android:textStyle="bold"
-                        android:textSize="20dp"/>
+                        android:textSize="@dimen/_20sdp"/>
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -201,6 +202,7 @@
                     android:textColor="#8941FF"
                     android:layout_gravity="right"
                     android:layout_marginRight="@dimen/_32sdp"
+                    android:layout_marginBottom="@dimen/_4sdp"
                     android:padding="@dimen/_8sdp"/>
             </LinearLayout>
         </ScrollView>

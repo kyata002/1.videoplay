@@ -5,7 +5,10 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.ImageView;
 
 import androidx.fragment.app.FragmentStatePagerAdapter;
@@ -16,17 +19,20 @@ import com.mtg.videoplay.R;
 import com.mtg.videoplay.adapter.ViewPagerAdapter;
 import com.mtg.videoplay.base.BaseActivity;
 import com.mtg.videoplay.model.Folder;
+import com.mtg.videoplay.view.fragment.FolderFragment;
+import com.mtg.videoplay.view.fragment.VideoFragment;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-public class HomeActicity extends BaseActivity {
+public class HomeActicity extends BaseActivity implements View.OnTouchListener {
     ViewPagerAdapter viewPagerAdapter;
     TabLayout tab;
     ViewPager viewPager;
     static boolean isFromFolder;
+
     ImageView bt_search,bt_setting;
     private  Cursor csr;
     String[] allvidFile;
@@ -35,13 +41,11 @@ public class HomeActicity extends BaseActivity {
     ArrayList<String> allfolderpath = new ArrayList<>();
     ArrayList<String> imageList = new ArrayList<>();
     ArrayList<String> folderPath = new ArrayList<>();
-//    ArrayList<String> folderName = new ArrayList<>();
-//    ArrayList<String> folderThumb = new ArrayList<>();
-//    ArrayList<String> folderp = new ArrayList<>();
     public static  ArrayList<Folder> folders = new ArrayList<>();
-
     public static ArrayList<String> videoList = new ArrayList<>();
-
+    public static float x,y;
+    public static int width,height;
+    DisplayMetrics displayMetrics = new DisplayMetrics();
     @Override
     protected int getLayoutId() {
         return R.layout.activity_home;
@@ -54,12 +58,19 @@ public class HomeActicity extends BaseActivity {
         bt_search = findViewById(R.id.bt_search);
         bt_setting = findViewById(R.id.bt_setting);
 
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        height = displayMetrics.heightPixels;
+        width = displayMetrics.widthPixels;
+
+
         getdata();
         getdataFolder();
         tab=findViewById(R.id.tab_Layout);
         viewPager = findViewById(R.id.view_Pager);
 
-        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager(), FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        viewPagerAdapter.addfragemnt(new VideoFragment(),"Video");
+        viewPagerAdapter.addfragemnt(new FolderFragment(),"Folder");
         viewPager.setAdapter(viewPagerAdapter);
         tab.setupWithViewPager(viewPager);
     }
@@ -115,44 +126,17 @@ public class HomeActicity extends BaseActivity {
         while (csr.moveToNext()) {
             int ind = csr.getColumnIndex(MediaStore.Video.Media.DATA);
             String path = csr.getString(ind);
-//            Log.d("pathofpath", path);
-//
-//            imageList.add(path);
             String fpath = new File(path).getParent();
-            String fname = new File(fpath).getName();
             allfolderpath.add(fpath);
             Collections.sort(allfolderpath);
+
             if (!folderPath.contains(fpath)) {
                 folderPath.add(fpath);
             }
         }
 
-//        for (int i = 0; i < folderPath.size(); i++) {
-//            for (int j = 0; j < imageList.size(); j++) {
-//                if (folderPath.get(i).equals(new File(imageList.get(j)).getParent())) {
-//                    if (!folderThumb.contains(imageList.get(j)))
-//                        folderThumb.add(imageList.get(j));
-//                    break;
-//                }
-//            }
-//        }
-//        for (int i = 0; i < folderPath.size(); i++) {
-//            folderName.add(new File(folderPath.get(i)).getName());
-//        }
-        // Collections.sort(folderName);
-
-//        for (int i = 0; i < folderName.size(); i++) {
-//            for (int j = 0; j < folderPath.size(); j++) {
-//                if (folderName.get(i).equals(new File(folderPath.get(j)).getName())) {
-//                    folderp.add(i, folderPath.get(j));
-//                    break;
-//                }
-//            }
-//        }
-
         for (int i = 0; i < folderPath.size(); i++) {
             int occurrences = Collections.frequency(allfolderpath, folderPath.get(i));
-//            videoCount.add(occurrences);
             folders.add(new Folder(folderPath.get(i),occurrences));
         }
 
@@ -172,5 +156,15 @@ public class HomeActicity extends BaseActivity {
         }
 
         return pathArrList.toArray(new String[pathArrList.size()]);
+    }
+
+    @Override
+    public boolean onTouch(View view, MotionEvent motionEvent) {
+
+        if(motionEvent.getAction()==MotionEvent.ACTION_DOWN){
+            x= view.getX();
+            y=view.getY();
+        }
+        return false;
     }
 }

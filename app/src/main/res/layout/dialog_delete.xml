@@ -23,7 +23,7 @@
             android:layout_marginRight="@dimen/_16sdp"
             android:text="Delete"
             android:textColor="@color/black"
-            android:textSize="@dimen/_18sdp"
+            android:textSize="@dimen/_20sdp"
             android:textStyle="bold" />
 
         <TextView

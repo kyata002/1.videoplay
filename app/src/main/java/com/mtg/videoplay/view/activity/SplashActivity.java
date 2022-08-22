@@ -36,7 +36,7 @@ public class SplashActivity extends BaseActivity {
         }
 
         String permission = android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
-        String permission2 = android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+        String permission2 = android.Manifest.permission.READ_EXTERNAL_STORAGE;
         int res = this.checkCallingOrSelfPermission(permission);
         int res2 = this.checkCallingOrSelfPermission(permission2);
         if (res == PackageManager.PERMISSION_GRANTED && res2 == PackageManager.PERMISSION_GRANTED) {
@@ -74,7 +74,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case 1: {
