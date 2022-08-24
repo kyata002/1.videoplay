@@ -13,6 +13,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -320,6 +321,11 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
         Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         intent.setData(Uri.fromFile(f));
         c.sendBroadcast(intent);
+    }
+
+
+    public void Search(){
+
     }
 
 

@@ -1,15 +1,21 @@
 package com.mtg.videoplay.view.activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
@@ -22,27 +28,19 @@ import com.mtg.videoplay.model.Folder;
 import com.mtg.videoplay.view.fragment.FolderFragment;
 import com.mtg.videoplay.view.fragment.VideoFragment;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 
 public class HomeActicity extends BaseActivity implements View.OnTouchListener {
     ViewPagerAdapter viewPagerAdapter;
     TabLayout tab;
     ViewPager viewPager;
-    static boolean isFromFolder;
-
-    ImageView bt_search,bt_setting;
-    private  Cursor csr;
-    String[] allvidFile;
+    LinearLayout lc_search,lc_main;
+    ImageView bt_search,bt_setting,bt_backs;
+    EditText ed_Search;
 
 
-    ArrayList<String> allfolderpath = new ArrayList<>();
-    ArrayList<String> imageList = new ArrayList<>();
-    ArrayList<String> folderPath = new ArrayList<>();
-    public static  ArrayList<Folder> folders = new ArrayList<>();
-    public static ArrayList<String> videoList = new ArrayList<>();
+
+
+
     public static float x,y;
     public static int width,height;
     DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -57,20 +55,22 @@ public class HomeActicity extends BaseActivity implements View.OnTouchListener {
     protected void initView() {
         bt_search = findViewById(R.id.bt_search);
         bt_setting = findViewById(R.id.bt_setting);
+        bt_backs = findViewById(R.id.bt_BackS);
+        lc_search = findViewById(R.id.lc_Search);
+        lc_main = findViewById(R.id.lc_Main);
+        ed_Search = findViewById(R.id.de_search);
 
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         height = displayMetrics.heightPixels;
         width = displayMetrics.widthPixels;
 
 
-        getdata();
-        getdataFolder();
         tab=findViewById(R.id.tab_Layout);
         viewPager = findViewById(R.id.view_Pager);
 
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-        viewPagerAdapter.addfragemnt(new VideoFragment(),"Video");
-        viewPagerAdapter.addfragemnt(new FolderFragment(),"Folder");
+        viewPagerAdapter.addfragemnt(new VideoFragment(),"Videos");
+        viewPagerAdapter.addfragemnt(new FolderFragment(),"Folders");
         viewPager.setAdapter(viewPagerAdapter);
         tab.setupWithViewPager(viewPager);
     }
@@ -78,84 +78,39 @@ public class HomeActicity extends BaseActivity implements View.OnTouchListener {
     @Override
     protected void addEvent() {
         bt_search.setOnClickListener(view -> {
-
+            lc_main.setVisibility(View.GONE);
+            lc_search.setVisibility(View.VISIBLE);
         });
         bt_setting.setOnClickListener(view -> {
             Intent intent = new Intent(this, SettingActivity.class);
             this.startActivity(intent);
         });
+        bt_backs.setOnClickListener(view -> {
+            lc_main.setVisibility(View.VISIBLE);
+            lc_search.setVisibility(View.GONE);
+            ed_Search.setText("");
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(ed_Search.getWindowToken(), 0);
+        });
 
+        ed_Search.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-    }
-    public Collection<? extends String> getdata() {
-        String[] proj = new String[]{
-                MediaStore.Video.Media.DATA
-        };
-        csr = this.getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, proj, null, null, null);
-        while (csr.moveToNext()) {
-            int ind = csr.getColumnIndex(MediaStore.Video.Media.DATA);
-            String path = csr.getString(ind);
-            Log.d("pathofpath", path);
-            if (isFromFolder) {
-                if (new File(path).getParent().equals(this.getIntent().getStringExtra("foldername"))) {
-                    if (!videoList.contains(path)) {
-                        videoList.add(path);
-                    }
-                }
-            } else {
-                videoList.add(path);
             }
-        }
-        Collections.sort(videoList);
-        return videoList;
-    }
 
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-    public ArrayList<Folder> getdataFolder() {
-        allvidFile = getAllVideoPath(this);
-
-        for (int i = 0; i < allvidFile.length; i++) {
-            allfolderpath.add(allvidFile[i]);
-        }
-
-        String[] proj = new String[]{
-                MediaStore.Video.Media.DATA
-        };
-        csr = this.getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, proj, null, null, null);
-
-        while (csr.moveToNext()) {
-            int ind = csr.getColumnIndex(MediaStore.Video.Media.DATA);
-            String path = csr.getString(ind);
-            String fpath = new File(path).getParent();
-            allfolderpath.add(fpath);
-            Collections.sort(allfolderpath);
-
-            if (!folderPath.contains(fpath)) {
-                folderPath.add(fpath);
             }
-        }
 
-        for (int i = 0; i < folderPath.size(); i++) {
-            int occurrences = Collections.frequency(allfolderpath, folderPath.get(i));
-            folders.add(new Folder(folderPath.get(i),occurrences));
-        }
+            @Override
+            public void afterTextChanged(Editable editable) {
 
-        return folders;
-    }
-    private String[] getAllVideoPath(Context context) {
-        Uri uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
-        String[] projection = {MediaStore.Video.VideoColumns.DATA};
-        Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
-        ArrayList<String> pathArrList = new ArrayList<String>();
-        if (cursor != null) {
-
-            while (cursor.moveToNext()) {
-                pathArrList.add(cursor.getString(0));
             }
-            cursor.close();
-        }
+        });
 
-        return pathArrList.toArray(new String[pathArrList.size()]);
+
     }
 
     @Override

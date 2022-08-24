@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:background="#D2D2D2"
+    android:background="#2DD2D2D2"
     android:layout_height="match_parent">
     <LinearLayout
         android:orientation="horizontal"
@@ -11,76 +11,126 @@
         android:background="#FFF"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="8"
+        <FrameLayout
             android:background="#FFF"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_8sdp"
-            android:layout_marginStart="@dimen/_8sdp"
-            android:layout_marginBottom="@dimen/_8sdp"
-            android:orientation="horizontal">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_app"
-                />
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_app_text"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_55sdp">
+            <LinearLayout
+                android:id="@+id/lc_Search"
+                android:visibility="gone"
+                android:background="@drawable/bg_search"
+                android:orientation="horizontal"
+                android:layout_margin="@dimen/_8sdp"
+                android:padding="@dimen/_8sdp"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_40sdp">
+                <ImageView
+                    android:id="@+id/bt_BackS"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_back"/>
+                <EditText
+                    android:id="@+id/de_search"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="@dimen/_8sdp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textColor="#000"
+                    android:textColorHint="#CC9F9D9D"
+                    android:background="@android:color/transparent"
+                    android:hint="Sreach..."
+                    />
+                <ImageView
+                    android:id="@+id/bt_clears"
+                    android:layout_width="@dimen/_24sdp"
+                    android:layout_height="@dimen/_24sdp"
+                    android:src="@drawable/ic_clear_share"
+                    android:layout_gravity="center"/>=
+
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/lc_Main"
+                android:layout_width="match_parent"
                 android:layout_gravity="center"
-                />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_weight="1"
-            android:layout_marginTop="@dimen/_8sdp"
-            android:background="#FFF"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <ImageView
-                android:id="@+id/bt_search"
-                android:layout_weight="1"
-                android:layout_gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_sreach"/>
-            <ImageView
-                android:id="@+id/bt_setting"
-                android:layout_weight="1"
-                android:layout_gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_setting"/>
-        </LinearLayout>
+                android:background="#FFF"
+                android:layout_height="@dimen/_40sdp">
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="8"
+                    android:background="#FFF"
+                    android:layout_gravity="center"
+                    android:layout_height="@dimen/_40sdp"
+                    android:layout_marginTop="@dimen/_8sdp"
+                    android:layout_marginStart="@dimen/_8sdp"
+                    android:layout_marginBottom="@dimen/_8sdp"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:layout_width="@dimen/_32sdp"
+                        android:layout_height="@dimen/_32sdp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_app"
+                        />
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_app_text"
+                        android:layout_gravity="center"
+                        />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_weight="1"
+                    android:background="#FFF"
+                    android:layout_gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:id="@+id/bt_search"
+                        android:layout_weight="1"
+                        android:layout_gravity="center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_sreach"/>
+                    <ImageView
+                        android:id="@+id/bt_setting"
+                        android:layout_weight="1"
+                        android:layout_gravity="center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_setting"/>
+                </LinearLayout>
+            </LinearLayout>
+        </FrameLayout>
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/_8sdp"
-        android:orientation="vertical">
+        android:background="#2DD2D2D2"
+        android:orientation="vertical"
+        android:padding="@dimen/_8sdp">
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab_Layout"
-            android:background="#D2D2D2"
             android:layout_width="match_parent"
-            android:layout_marginRight="@dimen/_120sdp"
-            app:tabSelectedTextColor="#8941FF"
-            app:tabTextColor="#000"
-            android:layout_height="@dimen/_30sdp"
-            app:tabMode="fixed"
-            app:tabTextAppearance="@style/MyCustomTextAppearance"
-            app:tabIndicatorGravity="stretch"
-            app:tabIndicatorAnimationMode="elastic"
+            android:layout_height="@dimen/_26sdp"
+            android:layout_marginRight="@dimen/_144sdp"
+            android:background="#0AD2D2D2"
             app:tabIndicator="@drawable/selector"
-            />
+            app:tabIndicatorAnimationMode="elastic"
+            app:tabIndicatorGravity="stretch"
+            app:tabMode="fixed"
+            app:tabSelectedTextColor="#8941FF"
+            app:tabTextAppearance="@style/MyCustomTextAppearance"
+            app:tabTextColor="#000" />
 
         <androidx.viewpager.widget.ViewPager
             android:id="@+id/view_Pager"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
     </LinearLayout>
-    
+
 
 </LinearLayout>
