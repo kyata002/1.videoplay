@@ -323,6 +323,9 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
                 ck_lock = false;
             }
         });
+        findViewById(R.id.bt_zoom_out).setOnClickListener(view -> {
+            
+        });
         findViewById(R.id.dh_top).setOnClickListener(view -> {
             showDH();
         });

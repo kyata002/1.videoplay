@@ -35,6 +35,7 @@ public class VideoFragment extends BaseFragment  {
     private AllVideoAdapter adapter;
     private Cursor csr;
     EditText ed_Search;
+    RecyclerView rvAudio;
     static boolean isFromFolder;
 
     public PopupWindow popupWindow;
@@ -55,7 +56,8 @@ public class VideoFragment extends BaseFragment  {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+                String textFilter = ed_Search.getText().toString();
+                Filter(textFilter);
             }
 
             @Override
@@ -69,18 +71,17 @@ public class VideoFragment extends BaseFragment  {
     @Override
     protected void initView() {
         ed_Search = requireActivity().findViewById(R.id.de_search);
-        RecyclerView rvAudio = requireActivity().findViewById(R.id.rv_video);
+        rvAudio = requireActivity().findViewById(R.id.rv_video);
         videoList=  getdata();
-        rvAudio.setLayoutManager(new LinearLayoutManager(getContext()));
         setList(videoList);
-        GridLayoutManager linearLayoutManager = new GridLayoutManager(getContext(),2, GridLayoutManager.VERTICAL,false);
-        rvAudio.setLayoutManager(linearLayoutManager);
-        rvAudio.setAdapter(adapter);
-
 
     }
     public void setList(ArrayList<String> videoList){
+        rvAudio.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new AllVideoAdapter(getContext(),videoList);
+        GridLayoutManager linearLayoutManager = new GridLayoutManager(getContext(),2, GridLayoutManager.VERTICAL,false);
+        rvAudio.setLayoutManager(linearLayoutManager);
+        rvAudio.setAdapter(adapter);
     }
     public ArrayList<String> getdata() {
         String[] proj = new String[]{
@@ -103,6 +104,16 @@ public class VideoFragment extends BaseFragment  {
         }
         Collections.sort(videoList);
         return videoList;
+    }
+    public void Filter(String text){
+        ArrayList<String> listNew = new ArrayList<>();
+
+        for(int i=0;i<videoList.size();i++){
+            if(new File(videoList.get(i)).getName().contains(text)){
+                listNew.add(videoList.get(i));
+            }
+        }
+        setList(listNew);
     }
 
 

@@ -1,5 +1,7 @@
 package com.mtg.videoplay.adapter;
 
+import static android.content.Intent.ACTION_SEND;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -20,10 +22,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.mtg.videoplay.BuildConfig;
 import com.mtg.videoplay.R;
 import com.mtg.videoplay.Util.Utils;
 import com.mtg.videoplay.view.activity.HomeActicity;
@@ -32,6 +36,8 @@ import com.mtg.videoplay.view.dialog.DeleteDialog;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -152,7 +158,7 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
                             public void onItemClick(int position, PowerMenuItem item) {
                                 CharSequence title = item.getTitle();
                                 if ("Share".equals(title)) {
-                                    share();
+                                    share(videoList.get(position));
                                     powerMenu.dismiss();
                                 } else if ("Rename".equals(title)) {
                                     dialogRename(videoList.get(position));
@@ -308,7 +314,12 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
         InfoDialog dialog = new InfoDialog(context, path);
         dialog.show();
     }
-    private void share() {
+    private void share(String Path) {
+        final Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("image/jpg");
+        //  final File photoFile = new File((String) videoView.getCurrentUrl());
+        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(Path));
+        context.startActivity(Intent.createChooser(shareIntent, "Share image using"));
     }
     public interface OnItemOptionClick{
         public void onMore(int pos, View view);
@@ -321,11 +332,6 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
         Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         intent.setData(Uri.fromFile(f));
         c.sendBroadcast(intent);
-    }
-
-
-    public void Search(){
-
     }
 
 

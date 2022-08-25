@@ -49,6 +49,7 @@ dependencies {
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'com.github.bumptech.glide:glide:4.7.1'
     implementation "com.github.skydoves:powermenu:2.2.0"
+    implementation 'com.github.TeamNewPipe:NewPipeExtractor:aa4f03a'
 
 
 
