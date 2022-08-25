@@ -13,12 +13,17 @@ import com.mtg.videoplay.OnActionCallback;
 import com.mtg.videoplay.R;
 import com.mtg.videoplay.base.BaseDialog;
 
+import java.io.File;
+
 public class RenameDialog extends BaseDialog {
+    EditText edit_name;
+    String pathName;
     public void setCallback(OnActionCallback callback) {
         this.callback = callback;
     }
-    public RenameDialog(@NonNull Context context) {
+    public RenameDialog(@NonNull Context context,String path) {
         super(context);
+        this.pathName = path;
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         setContentView(R.layout.dialog_rename);
@@ -27,8 +32,8 @@ public class RenameDialog extends BaseDialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EditText edit_name;
         edit_name = findViewById(R.id.edt_name);
+        edit_name.setText( new File(pathName).getName());
         findViewById(R.id.bt_save).setOnClickListener(v -> {
             if (!edit_name.getText().toString().trim().isEmpty()) {
                 callback.callback("rename", edit_name.getText().toString());
@@ -39,6 +44,9 @@ public class RenameDialog extends BaseDialog {
         });
         findViewById(R.id.bt_cancel).setOnClickListener(v -> {
             dismiss();
+        });
+        findViewById(R.id.btn_Clear).setOnClickListener(view -> {
+            edit_name.setText("");
         });
 //        Admod.getInstance().loadNative((Activity) mContext
 //                , findViewById(com.ads.control.R.id.fl_adplaceholder)

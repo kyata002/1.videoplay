@@ -16,7 +16,7 @@ abstract public class BaseDialog extends Dialog {
     protected boolean isClose;
 
     public BaseDialog(@NonNull Context context) {
-        super(context, android.R.style.Theme_Translucent_NoTitleBar_Fullscreen);
+        super(context);
     }
 
     public BaseDialog(@NonNull Context context, int themeResId) {

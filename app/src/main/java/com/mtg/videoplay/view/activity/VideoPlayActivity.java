@@ -3,20 +3,26 @@ package com.mtg.videoplay.view.activity;
 import static android.view.View.GONE;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Application;
+import android.app.PictureInPictureParams;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.media.PlaybackParams;
+import android.net.Uri;
+import android.os.Build;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.provider.Settings;
+import android.util.Rational;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -33,6 +39,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -61,6 +69,7 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
     FrameLayout fr_lock;
     CountDownTimer Timer;
     CountDownTimer Timer2;
+    ActionBar actionBar;
     int stopPosition, position;
 
     public static float speeb = 1;
@@ -70,6 +79,7 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
     public static int keyShow = 0;
 
     private MediaPlayer mediaPlayer;
+    private PictureInPictureParams.Builder picture ;
 
     protected int mGestureDownVolume;
     protected float mGestureDownBrightness;
@@ -221,6 +231,9 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
                 return true;
             }
         });
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            picture = new PictureInPictureParams.Builder();
+        }
 
     }
 
@@ -285,9 +298,6 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
         dh_top.setVisibility(View.VISIBLE);
         dh_bottom.setVisibility(View.VISIBLE);
         fr_lock.setVisibility(View.VISIBLE);
-        if(keyShow>=1){
-            Timer.cancel();
-        }
         Timer = new CountDownTimer(5000, 1000) {
             public void onTick(long millisUntilFinished) {
 
@@ -297,7 +307,10 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
                 hideDH();
             }
         }.start();
-        keyShow++;
+//        if(keyShow!=0){
+//            Timer.cancel();
+//        }
+//        keyShow++;
         ck_Dh = true;
     }
 
@@ -309,6 +322,7 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void addEvent() {
         findViewById(R.id.fr_lock).setOnClickListener(view -> {
@@ -324,13 +338,20 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
             }
         });
         findViewById(R.id.bt_zoom_out).setOnClickListener(view -> {
-            
+            hideDH();
+            pictrueInpictureMode();
         });
         findViewById(R.id.dh_top).setOnClickListener(view -> {
             showDH();
         });
         findViewById(R.id.dh_bottom).setOnClickListener(view -> {
             showDH();
+        });
+        findViewById(R.id.bt_share_play).setOnClickListener(view -> {
+            final Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("image/jpg");
+            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(videoList.get(position)));
+            this.startActivity(Intent.createChooser(shareIntent, "Share image using"));
         });
 
         bt_speed.setOnClickListener(view -> {
@@ -359,8 +380,6 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
                             speeb = 6F;
                             break;
                     }
-//                    onPause();
-//                    onResume();
                     setNewSpeed();
                     return true;
                 }
@@ -373,6 +392,46 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
         changeScreen();
 
     }
+    private void pictrueInpictureMode(){
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
+            Rational aspect = new Rational(viewvideo.getWidth(),viewvideo.getHeight());
+            picture.setAspectRatio(aspect).build();
+            enterPictureInPictureMode(picture.build());
+        }else {
+
+        }
+    }
+
+    @Override
+    protected void onUserLeaveHint() {
+        super.onUserLeaveHint();
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
+            if(!isInPictureInPictureMode()){
+                pictrueInpictureMode();
+            }else {
+
+            }
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @Override
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, @NonNull Configuration newConfig) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
+        if(isInPictureInPictureMode){
+            bt_out.setVisibility(GONE);
+        }else{
+            bt_out.setVisibility(View.VISIBLE);
+        }
+    }
+
+
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+    }
 
     private void dhTop() {
         bt_back.setOnClickListener(view -> {
@@ -380,6 +439,7 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
         });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void dhAdmin() {
         bt_play.setOnClickListener(view -> {
             if (ck_pause) {
@@ -413,13 +473,18 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
         });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onPause() {
         super.onPause();
-        bt_play.setImageResource(R.drawable.ic_play);
-        stopPosition = viewvideo.getCurrentPosition(); //stopPosition is an int
-        viewvideo.pause();
-        ck_pause = true;
+        if (isInPictureInPictureMode()) {
+            onResume();
+        } else {
+            bt_play.setImageResource(R.drawable.ic_play);
+            stopPosition = viewvideo.getCurrentPosition(); //stopPosition is an int
+            viewvideo.pause();
+            ck_pause = true;
+        }
     }
 
     @Override
@@ -443,6 +508,7 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
 
     private void changeScreen() {
         bt_screen.setOnClickListener(view -> {
+            keyShow++;
             int orientation = getResources().getConfiguration().orientation;
             if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);

@@ -53,11 +53,12 @@
                     android:name="android.intent.category.DEFAULT"/>
                 <category
                     android:name="android.intent.category.OPENABLE"/>
-                <data android:mimeType="text/plain"/>
-                <data android:mimeType="image/*"/>
+
             </intent-filter>
         </activity>
-        <activity android:name=".view.activity.VideoPlayActivity" />
+        <activity android:name=".view.activity.VideoPlayActivity"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
+            android:supportsPictureInPicture="true"/>
         <activity android:name=".view.activity.SettingActivity" />
     </application>
 

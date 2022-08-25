@@ -34,7 +34,7 @@
     </FrameLayout>
     <LinearLayout
         android:id="@+id/dh_top"
-        android:background="#2d2d2D"
+        android:background="#8D2D2D2D"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_width="match_parent"
         android:layout_height="@dimen/_40sdp"
@@ -79,7 +79,7 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#2D2D2D"
+        android:background="#8C2D2D2D"
         android:padding="@dimen/_8sdp"
         app:layout_constraintBottom_toBottomOf="parent">
         <LinearLayout

@@ -2,12 +2,14 @@ package com.mtg.videoplay.adapter;
 
 import static android.content.Intent.ACTION_SEND;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.media.MediaMetadataRetriever;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -17,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,7 +30,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.mtg.videoplay.BuildConfig;
 import com.mtg.videoplay.R;
 import com.mtg.videoplay.Util.Utils;
 import com.mtg.videoplay.view.activity.HomeActicity;
@@ -85,7 +87,7 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ListViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ListViewHolder holder, @SuppressLint("RecyclerView") int position) {
         if(videoList == null) return;
         RequestOptions requestOptions = new RequestOptions();
         requestOptions.placeholder(R.drawable.ic_defaut);
@@ -108,7 +110,7 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
         holder.txtSize.setText(getFileSize(length));
 
 
-        SimpleDateFormat dateFile = new SimpleDateFormat("dd.MM.yyyy");
+        SimpleDateFormat dateFile = new SimpleDateFormat("dd/MM/yyyy");
         holder.txtTime.setText(dateFile.format(new Date(f.lastModified())));
 
 
@@ -134,14 +136,14 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
                         .addItem(new PowerMenuItem(context.getString(R.string.delete), R.drawable.ic_delete_more, false)) // add an item.
                         .addItem(new PowerMenuItem(context.getString(R.string.detail), R.drawable.ic_detail_more, false)) // aad an item list.
 //                    .setAnimation(MenuAnimation.SHOWUP_TOP_LEFT) // Animation start point (TOP | LEFT).
-                        .setMenuRadius(36f)
+                        .setMenuRadius(12f)
 //                    .setTextTypeface(ResourcesCompat.getFont(context, R.font.lexend_regular)!!)
-                        .setSize(400, 550  )
-//                    .setPadding(16)// sets the corner radius.
+                        .setPadding(10)// sets the corner radius.
+                        .setSize(LinearLayout.LayoutParams.WRAP_CONTENT, 630 )
                         .setMenuShadow(10f) // sets the shadow.
-                        .setIconSize(32)
+                        .setIconSize(28)
                         .setTextSize(16)
-                        .setIconPadding(2)
+                        .setIconPadding(-10)
                         .setMenuColor(0)
                         .setBackgroundColor(Color.TRANSPARENT)
                         .setOnBackgroundClickListener(view1 -> {
@@ -155,16 +157,16 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
                         .setSelectedMenuColor(ContextCompat.getColor(context, R.color.black))
                         .setOnMenuItemClickListener(new OnMenuItemClickListener<PowerMenuItem>() {
                             @Override
-                            public void onItemClick(int position, PowerMenuItem item) {
+                            public void onItemClick(int posit, PowerMenuItem item) {
                                 CharSequence title = item.getTitle();
                                 if ("Share".equals(title)) {
                                     share(videoList.get(position));
                                     powerMenu.dismiss();
                                 } else if ("Rename".equals(title)) {
-                                    dialogRename(videoList.get(position));
+                                    dialogRename(position);
                                     powerMenu.dismiss();
                                 } else if ("Delete".equals(title)) {
-                                    dialogDelete(videoList.get(position));
+                                    dialogDelete(position);
                                     powerMenu.dismiss();
                                 } else if ("Detail".equals(title)) {
                                     dialogInfo(videoList.get(position));
@@ -190,47 +192,6 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
         return videoList.size();
     }
 
-    public void shareShow() {
-    }
-
-//    @Override
-//    public Filter getFilter() {
-//        return new Filter() {
-//            @Override
-//            protected FilterResults performFiltering(CharSequence charSequence) {
-//
-//                String charString = charSequence.toString();
-//
-//                if (charString.isEmpty()) {
-//
-//                    mFilteredList = videoList;
-//                } else {
-//
-//                    ArrayList<String> filteredList = new ArrayList<>();
-//
-//                    for (String androidVersion : videoList) {
-//
-//                        if (androidVersion.toLowerCase().contains(charString) || androidVersion.toLowerCase().contains(charString) || androidVersion.toLowerCase().contains(charString)) {
-//
-//                            filteredList.add(androidVersion);
-//                        }
-//                    }
-//
-//                    mFilteredList = filteredList;
-//                }
-//
-//                FilterResults filterResults = new FilterResults();
-//                filterResults.values = mFilteredList;
-//                return filterResults;
-//            }
-//
-//            @Override
-//            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-//                mFilteredList = (ArrayList<String>) filterResults.values;
-//                notifyDataSetChanged();
-//            }
-//        };
-//    }
 
 
     public static class ListViewHolder extends RecyclerView.ViewHolder {
@@ -251,16 +212,11 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
         }
     }
 
-    public void dialogDelete(String path){
+    public void dialogDelete(int position){
         DeleteDialog dialog = new DeleteDialog(context);
         dialog.setCallback((key, data) -> {
             if(key.equals("delete")){
-//                if (new File(path).delete()) {
-//                    videoList.remove(path);
-//                    notifyItemRemoved(videoList.indexOf(path));
-//                    dialog.dismiss();
-//                }
-                File file = new File(path);
+                File file = new File(videoList.get(position));
                 file.delete();
                 if (file.exists()) {
                     try {
@@ -271,40 +227,47 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
                     if (file.exists()) {
                         context.deleteFile(file.getName());
                     }
+                    videoList.remove(videoList.get(position));
+                    notifyItemRemoved(videoList.indexOf(videoList.get(position)));
+                }else{
+                    videoList.remove(videoList.get(position));
+                    notifyItemRemoved(videoList.indexOf(videoList.get(position)));
                 }
+                MediaScannerConnection.scanFile(context,
+                        new String[]{file.toString()},
+                        null, null);
+                notifyDataSetChanged();
             }
             if(key.equals("no")){
 
             }
         });
-//        dialog.setOnDismissListener(this);
         dialog.show();
     }
-    public void dialogRename(String path){
-        final  File file = new File(path);
-        RenameDialog dialog = new RenameDialog(context);
+    public void dialogRename(int position){
+        final  File file = new File(videoList.get(position));
+        RenameDialog dialog = new RenameDialog(context,videoList.get(position));
         dialog.setCallback((key, data) -> {
 
             if(key.equals("rename")){
                 String newName = (String) data;
                 String onlyPath = file.getParent();
-//                String ext = file.getAbsolutePath();
-//                ext = ext.substring(ext.lastIndexOf("."));
                 newName = newName+".mp4";
                 String renamepath = onlyPath + "/" + newName;
-                File from = new File(path);
+                File from = new File(videoList.get(position));
                 File to = new File(onlyPath + "/" + newName);
-
-
                 from.renameTo(to);
                 removeMedia(context,from);
                 addMedia(context, to);
-                if (to.exists()) {
-                    Log.d("renamepath", renamepath);
-                } else {
-                    Log.d("renamepath", "not exist");
-                }
-                Toast.makeText(context, "Rename to " + newName, Toast.LENGTH_SHORT).show();
+                videoList.set(position,to.getAbsolutePath());
+
+                MediaScannerConnection.scanFile(context,
+                        new String[]{from.toString()},
+                        null, null);
+                MediaScannerConnection.scanFile(context,
+                        new String[]{to.toString()},
+                        null, null);
+                notifyDataSetChanged();
                 dialog.dismiss();
             }
         });
@@ -317,10 +280,12 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
     private void share(String Path) {
         final Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("image/jpg");
-        //  final File photoFile = new File((String) videoView.getCurrentUrl());
         shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(Path));
         context.startActivity(Intent.createChooser(shareIntent, "Share image using"));
     }
+
+
+
     public interface OnItemOptionClick{
         public void onMore(int pos, View view);
     }

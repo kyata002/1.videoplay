@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#0DD2D2D2"
-    android:padding="@dimen/_4sdp"
     android:layout_height="wrap_content">
     <LinearLayout
         android:id="@+id/rlselect"
         android:layout_width="wrap_content"
-        android:layout_marginStart="@dimen/_4sdp"
+        android:layout_marginBottom="@dimen/_4sdp"
+        android:padding="@dimen/_4sdp"
         android:layout_height="wrap_content"
         android:orientation="vertical">
         <FrameLayout
@@ -17,18 +18,24 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
-                <ImageView
-                    android:id="@+id/imgFile"
-                    android:layout_width="@dimen/_140sdp"
-                    android:layout_height="@dimen/_80sdp"
-                    android:layout_gravity="center"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_video_demo" />
-<!--                <ImageView-->
-<!--                    android:layout_width="@dimen/_140sdp"-->
-<!--                    android:layout_height="@dimen/_80sdp"-->
-<!--                    android:scaleType="fitXY"-->
-<!--                    android:src="@drawable/bg_file"/>-->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="@dimen/_4sdp">
+
+                    <ImageView
+                        android:id="@+id/imgFile"
+                        android:layout_width="@dimen/_136sdp"
+                        android:layout_height="@dimen/_84sdp"
+                        android:layout_gravity="center"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_video_demo" />
+                </androidx.cardview.widget.CardView>
+                <!--                <ImageView-->
+                <!--                    android:layout_width="@dimen/_140sdp"-->
+                <!--                    android:layout_height="@dimen/_80sdp"-->
+                <!--                    android:scaleType="fitXY"-->
+                <!--                    android:src="@drawable/bg_file"/>-->
             </RelativeLayout>
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -59,19 +66,20 @@
 
 
         </FrameLayout>
+
         <TextView
             android:id="@+id/filename"
-            android:layout_width="@dimen/_140sdp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
+            android:fontFamily="@font/roboto_regular"
             android:maxLines="1"
-            android:textSize="17sp"
-            android:textStyle="bold"
-            android:textColor="#000"
-            android:text="hellqewqweqqweqwqweo"/>
+            android:text="hellqewqweqqweqq232"
+            android:textColor="#2C2C2C"
+            android:textSize="@dimen/_12sdp" />
         <LinearLayout
             android:orientation="horizontal"
-            android:layout_width="@dimen/_140sdp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
 
@@ -81,8 +89,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:paddingBottom="@dimen/_2sdp"
-                android:textColor="#000"
-                android:textSize="@dimen/_10sdp"
+                android:textColor="#929292"
+                android:textSize="@dimen/_8sdp"
                 android:text="size"/>
             <TextView
                 android:id="@+id/txtTime"
@@ -92,16 +100,16 @@
                 android:layout_marginRight="@dimen/_4sdp"
                 android:gravity="right"
                 android:layout_gravity="center"
-                android:textColor="#000"
+                android:textColor="#929292"
                 android:maxLines="1"
                 android:paddingBottom="@dimen/_2sdp"
-                android:textSize="@dimen/_10sdp"
+                android:textSize="@dimen/_8sdp"
                 android:text="day"/>
             <ImageView
                 android:id="@+id/bt_more"
                 android:layout_gravity="center"
-                android:layout_width="@dimen/_18sdp"
-                android:layout_height="@dimen/_24sdp"
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_28sdp"
                 android:src="@drawable/ic_more"/>
         </LinearLayout>
     </LinearLayout>

@@ -73,6 +73,7 @@ public class HomeActicity extends BaseActivity implements View.OnTouchListener {
         viewPagerAdapter.addfragemnt(new FolderFragment(),"Folders");
         viewPager.setAdapter(viewPagerAdapter);
         tab.setupWithViewPager(viewPager);
+
     }
 
     @Override
@@ -81,6 +82,7 @@ public class HomeActicity extends BaseActivity implements View.OnTouchListener {
             lc_main.setVisibility(View.GONE);
             lc_search.setVisibility(View.VISIBLE);
             tab.setVisibility(View.GONE);
+            viewPager.setClickable(false);
         });
         bt_setting.setOnClickListener(view -> {
             Intent intent = new Intent(this, SettingActivity.class);
@@ -90,6 +92,7 @@ public class HomeActicity extends BaseActivity implements View.OnTouchListener {
             lc_main.setVisibility(View.VISIBLE);
             lc_search.setVisibility(View.GONE);
             tab.setVisibility(View.VISIBLE);
+            viewPager.setClickable(true);
             ed_Search.setText("");
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(ed_Search.getWindowToken(), 0);
