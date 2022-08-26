@@ -63,7 +63,11 @@ public class InfoDialog extends BaseDialog {
         SimpleDateFormat dateFile = new SimpleDateFormat("dd.MM.yyyy");
         date.setText(dateFile.format(new Date(new File(pathInfo).lastModified())));
 
-        resolution.setText("720x1480");
+        MediaMetadataRetriever metaRetriever = new MediaMetadataRetriever();
+        metaRetriever.setDataSource(pathInfo);
+        String height = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
+        String width = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
+        resolution.setText(height+"x"+width);
 
         findViewById(R.id.bt_ok).setOnClickListener(v -> {
             dismiss();

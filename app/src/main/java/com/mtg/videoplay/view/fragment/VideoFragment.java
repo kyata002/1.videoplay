@@ -15,13 +15,18 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.mtg.videoplay.R;
+import com.mtg.videoplay.Util.FileUtils;
 import com.mtg.videoplay.adapter.AllVideoAdapter;
 import com.mtg.videoplay.base.BaseFragment;
+import com.mtg.videoplay.model.FileVideo;
 import com.mtg.videoplay.view.activity.HomeActicity;
 import com.mtg.videoplay.view.dialog.InfoDialog;
 
@@ -31,16 +36,20 @@ import java.util.Collection;
 import java.util.Collections;
 
 
-public class VideoFragment extends BaseFragment  {
+public class VideoFragment extends BaseFragment {
     private AllVideoAdapter adapter;
+    LinearLayout lr_No_File;
     private Cursor csr;
     EditText ed_Search;
     RecyclerView rvAudio;
+    LinearLayout noVideo;
     static boolean isFromFolder;
 
     public PopupWindow popupWindow;
 
-    ArrayList<String> videoList = new ArrayList<>();
+
+    ArrayList<FileVideo> videoList = new ArrayList<>();
+
     @Override
     protected int getLayoutId() {
         return R.layout.fragment_video;
@@ -70,52 +79,93 @@ public class VideoFragment extends BaseFragment  {
 
     @Override
     protected void initView() {
+        lr_No_File = requireActivity().findViewById(R.id.no_file);
         ed_Search = requireActivity().findViewById(R.id.de_search);
         rvAudio = requireActivity().findViewById(R.id.rv_video);
-        videoList=  getdata();
-        setList(videoList);
+        noVideo = requireActivity().findViewById(R.id.no_video_search);
+//        videoList=  adddate(getdata());
+//        setList(videoList);
 
     }
-    public void setList(ArrayList<String> videoList){
+
+    public void setList(ArrayList<FileVideo> videoList) {
         rvAudio.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new AllVideoAdapter(getContext(),videoList);
-        GridLayoutManager linearLayoutManager = new GridLayoutManager(getContext(),2, GridLayoutManager.VERTICAL,false);
+        rvAudio.setHasFixedSize(true);
+        rvAudio.setItemViewCacheSize(20);
+        adapter = new AllVideoAdapter(getContext(), videoList);
+//        adapter.setHasStableIds(true);
+        GridLayoutManager linearLayoutManager = new GridLayoutManager(getContext(), 2, GridLayoutManager.VERTICAL, false);
         rvAudio.setLayoutManager(linearLayoutManager);
         rvAudio.setAdapter(adapter);
     }
-    public ArrayList<String> getdata() {
+
+    public ArrayList<FileVideo> getdata() {
+        ArrayList<FileVideo> videoListPath = new ArrayList<>();
         String[] proj = new String[]{
-                MediaStore.Video.Media.DATA
+                MediaStore.Video.Media.DATA,MediaStore.Video.Media._ID
         };
         csr = getActivity().getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, proj, null, null, null);
         while (csr.moveToNext()) {
             int ind = csr.getColumnIndex(MediaStore.Video.Media.DATA);
+            int idCol = csr.getColumnIndex(MediaStore.Video.Media._ID);
             String path = csr.getString(ind);
+            int id = csr.getInt(idCol);
             Log.d("pathofpath", path);
-            if (isFromFolder) {
-                if (new File(path).getParent().equals(getActivity().getIntent().getStringExtra("foldername"))) {
-                    if (!videoList.contains(path)) {
-                        videoList.add(path);
-                    }
-                }
-            } else {
-                videoList.add(path);
-            }
-        }
-        Collections.sort(videoList);
-        return videoList;
-    }
-    public void Filter(String text){
-        ArrayList<String> listNew = new ArrayList<>();
+//            if (isFromFolder) {
+//                if (new File(path).getParent().equals(getActivity().getIntent().getStringExtra("foldername"))) {
+//                    if (!videoListPath.contains(path)) {
+//                        videoListPath.add(path);
+//                    }
+//                }
+//            } else {
+//                videoListPath.add(path);
+//            }
+            videoListPath.add(new FileVideo(path,id));
 
-        for(int i=0;i<videoList.size();i++){
-            if(new File(videoList.get(i)).getName().contains(text)){
+        }
+//        Collections.sort(videoListPath);
+        return videoListPath;
+    }
+
+    public ArrayList<FileVideo> adddate(ArrayList<String> videoListPath) {
+        ArrayList<FileVideo> mFile = new ArrayList<>();
+        for (int i = 0; i < videoListPath.size(); i++) {
+            FileVideo file = new FileVideo(videoListPath.get(i), i);
+            mFile.add(file);
+        }
+        return mFile;
+    }
+
+    public void Filter(String text) {
+        ArrayList<FileVideo> listNew = new ArrayList<>();
+
+        for (int i = 0; i < videoList.size(); i++) {
+            if (new File(String.valueOf(videoList.get(i).getPath())).getName().contains(text)) {
                 listNew.add(videoList.get(i));
             }
         }
-        setList(listNew);
+
+        if (listNew.size() != 0) {
+            noVideo.setVisibility(View.GONE);
+            setList(listNew);
+        } else {
+            noVideo.setVisibility(View.VISIBLE);
+            setList(listNew);
+        }
+
     }
 
-
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        videoList.clear();
+        videoList = getdata();
+        if(videoList.size() !=0)
+        {
+            lr_No_File.setVisibility(View.GONE);
+            setList(videoList);
+        }else{
+            lr_No_File.setVisibility(View.VISIBLE);
+        }
+    }
 }

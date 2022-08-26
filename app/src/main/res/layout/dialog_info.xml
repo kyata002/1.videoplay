@@ -28,13 +28,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
+                    android:layout_marginLeft="@dimen/_10sdp"
                     android:layout_marginTop="@dimen/_8sdp"
-                    android:layout_marginLeft="@dimen/_8sdp"
-                    android:layout_marginBottom="10dp">
+                    android:layout_marginBottom="10dp"
+                    android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/txttitle"
@@ -42,9 +43,9 @@
                         android:layout_height="wrap_content"
                         android:text="TextView"
                         android:textColor="#000"
-                        android:textStyle="bold"
-                        android:textSize="@dimen/_20sdp"/>
+                        android:textSize="@dimen/_20sdp" />
                 </LinearLayout>
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -57,8 +58,8 @@
                         android:id="@+id/tstfile"
                         android:layout_width="120dp"
                         android:layout_height="match_parent"
-                        android:text="File"
-                        android:textColor="@color/black"
+                        android:text="File name"
+                        android:textColor="@color/titel_ìno"
                         android:textSize="18dp" />
 
                     <TextView
@@ -85,7 +86,7 @@
                         android:layout_height="wrap_content"
                         android:text="Location"
                         android:textSize="18dp"
-                        android:textColor="@color/black"/>
+                        android:textColor="@color/titel_ìno"/>
 
                     <TextView
                         android:id="@+id/location"
@@ -110,7 +111,7 @@
                         android:layout_height="wrap_content"
                         android:text="Length"
                         android:textSize="18dp"
-                        android:textColor="@color/black"/>
+                        android:textColor="@color/titel_ìno"/>
 
                     <TextView
                         android:id="@+id/length"
@@ -134,7 +135,7 @@
                         android:layout_height="wrap_content"
                         android:text="Size"
                         android:textSize="18dp"
-                        android:textColor="@color/black"/>
+                        android:textColor="@color/titel_ìno"/>
 
                     <TextView
                         android:id="@+id/size"
@@ -158,7 +159,7 @@
                         android:layout_height="wrap_content"
                         android:text="Date"
                         android:textSize="18dp"
-                        android:textColor="@color/black"/>
+                        android:textColor="@color/titel_ìno"/>
 
                     <TextView
                         android:id="@+id/date"
@@ -182,7 +183,7 @@
                         android:layout_height="wrap_content"
                         android:text="Resolution"
                         android:textSize="18dp"
-                        android:textColor="@color/black"/>
+                        android:textColor="@color/titel_ìno"/>
 
                     <TextView
                         android:id="@+id/resolution"

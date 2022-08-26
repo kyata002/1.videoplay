@@ -12,6 +12,8 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
@@ -23,6 +25,7 @@ import android.os.Handler;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.Rational;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -44,10 +47,15 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 
 import com.mtg.videoplay.R;
 import com.mtg.videoplay.base.BaseActivity;
+import com.mtg.videoplay.model.FileVideo;
 import com.mtg.videoplay.view.dialog.DialogChange;
+import com.skydoves.powermenu.OnMenuItemClickListener;
+import com.skydoves.powermenu.PowerMenu;
+import com.skydoves.powermenu.PowerMenuItem;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -63,7 +71,7 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
     VideoView viewvideo;
     SeekBar pg_time;
     LinearLayout dh_bottom, dh_top;
-    ArrayList<String> videoList;
+    ArrayList<FileVideo> videoList;
     Boolean ck_Dh, ck_pause;
     ConstraintLayout videoPlay;
     FrameLayout fr_lock;
@@ -71,15 +79,17 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
     CountDownTimer Timer2;
     ActionBar actionBar;
     int stopPosition, position;
+    String mRotation;
 
     public static float speeb = 1;
     public static String pathVideo;
     public static int pos;
     public static int keyPlay = 0;
-    public static int keyShow = 0;
+    public static int keyShowDH = 0;
 
     private MediaPlayer mediaPlayer;
-    private PictureInPictureParams.Builder picture ;
+    private PictureInPictureParams.Builder picture;
+    private PowerMenu powerMenu;
 
     protected int mGestureDownVolume;
     protected float mGestureDownBrightness;
@@ -122,7 +132,9 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
         videoPlay = findViewById(R.id.videoPlay);
         fr_lock = findViewById(R.id.fr_lock);
         position = getIntent().getIntExtra("file", 1);
-        videoList = getIntent().getStringArrayListExtra("list");
+        videoList = (ArrayList<FileVideo>) getIntent().getSerializableExtra("list");
+
+        mRotation = getIntent().getStringExtra("rotation");
         mScreenWidth = this.getResources().getDisplayMetrics().widthPixels;
         mScreenHeight = this.getResources().getDisplayMetrics().heightPixels;
         mAudioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
@@ -135,8 +147,8 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
                 float x = motionEvent.getX();
                 float y = motionEvent.getY();
                 int id = view.getId();
-                if (ck_lock == false) {
-                    if (id == R.id.videoPlay)
+                if (id == R.id.videoPlay) {
+                    if (ck_lock == false) {
                         switch (motionEvent.getAction()) {
                             case MotionEvent.ACTION_DOWN:
 
@@ -149,9 +161,21 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
                                     Timer.cancel();
                                 } else {
                                     showDH();
+                                    Timer = new CountDownTimer(5000, 1000) {
+                                        public void onTick(long millisUntilFinished) {
+
+                                        }
+
+                                        public void onFinish() {
+                                            hideDH();
+                                        }
+                                    }.start();
                                 }
                                 break;
                             case MotionEvent.ACTION_MOVE:
+                                if(ck_Dh){
+                                    Timer.cancel();
+                                }
                                 float deltaX = x - mDownX;
                                 float deltaY = y - mDownY;
                                 if (mDownX < mScreenWidth * 0.5f) {
@@ -200,15 +224,25 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
                                 mTouchingProgressBar = false;
                                 DialogChange.dismissVolumeDialog();
                                 DialogChange.dismissBrightnessDialog();
+                                if(ck_Dh){
+                                    Timer = new CountDownTimer(5000, 1000) {
+                                        public void onTick(long millisUntilFinished) {
+
+                                        }
+
+                                        public void onFinish() {
+                                            hideDH();
+                                        }
+                                    }.start();
+                                }
                                 break;
                         }
-                } else {
-                    if (id == R.id.videoPlay) {
+                    } else {
                         switch (motionEvent.getAction()) {
                             case MotionEvent.ACTION_DOWN:
-                                if(ck_visible==false){
-                                    bt_lock.setVisibility(View.VISIBLE);
-                                    if(ck_lock==false)Timer2.cancel();
+                                if (ck_visible == false) {
+                                    fr_lock.setVisibility(View.VISIBLE);
+                                    if (ck_lock == false) Timer2.cancel();
                                     Timer2 = new CountDownTimer(5000, 1000) {
                                         public void onTick(long millisUntilFinished) {
 
@@ -218,20 +252,21 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
                                             hideDH();
                                         }
                                     }.start();
-                                    ck_visible=true;
-                                }else{
-                                    bt_lock.setVisibility(GONE);
+                                    ck_visible = true;
+                                } else {
+                                    fr_lock.setVisibility(GONE);
                                     Timer2.cancel();
-                                    ck_visible=false;
+                                    ck_visible = false;
                                 }
                                 break;
                         }
                     }
+
                 }
                 return true;
             }
         });
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             picture = new PictureInPictureParams.Builder();
         }
 
@@ -260,10 +295,10 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
     private void start(int position) {
 
         if (keyPlay == 0) {
-            pathVideo = videoList.get(position);
+            pathVideo = videoList.get(position).getPath();
             pos = position;
-            keyShow=0;
-            keyPlay = 1;
+            keyShowDH = 0;
+
         } else {
             position = pos;
         }
@@ -278,10 +313,22 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
                 setNewSpeed();
             }
         });
+        if(mRotation.equals("0")||mRotation.equals("180")){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }else{
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if(isInPictureInPictureMode()){
+                picture.notify();
+            }else{
+
+            }
+        }
         viewvideo.start();
         videoPlay.isFocusable();
         bt_play.setImageResource(R.drawable.ic_pause);
-        txt_name.setText(new File(videoList.get(position)).getName());
+        txt_name.setText(new File(videoList.get(position).getPath()).getName());
         showDH();
     }
 
@@ -298,19 +345,20 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
         dh_top.setVisibility(View.VISIBLE);
         dh_bottom.setVisibility(View.VISIBLE);
         fr_lock.setVisibility(View.VISIBLE);
-        Timer = new CountDownTimer(5000, 1000) {
-            public void onTick(long millisUntilFinished) {
-
-            }
-
-            public void onFinish() {
-                hideDH();
-            }
-        }.start();
 //        if(keyShow!=0){
 //            Timer.cancel();
 //        }
 //        keyShow++;
+//        Timer = new CountDownTimer(5000, 1000) {
+//            public void onTick(long millisUntilFinished) {
+//                keyPlay = 1;
+//            }
+//
+//            public void onFinish() {
+//                hideDH();
+//                keyPlay = 0;
+//            }
+//        }.start();
         ck_Dh = true;
     }
 
@@ -350,41 +398,74 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
         findViewById(R.id.bt_share_play).setOnClickListener(view -> {
             final Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("image/jpg");
-            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(videoList.get(position)));
+            shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(videoList.get(position).getPath()));
             this.startActivity(Intent.createChooser(shareIntent, "Share image using"));
         });
 
         bt_speed.setOnClickListener(view -> {
-            PopupMenu popupMenu = new PopupMenu(this, bt_speed);
-            popupMenu.getMenuInflater().inflate(R.menu.poppup_speed, popupMenu.getMenu());
-            popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem menuItem) {
-                    switch (menuItem.getItemId()) {
-                        case R.id.sp05:
-                            speeb = 0.5F;
-                            break;
-                        case R.id.sp75:
-                            speeb = 0.75F;
-                            break;
-                        case R.id.sp1:
-                            speeb = 1F;
-                            break;
-                        case R.id.sp15:
-                            speeb = 1.5F;
-                            break;
-                        case R.id.sp175:
-                            speeb = 1.75F;
-                            break;
-                        case R.id.sp2:
-                            speeb = 6F;
-                            break;
-                    }
-                    setNewSpeed();
-                    return true;
-                }
-            });
-            popupMenu.show();
+            if (powerMenu != null && powerMenu.isShowing() == true) {
+
+            } else {
+                powerMenu = new PowerMenu.Builder(this)
+                        //.addItemList(list) // list has "Novel", "Poerty", "Art"
+                        .addItem(new PowerMenuItem("0.5x", false)) // add an item.
+                        .addItem(new PowerMenuItem("0.75x", false))
+                        .addItem(new PowerMenuItem("1x(Normal)", false)) // add an item.
+                        .addItem(new PowerMenuItem("1.25x", false)) // add an item.
+                        .addItem(new PowerMenuItem("1.5x", false)) // aad an item list.
+//                    .setAnimation(MenuAnimation.SHOWUP_TOP_LEFT) // Animation start point (TOP | LEFT).
+                        .setMenuRadius(12f)
+//                    .setTextTypeface(ResourcesCompat.getFont(context, R.font.lexend_regular)!!)
+                        .setPadding(10)// sets the corner radius.
+                        .setSize(380, 680)
+                        .setMenuShadow(10f) // sets the shadow.
+//                        .setIconSize(28)
+                        .setTextSize(16)
+//                        .setIconPadding(2)
+                        .setMenuColor(0)
+                        .setBackgroundColor(Color.TRANSPARENT)
+                        .setOnBackgroundClickListener(view1 -> {
+                            powerMenu.dismiss();
+                        })
+                        //.setTextColor(ContextCompat.getColor(context, Color.parseColor("#3C3C3C")))
+                        .setTextGravity(Gravity.LEFT)
+                        .setTextTypeface(Typeface.create("font/lexend_regular.ttf", Typeface.NORMAL))
+                        .setSelectedTextColor(Color.WHITE)
+                        .setMenuColor(Color.WHITE)
+                        .setSelectedMenuColor(ContextCompat.getColor(this, R.color.black))
+                        .setOnMenuItemClickListener(new OnMenuItemClickListener<PowerMenuItem>() {
+                            @Override
+                            public void onItemClick(int posit, PowerMenuItem item) {
+                                CharSequence title = item.getTitle();
+                                if ("0.5x".equals(title)) {
+                                    speeb = 0.5f;
+                                    setNewSpeed();
+                                    powerMenu.dismiss();
+                                } else if ("0.75x".equals(title)) {
+                                    speeb = 0.75f;
+                                    setNewSpeed();
+                                    powerMenu.dismiss();
+                                } else if ("1x (Normal)".equals(title)) {
+                                    speeb = 1f;
+                                    setNewSpeed();
+                                    powerMenu.dismiss();
+                                } else if ("1.25x".equals(title)) {
+                                    speeb = 1.25f;
+                                    setNewSpeed();
+                                    powerMenu.dismiss();
+                                } else if ("1.5x".equals(title)) {
+                                    speeb = 1.5f;
+                                    setNewSpeed();
+                                    powerMenu.dismiss();
+//                                }else if("2x".equals(title)){
+//                                    speeb=2f;
+//                                    setNewSpeed();
+//                                    powerMenu.dismiss();
+                                }
+                            }
+                        }).build();
+                powerMenu.showAsDropDown(view);
+            }
         });
 
         dhAdmin();
@@ -392,12 +473,13 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
         changeScreen();
 
     }
-    private void pictrueInpictureMode(){
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
-            Rational aspect = new Rational(viewvideo.getWidth(),viewvideo.getHeight());
+
+    private void pictrueInpictureMode() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Rational aspect = new Rational(viewvideo.getWidth(), viewvideo.getHeight());
             picture.setAspectRatio(aspect).build();
             enterPictureInPictureMode(picture.build());
-        }else {
+        } else {
 
         }
     }
@@ -405,10 +487,10 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
     @Override
     protected void onUserLeaveHint() {
         super.onUserLeaveHint();
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
-            if(!isInPictureInPictureMode()){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!isInPictureInPictureMode()) {
                 pictrueInpictureMode();
-            }else {
+            } else {
 
             }
         }
@@ -418,13 +500,12 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
     @Override
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, @NonNull Configuration newConfig) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
-        if(isInPictureInPictureMode){
-            bt_out.setVisibility(GONE);
-        }else{
-            bt_out.setVisibility(View.VISIBLE);
+        if (isInPictureInPictureMode) {
+//            bt_out.setVisibility(GONE);
+        } else {
+//            bt_out.setVisibility(View.VISIBLE);
         }
     }
-
 
 
     @Override
@@ -454,7 +535,7 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
                 position--;
                 speeb = 1F;
                 viewvideo.stopPlayback();
-                pathVideo = videoList.get(position);
+                pathVideo = videoList.get(position).getPath();
                 start(position);
                 pos = position;
             }
@@ -466,7 +547,7 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
                 position++;
                 speeb = 1F;
                 viewvideo.stopPlayback();
-                pathVideo = videoList.get(position);
+                pathVideo = videoList.get(position).getPath();
                 start(position);
                 pos = position;
             }
@@ -508,7 +589,7 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
 
     private void changeScreen() {
         bt_screen.setOnClickListener(view -> {
-            keyShow++;
+//            keyShow++;
             int orientation = getResources().getConfiguration().orientation;
             if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);

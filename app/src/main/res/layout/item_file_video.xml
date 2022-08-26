@@ -2,13 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="#0DD2D2D2"
+    android:background="#00ECE8E8"
     android:layout_height="wrap_content">
     <LinearLayout
+        android:background="#00ECE8E8"
         android:id="@+id/rlselect"
         android:layout_width="wrap_content"
         android:layout_marginBottom="@dimen/_4sdp"
-        android:padding="@dimen/_4sdp"
+        android:paddingStart="@dimen/_12sdp"
+        android:paddingEnd="@dimen/_12sdp"
         android:layout_height="wrap_content"
         android:orientation="vertical">
         <FrameLayout
@@ -22,10 +24,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:cardCornerRadius="@dimen/_4sdp">
-
                     <ImageView
                         android:id="@+id/imgFile"
-                        android:layout_width="@dimen/_136sdp"
+                        android:layout_width="@dimen/_156sdp"
                         android:layout_height="@dimen/_84sdp"
                         android:layout_gravity="center"
                         android:scaleType="centerCrop"
@@ -82,7 +83,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <TextView
-
                 android:id="@+id/txtSize"
                 android:layout_weight="1"
                 android:layout_width="match_parent"

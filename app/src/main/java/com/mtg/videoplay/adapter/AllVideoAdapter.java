@@ -1,16 +1,18 @@
 package com.mtg.videoplay.adapter;
 
-import static android.content.Intent.ACTION_SEND;
+import static com.mtg.videoplay.view.activity.HomeActicity.launcher;
 
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
@@ -23,7 +25,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,7 +36,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.mtg.videoplay.R;
+import com.mtg.videoplay.Util.FileUtils;
 import com.mtg.videoplay.Util.Utils;
+import com.mtg.videoplay.model.FileVideo;
 import com.mtg.videoplay.view.activity.HomeActicity;
 import com.mtg.videoplay.view.activity.VideoPlayActivity;
 import com.mtg.videoplay.view.dialog.DeleteDialog;
@@ -57,78 +64,96 @@ import java.util.concurrent.TimeUnit;
 
 
 public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListViewHolder> {
+//    final ActivityResultLauncher<IntentSenderRequest> launcher ;
 
-    public ArrayList<String> videoList;
+    public ArrayList<FileVideo> videoList;
     public Context context;
     private PowerMenu powerMenu;
+    private static final int TYPE_ITEM = 1;
+    Intent intent;
+    String rotation;
     int ITEM_TYPE = 0;
-    public OnItemOptionClick onItemOptionClick ;
+
+    public OnItemOptionClick onItemOptionClick;
+    private int position;
 
 
-    public AllVideoAdapter(Context context, ArrayList<String> videoList) {
+    public AllVideoAdapter(Context context, ArrayList<FileVideo> videoList) {
         this.videoList = videoList;
         this.context = context;
 
     }
 
-    private static String getFileSize(long size) {
-        if (size <= 0)
+    private static String getFileSize(FileVideo mFile) {
+        File mfile = new File(mFile.getPath());
+        long length = mfile.length();
+        if (length <= 0)
             return "0";
-
         final String[] units = new String[]{"B", "KB", "MB", "GB", "TB"};
-        int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
-        return new DecimalFormat("#,##0.#").format(size / Math.pow(1024, digitGroups)) + " " + units[digitGroups];
+        int digitGroups = (int) (Math.log10(length) / Math.log10(1024));
+        return new DecimalFormat("#,##0.#").format(length / Math.pow(1024, digitGroups)) + " " + units[digitGroups];
+    }
+
+    private String timeFile(FileVideo mFile) {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(mFile.getPath());
+        String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+        retriever.release();
+        long seconds = Long.valueOf(time);
+        String vidLength = String.format("%02d:%02d",
+                TimeUnit.MILLISECONDS.toMinutes(seconds) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(seconds)),
+                TimeUnit.MILLISECONDS.toSeconds(seconds) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(seconds)));
+        return vidLength;
     }
 
     @Override
     public ListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_file_video,parent,false);
-        return  new ListViewHolder(view);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_file_video, parent, false);
+        return new ListViewHolder(view);
     }
+
+
+//    @Override
+//    public long getItemId(int position) {
+////        return super.getItemId(position);
+//        return videoList.get(position).getId();
+//    }
 
     @Override
     public void onBindViewHolder(@NonNull ListViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        if(videoList == null) return;
+        if (videoList == null) return;
         RequestOptions requestOptions = new RequestOptions();
         requestOptions.placeholder(R.drawable.ic_defaut);
-        Glide.with(context).setDefaultRequestOptions(requestOptions).load(videoList.get(position))
+        Glide.with(context).setDefaultRequestOptions(requestOptions).load(videoList.get(position).getPath())
                 .into(holder.imgFile);
 
+        holder.txtDuration.setText(timeFile(videoList.get(position)));
 
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(videoList.get(position));
-        String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-        retriever.release();
-        long seconds = Long.valueOf( time );
-        String vidLength = String.format("%02d:%02d",
-                TimeUnit.MILLISECONDS.toMinutes(seconds) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(seconds)),
-                TimeUnit.MILLISECONDS.toSeconds(seconds) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(seconds)));
-        holder.txtDuration.setText(vidLength);
-
-        File f = new File(videoList.get(position));
-        long length = f.length();
-        holder.txtSize.setText(getFileSize(length));
-
+        holder.txtSize.setText(getFileSize(videoList.get(position)));
 
         SimpleDateFormat dateFile = new SimpleDateFormat("dd/MM/yyyy");
-        holder.txtTime.setText(dateFile.format(new Date(f.lastModified())));
+        holder.txtTime.setText(dateFile.format(new Date(new File(videoList.get(position).getPath()).lastModified())));
+
+        holder.filename.setText(new File(videoList.get(position).getPath()).getName());
 
 
-
-        holder.filename.setText(new File(videoList.get(position)).getName());
-//        }
         holder.itemView.setOnClickListener(view -> {
-            VideoPlayActivity.keyPlay=0;
-            Intent intent = new Intent(context, VideoPlayActivity.class);
-            intent.putExtra("file",position);
-            intent.putExtra("list",videoList);
+            MediaMetadataRetriever m = new MediaMetadataRetriever();
+            m.setDataSource(videoList.get(position).getPath());
+            if (Build.VERSION.SDK_INT >= 17) {
+                rotation = m.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
+            }
+            VideoPlayActivity.keyPlay = 0;
+            intent = new Intent(context, VideoPlayActivity.class);
+            intent.putExtra("file", position);
+            intent.putExtra("list", videoList);
+            intent.putExtra("rotation", rotation);
             context.startActivity(intent);
         });
         holder.bt_more.setOnClickListener(view -> {
+            if (powerMenu != null && powerMenu.isShowing() == true) {
 
-            if(powerMenu!=null&&powerMenu.isShowing()==true){
-
-            }else {
+            } else {
                 powerMenu = new PowerMenu.Builder(context)
                         //.addItemList(list) // list has "Novel", "Poerty", "Art"
                         .addItem(new PowerMenuItem(context.getString(R.string.share), R.drawable.ic_share_more, false)) // add an item.
@@ -138,12 +163,12 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
 //                    .setAnimation(MenuAnimation.SHOWUP_TOP_LEFT) // Animation start point (TOP | LEFT).
                         .setMenuRadius(12f)
 //                    .setTextTypeface(ResourcesCompat.getFont(context, R.font.lexend_regular)!!)
-                        .setPadding(10)// sets the corner radius.
-                        .setSize(LinearLayout.LayoutParams.WRAP_CONTENT, 630 )
+                        .setPadding(28)// sets the corner radius.
+                        .setSize(LinearLayout.LayoutParams.WRAP_CONTENT, 630)
                         .setMenuShadow(10f) // sets the shadow.
                         .setIconSize(28)
-                        .setTextSize(16)
-                        .setIconPadding(-10)
+                        .setTextSize(14)
+                        .setIconPadding(2)
                         .setMenuColor(0)
                         .setBackgroundColor(Color.TRANSPARENT)
                         .setOnBackgroundClickListener(view1 -> {
@@ -160,7 +185,7 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
                             public void onItemClick(int posit, PowerMenuItem item) {
                                 CharSequence title = item.getTitle();
                                 if ("Share".equals(title)) {
-                                    share(videoList.get(position));
+                                    share(videoList.get(position).getPath());
                                     powerMenu.dismiss();
                                 } else if ("Rename".equals(title)) {
                                     dialogRename(position);
@@ -168,8 +193,8 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
                                 } else if ("Delete".equals(title)) {
                                     dialogDelete(position);
                                     powerMenu.dismiss();
-                                } else if ("Detail".equals(title)) {
-                                    dialogInfo(videoList.get(position));
+                                } else if ("Info".equals(title)) {
+                                    dialogInfo(videoList.get(position).getPath());
                                     powerMenu.dismiss();
                                 }
                             }
@@ -193,13 +218,12 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
     }
 
 
-
     public static class ListViewHolder extends RecyclerView.ViewHolder {
         TextView filename;
         TextView txtDuration;
         TextView txtSize;
         TextView txtTime;
-        ImageView imgFile,bt_more;
+        ImageView imgFile, bt_more;
 
         public ListViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -212,71 +236,90 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
         }
     }
 
-    public void dialogDelete(int position){
+    public void dialogDelete(int position) {
         DeleteDialog dialog = new DeleteDialog(context);
+        this.position = position;
+
         dialog.setCallback((key, data) -> {
-            if(key.equals("delete")){
-                File file = new File(videoList.get(position));
-                file.delete();
-                if (file.exists()) {
-                    try {
-                        file.getCanonicalFile().delete();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+            if (key.equals("delete")) {
+                if(Build.VERSION.SDK_INT < Build.VERSION_CODES.R ){
+                    File file = new File(videoList.get(position).getPath());
+                    file.delete();
+                    MediaScannerConnection.scanFile(context,
+                            new String[]{file.toString()},
+                            null, null);
+                    notifyDataSetChanged();
                     if (file.exists()) {
-                        context.deleteFile(file.getName());
+                        try {
+                            file.getCanonicalFile().delete();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        if (file.exists()) {
+                            context.deleteFile(file.getName());
+                        }
+                        videoList.remove(videoList.get(position));
+//                    notifyItemRemoved(videoList.indexOf(videoList.get(position)));
+                    } else {
+                        videoList.remove(videoList.get(position));
+//                    notifyItemRemoved(videoList.indexOf(videoList.get(position)));
                     }
-                    videoList.remove(videoList.get(position));
-                    notifyItemRemoved(videoList.indexOf(videoList.get(position)));
                 }else{
-                    videoList.remove(videoList.get(position));
-                    notifyItemRemoved(videoList.indexOf(videoList.get(position)));
+                    FileUtils.deleteFileAndroid11((AppCompatActivity) context, videoList.get(position), launcher);
                 }
-                MediaScannerConnection.scanFile(context,
-                        new String[]{file.toString()},
-                        null, null);
-                notifyDataSetChanged();
+
+
             }
-            if(key.equals("no")){
+            if (key.equals("no")) {
 
             }
         });
         dialog.show();
     }
-    public void dialogRename(int position){
-        final  File file = new File(videoList.get(position));
-        RenameDialog dialog = new RenameDialog(context,videoList.get(position));
+
+    public void dialogRename(int position) {
+        final File file = new File(videoList.get(position).getPath());
+        RenameDialog dialog = new RenameDialog(context, videoList.get(position).getPath());
         dialog.setCallback((key, data) -> {
 
-            if(key.equals("rename")){
+            if (key.equals("rename")) {
                 String newName = (String) data;
                 String onlyPath = file.getParent();
-                newName = newName+".mp4";
+                newName = newName + ".mp4";
                 String renamepath = onlyPath + "/" + newName;
-                File from = new File(videoList.get(position));
-                File to = new File(onlyPath + "/" + newName);
-                from.renameTo(to);
-                removeMedia(context,from);
-                addMedia(context, to);
-                videoList.set(position,to.getAbsolutePath());
+                File from = new File(videoList.get(position).getPath());
+                File to = new File(onlyPath, newName);
+                try {
+                    to.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (from.exists())
+                if (from.renameTo(to)) {
+                    removeMedia(context, from);
+                    addMedia(context, to);
+//                    videoList.set(position,to.getAbsolutePath().);
 
-                MediaScannerConnection.scanFile(context,
-                        new String[]{from.toString()},
-                        null, null);
-                MediaScannerConnection.scanFile(context,
-                        new String[]{to.toString()},
-                        null, null);
+                    MediaScannerConnection.scanFile(context,
+                            new String[]{from.toString()},
+                            null, null);
+                    MediaScannerConnection.scanFile(context,
+                            new String[]{to.toString()},
+                            null, null);
+                    notifyDataSetChanged();
+                }
                 notifyDataSetChanged();
                 dialog.dismiss();
             }
         });
         dialog.show();
     }
-    public void dialogInfo(String path){
+
+    public void dialogInfo(String path) {
         InfoDialog dialog = new InfoDialog(context, path);
         dialog.show();
     }
+
     private void share(String Path) {
         final Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("image/jpg");
@@ -285,20 +328,20 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
     }
 
 
-
-    public interface OnItemOptionClick{
+    public interface OnItemOptionClick {
         public void onMore(int pos, View view);
     }
+
     private static void removeMedia(Context c, File f) {
         ContentResolver resolver = c.getContentResolver();
         resolver.delete(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, MediaStore.Video.Media.DATA + "=?", new String[]{f.getAbsolutePath()});
     }
+
     public static void addMedia(Context c, File f) {
         Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
         intent.setData(Uri.fromFile(f));
         c.sendBroadcast(intent);
     }
-
 
 
 }

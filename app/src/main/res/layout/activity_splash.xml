@@ -5,12 +5,50 @@
     android:background="#FFF"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <ImageView
-        android:layout_width="@dimen/_54sdp"
-        android:layout_height="@dimen/_54sdp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:src="@drawable/ic_app"/>
+        android:src="@drawable/ic_splash"/>
+
+    <RelativeLayout
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:id="@+id/loading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/_54sdp"
+        android:gravity="bottom|center"
+        >
+
+        <TextView
+            android:id="@+id/tv_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:alpha="0.5"
+            android:gravity="center"
+            android:text="@string/loading"
+            android:textColor="#000"
+            android:textSize="@dimen/_14sdp"
+            android:textStyle="bold" />
+
+        <ProgressBar
+            android:id="@+id/progressBarHorizontal"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_12sdp"
+            android:layout_below="@id/tv_content"
+            android:layout_marginLeft="80dp"
+            android:layout_marginRight="80dp"
+            android:gravity="bottom|center"
+            android:indeterminate="true"
+            android:progress="30"
+            android:theme="@style/progressBarBlue"
+            android:visibility="visible" />
+
+
+    </RelativeLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:background="#2DD2D2D2"
+    android:background="#39ECE8E8"
     android:layout_height="match_parent">
     <LinearLayout
         android:orientation="horizontal"
@@ -57,8 +57,8 @@
                 android:id="@+id/lc_Main"
                 android:layout_width="match_parent"
                 android:layout_gravity="center"
-
-                android:layout_marginHorizontal="@dimen/_8sdp"
+                android:layout_marginLeft="@dimen/_12sdp"
+                android:layout_marginRight="@dimen/_8sdp"
                 android:background="#FFF"
                 android:layout_height="@dimen/_40sdp">
                 <LinearLayout
@@ -77,6 +77,7 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/_4sdp"
                         android:src="@drawable/ic_app_text"
                         android:layout_gravity="center"
                         />
@@ -110,17 +111,18 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#2DD2D2D2"
+        android:background="#00ECE8E8"
         android:orientation="vertical"
-        android:padding="@dimen/_8sdp">
+        >
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab_Layout"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_26sdp"
+            android:layout_marginTop="@dimen/_4sdp"
             android:layout_marginRight="@dimen/_144sdp"
-            android:layout_marginLeft="@dimen/_10sdp"
-            android:background="#0AD2D2D2"
+            android:layout_marginLeft="@dimen/_14sdp"
+            android:background="#00ECE8E8"
             app:tabIndicator="@drawable/selector"
             app:tabIndicatorAnimationMode="elastic"
             app:tabIndicatorGravity="stretch"
@@ -130,7 +132,9 @@
             app:tabTextColor="#000" />
 
         <androidx.viewpager.widget.ViewPager
+            android:background="#00ECE8E8"
             android:id="@+id/view_Pager"
+            android:layout_gravity="center"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </LinearLayout>

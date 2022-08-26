@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.view.View;
+import android.widget.LinearLayout;
 
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -24,6 +26,9 @@ public class FolderFragment extends BaseFragment {
     private FolderAdapter adapter;
     private Cursor csr;
     String[] allvidFile;
+    LinearLayout lr_no_folder;
+    LinearLayoutManager linearLayoutManager;
+    RecyclerView rvFolder;
 
     ArrayList<Folder> folderList = new ArrayList<>();
     ArrayList<String> allfolderpath = new ArrayList<>();
@@ -41,15 +46,16 @@ public class FolderFragment extends BaseFragment {
 
     @Override
     protected void initView() {
-        folderList = getdataFolder();
-        RecyclerView rvFolder = requireActivity().findViewById(R.id.rv_folder);
+        rvFolder = requireActivity().findViewById(R.id.rv_folder);
+        lr_no_folder = requireActivity().findViewById(R.id.no_folder);
+
+    }
+    public void setList(ArrayList<Folder> mlistFolder){
         rvFolder.setLayoutManager(new LinearLayoutManager(getContext()));
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-//        folderList.addAll(homeActicity.getdataFolder());
+        linearLayoutManager= new LinearLayoutManager(getContext());
         adapter = new FolderAdapter(getContext(),folderList);
         rvFolder.setLayoutManager(linearLayoutManager);
         rvFolder.setAdapter(adapter);
-
     }
     public ArrayList<Folder> getdataFolder() {
         allvidFile = getAllVideoPath(getActivity());
@@ -96,5 +102,17 @@ public class FolderFragment extends BaseFragment {
         }
 
         return pathArrList.toArray(new String[pathArrList.size()]);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        folderList = getdataFolder();
+        if(folderList.size() !=0){
+            lr_no_folder.setVisibility(View.GONE);
+            setList(folderList);
+        }else{
+            lr_no_folder.setVisibility(View.VISIBLE);
+        }
     }
 }

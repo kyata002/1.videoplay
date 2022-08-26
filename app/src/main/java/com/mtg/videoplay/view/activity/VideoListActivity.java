@@ -2,7 +2,6 @@ package com.mtg.videoplay.view.activity;
 
 import android.database.Cursor;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -13,17 +12,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.mtg.videoplay.R;
 import com.mtg.videoplay.adapter.AllVideoAdapter;
 import com.mtg.videoplay.base.BaseActivity;
+import com.mtg.videoplay.model.FileVideo;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 
 public class VideoListActivity extends BaseActivity {
     Cursor cursor;
     ImageView bt_back;
     TextView txtNameFolder;
     private AllVideoAdapter adapter;
-    ArrayList<String> mFile;
+    ArrayList<FileVideo> mFile;
     @Override
     protected int getLayoutId() {
         return R.layout.activity_videolist;
@@ -53,8 +52,9 @@ public class VideoListActivity extends BaseActivity {
         });
 
     }
-    public ArrayList<String> getdata() {
-        ArrayList<String> fileFolder = new ArrayList<>();
+    public ArrayList<FileVideo> getdata() {
+        ArrayList<FileVideo> fileFolder = new ArrayList<>();
+        int id =0;
         String folder = getIntent().getStringExtra("folder");
         txtNameFolder.setText(new File(folder).getName());
         String[] proj = new String[]{
@@ -68,7 +68,10 @@ public class VideoListActivity extends BaseActivity {
 //            Log.d("vidpath", path);
             if (isFileExits(path)) {
                 if (folder.equals(new File(path).getParent())) {
-                    fileFolder.add(path);
+
+                    FileVideo mFile = new FileVideo(path, id);
+                    fileFolder.add(mFile);
+                    id++;
                 }
             }
 
@@ -77,7 +80,7 @@ public class VideoListActivity extends BaseActivity {
 //        layoutManager = new LinearLayoutManager(this);
 //        rviewVideoList = (RecyclerView) findViewById(R.id.recycle);
 //        rviewVideoList.setLayoutManager(layoutManager);
-        Collections.sort(fileFolder);
+//        Collections.sort(fileFolder);
 
         return fileFolder;
     }

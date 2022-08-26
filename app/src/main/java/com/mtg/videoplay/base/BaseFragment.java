@@ -34,6 +34,10 @@ abstract public class BaseFragment extends Fragment {
         addEvent();
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
 
     protected abstract int getLayoutId();
 
