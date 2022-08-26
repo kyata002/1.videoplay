@@ -113,6 +113,7 @@ public class FolderFragment extends BaseFragment {
             setList(folderList);
         }else{
             lr_no_folder.setVisibility(View.VISIBLE);
+            setList(folderList);
         }
     }
 }

@@ -111,19 +111,10 @@ public class VideoFragment extends BaseFragment {
             String path = csr.getString(ind);
             int id = csr.getInt(idCol);
             Log.d("pathofpath", path);
-//            if (isFromFolder) {
-//                if (new File(path).getParent().equals(getActivity().getIntent().getStringExtra("foldername"))) {
-//                    if (!videoListPath.contains(path)) {
-//                        videoListPath.add(path);
-//                    }
-//                }
-//            } else {
-//                videoListPath.add(path);
-//            }
+            if(new File(path).exists())
             videoListPath.add(new FileVideo(path,id));
 
         }
-//        Collections.sort(videoListPath);
         return videoListPath;
     }
 
@@ -166,6 +157,7 @@ public class VideoFragment extends BaseFragment {
             setList(videoList);
         }else{
             lr_No_File.setVisibility(View.VISIBLE);
+            setList(videoList);
         }
     }
 }

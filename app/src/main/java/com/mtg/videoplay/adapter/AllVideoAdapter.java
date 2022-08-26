@@ -112,7 +112,6 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
         return new ListViewHolder(view);
     }
 
-
 //    @Override
 //    public long getItemId(int position) {
 ////        return super.getItemId(position);
@@ -121,7 +120,7 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
 
     @Override
     public void onBindViewHolder(@NonNull ListViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        if (videoList == null) return;
+        if (videoList.size() == 0) return;
         RequestOptions requestOptions = new RequestOptions();
         requestOptions.placeholder(R.drawable.ic_defaut);
         Glide.with(context).setDefaultRequestOptions(requestOptions).load(videoList.get(position).getPath())
