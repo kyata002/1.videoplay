@@ -6,7 +6,6 @@ import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.media.MediaMetadataRetriever;
@@ -14,23 +13,17 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.IntentSenderRequest;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -39,23 +32,18 @@ import com.mtg.videoplay.R;
 import com.mtg.videoplay.Util.FileUtils;
 import com.mtg.videoplay.Util.Utils;
 import com.mtg.videoplay.model.FileVideo;
-import com.mtg.videoplay.view.activity.HomeActicity;
 import com.mtg.videoplay.view.activity.VideoPlayActivity;
 import com.mtg.videoplay.view.dialog.DeleteDialog;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import com.mtg.videoplay.OnActionCallback;
 import com.mtg.videoplay.view.dialog.InfoDialog;
 import com.mtg.videoplay.view.dialog.RenameDialog;
-import com.skydoves.powermenu.MenuAnimation;
 import com.skydoves.powermenu.OnMenuItemClickListener;
 import com.skydoves.powermenu.PowerMenu;
 import com.skydoves.powermenu.PowerMenuItem;
@@ -162,7 +150,7 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
 //                    .setAnimation(MenuAnimation.SHOWUP_TOP_LEFT) // Animation start point (TOP | LEFT).
                         .setMenuRadius(12f)
 //                    .setTextTypeface(ResourcesCompat.getFont(context, R.font.lexend_regular)!!)
-                        .setPadding(28)// sets the corner radius.
+                        .setPadding(48)// sets the corner radius.
                         .setSize(LinearLayout.LayoutParams.WRAP_CONTENT, 630)
                         .setMenuShadow(10f) // sets the shadow.
                         .setIconSize(28)
@@ -222,7 +210,8 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
         TextView txtDuration;
         TextView txtSize;
         TextView txtTime;
-        ImageView imgFile, bt_more;
+        ImageView imgFile;
+        View bt_more;
 
         public ListViewHolder(@NonNull View itemView) {
             super(itemView);

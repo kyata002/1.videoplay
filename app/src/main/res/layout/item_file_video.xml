@@ -8,9 +8,10 @@
         android:background="#00ECE8E8"
         android:id="@+id/rlselect"
         android:layout_width="wrap_content"
-        android:layout_marginBottom="@dimen/_4sdp"
-        android:paddingStart="@dimen/_12sdp"
-        android:paddingEnd="@dimen/_12sdp"
+        android:layout_marginBottom="@dimen/_8sdp"
+        android:paddingStart="@dimen/_5sdp"
+        android:paddingRight="@dimen/_5sdp"
+        android:paddingTop="@dimen/_8sdp"
         android:layout_height="wrap_content"
         android:orientation="vertical">
         <FrameLayout
@@ -26,7 +27,7 @@
                     app:cardCornerRadius="@dimen/_4sdp">
                     <ImageView
                         android:id="@+id/imgFile"
-                        android:layout_width="@dimen/_156sdp"
+                        android:layout_width="@dimen/_160sdp"
                         android:layout_height="@dimen/_84sdp"
                         android:layout_gravity="center"
                         android:scaleType="centerCrop"
@@ -105,12 +106,16 @@
                 android:paddingBottom="@dimen/_2sdp"
                 android:textSize="@dimen/_8sdp"
                 android:text="day"/>
-            <ImageView
+            <FrameLayout
                 android:id="@+id/bt_more"
-                android:layout_gravity="center"
-                android:layout_width="@dimen/_20sdp"
-                android:layout_height="@dimen/_28sdp"
-                android:src="@drawable/ic_more"/>
+                android:layout_width="@dimen/_16sdp"
+                android:layout_height="wrap_content">
+                <ImageView
+                    android:layout_gravity="right"
+                    android:layout_width="@dimen/_6sdp"
+                    android:layout_height="@dimen/_14sdp"
+                    android:src="@drawable/ic_more_1"/>
+            </FrameLayout>
         </LinearLayout>
     </LinearLayout>
 

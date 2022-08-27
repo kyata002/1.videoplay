@@ -107,6 +107,7 @@ public class FolderFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+        folderList.clear();
         folderList = getdataFolder();
         if(folderList.size() !=0){
             lr_no_folder.setVisibility(View.GONE);

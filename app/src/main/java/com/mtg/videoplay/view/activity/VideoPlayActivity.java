@@ -5,7 +5,6 @@ import static android.view.View.GONE;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.Application;
 import android.app.PictureInPictureParams;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -15,31 +14,24 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.media.AudioManager;
-import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.media.PlaybackParams;
 import android.net.Uri;
 import android.os.Build;
 import android.os.CountDownTimer;
 import android.os.Handler;
-import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.Rational;
 import android.view.Gravity;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.PopupMenu;
-import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
@@ -60,10 +52,6 @@ import com.skydoves.powermenu.PowerMenuItem;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.LogRecord;
-import java.util.logging.SimpleFormatter;
 
 public class VideoPlayActivity extends BaseActivity implements View.OnTouchListener {
     ImageView bt_play, bt_pre, bt_next, bt_speed, bt_screen, bt_lock, bt_back, bt_share, bt_out;
@@ -113,27 +101,11 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void initView() {
-        bt_play = findViewById(R.id.bt_play);
-        bt_pre = findViewById(R.id.bt_prive_play);
-        bt_next = findViewById(R.id.bt_next_play);
-        bt_lock = findViewById(R.id.bt_lock_play);
-        bt_screen = findViewById(R.id.bt_phone_screen);
-        bt_speed = findViewById(R.id.bt_speed_play);
-        bt_back = findViewById(R.id.bt_back_play);
-        bt_out = findViewById(R.id.bt_zoom_out);
-        bt_share = findViewById(R.id.bt_share_play);
-        txt_maxtime = findViewById(R.id.txt_time_max);
-        txt_pstine = findViewById(R.id.txt_time_position);
-        txt_name = findViewById(R.id.txt_name_play);
-        pg_time = findViewById(R.id.pg_time_load);
-        dh_bottom = findViewById(R.id.dh_bottom);
-        dh_top = findViewById(R.id.dh_top);
-        viewvideo = findViewById(R.id.videoView);
-        videoPlay = findViewById(R.id.videoPlay);
-        fr_lock = findViewById(R.id.fr_lock);
+        mLink();
+
+
         position = getIntent().getIntExtra("file", 1);
         videoList = (ArrayList<FileVideo>) getIntent().getSerializableExtra("list");
-
         mRotation = getIntent().getStringExtra("rotation");
         mScreenWidth = this.getResources().getDisplayMetrics().widthPixels;
         mScreenHeight = this.getResources().getDisplayMetrics().heightPixels;
@@ -158,7 +130,7 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
                                 mChangeBrightness = false;
                                 if (ck_Dh) {
                                     hideDH();
-                                    Timer.cancel();
+//                                    Timer.cancel();
                                 } else {
                                     showDH();
                                     Timer = new CountDownTimer(5000, 1000) {
@@ -173,7 +145,7 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
                                 }
                                 break;
                             case MotionEvent.ACTION_MOVE:
-                                if(ck_Dh){
+                                if (ck_Dh) {
                                     Timer.cancel();
                                 }
                                 float deltaX = x - mDownX;
@@ -224,7 +196,7 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
                                 mTouchingProgressBar = false;
                                 DialogChange.dismissVolumeDialog();
                                 DialogChange.dismissBrightnessDialog();
-                                if(ck_Dh){
+                                if (ck_Dh) {
                                     Timer = new CountDownTimer(5000, 1000) {
                                         public void onTick(long millisUntilFinished) {
 
@@ -272,6 +244,27 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
 
     }
 
+    private  void mLink(){
+        bt_play = findViewById(R.id.bt_play);
+        bt_pre = findViewById(R.id.bt_prive_play);
+        bt_next = findViewById(R.id.bt_next_play);
+        bt_lock = findViewById(R.id.bt_lock_play);
+        bt_screen = findViewById(R.id.bt_phone_screen);
+        bt_speed = findViewById(R.id.bt_speed_play);
+        bt_back = findViewById(R.id.bt_back_play);
+        bt_out = findViewById(R.id.bt_zoom_out);
+        bt_share = findViewById(R.id.bt_share_play);
+        txt_maxtime = findViewById(R.id.txt_time_max);
+        txt_pstine = findViewById(R.id.txt_time_position);
+        txt_name = findViewById(R.id.txt_name_play);
+        pg_time = findViewById(R.id.pg_time_load);
+        dh_bottom = findViewById(R.id.dh_bottom);
+        dh_top = findViewById(R.id.dh_top);
+        viewvideo = findViewById(R.id.videoView);
+        videoPlay = findViewById(R.id.videoPlay);
+        fr_lock = findViewById(R.id.fr_lock);
+    }
+
     private void progessbar() {
         pg_time.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -303,6 +296,12 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
             position = pos;
         }
         viewvideo.setVideoPath(pathVideo);
+        viewvideo.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                pg_time.setProgress(0);
+            }
+        });
         viewvideo.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mediaPlayer) {
@@ -312,16 +311,24 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
                 curentTime();
                 setNewSpeed();
             }
+
         });
-        if(mRotation.equals("0")||mRotation.equals("180")){
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        }else{
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                super.run();
+                if (mRotation.equals("0") || mRotation.equals("180")) {
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                } else {
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                }
+            }
+        };
+        thread.start();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            if(isInPictureInPictureMode()){
+            if (isInPictureInPictureMode()) {
                 picture.notify();
-            }else{
+            } else {
 
             }
         }
@@ -332,6 +339,7 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
         showDH();
     }
 
+    // set speed
     private void setNewSpeed() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             PlaybackParams myPlayBackParams = new PlaybackParams();
@@ -340,6 +348,8 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
         }
     }
 
+
+    // show controller
     private void showDH() {
 
         dh_top.setVisibility(View.VISIBLE);
@@ -349,19 +359,20 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
 //            Timer.cancel();
 //        }
 //        keyShow++;
-//        Timer = new CountDownTimer(5000, 1000) {
-//            public void onTick(long millisUntilFinished) {
-//                keyPlay = 1;
-//            }
-//
-//            public void onFinish() {
-//                hideDH();
-//                keyPlay = 0;
-//            }
-//        }.start();
+        Timer = new CountDownTimer(5000, 1000) {
+            public void onTick(long millisUntilFinished) {
+                keyPlay = 1;
+            }
+
+            public void onFinish() {
+                hideDH();
+                keyPlay = 0;
+            }
+        }.start();
         ck_Dh = true;
     }
 
+    // hide controller
     private void hideDH() {
         dh_top.setVisibility(GONE);
         dh_bottom.setVisibility(GONE);
@@ -402,6 +413,7 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
             this.startActivity(Intent.createChooser(shareIntent, "Share image using"));
         });
 
+        // popup change speed
         bt_speed.setOnClickListener(view -> {
             if (powerMenu != null && powerMenu.isShowing() == true) {
 
@@ -467,59 +479,22 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
                 powerMenu.showAsDropDown(view);
             }
         });
-
         dhAdmin();
         dhTop();
         changeScreen();
 
     }
 
-    private void pictrueInpictureMode() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Rational aspect = new Rational(viewvideo.getWidth(), viewvideo.getHeight());
-            picture.setAspectRatio(aspect).build();
-            enterPictureInPictureMode(picture.build());
-        } else {
-
-        }
-    }
-
-    @Override
-    protected void onUserLeaveHint() {
-        super.onUserLeaveHint();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (!isInPictureInPictureMode()) {
-                pictrueInpictureMode();
-            } else {
-
-            }
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    @Override
-    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, @NonNull Configuration newConfig) {
-        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
-        if (isInPictureInPictureMode) {
-//            bt_out.setVisibility(GONE);
-        } else {
-//            bt_out.setVisibility(View.VISIBLE);
-        }
-    }
 
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-
-    }
-
+    //Controler top
     private void dhTop() {
         bt_back.setOnClickListener(view -> {
             onBackPressed();
         });
     }
 
+    // controls start, continue, rewind video
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void dhAdmin() {
         bt_play.setOnClickListener(view -> {
@@ -554,6 +529,8 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
         });
     }
 
+
+    // pause video
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public void onPause() {
@@ -568,6 +545,7 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
         }
     }
 
+    // resume video
     @Override
     public void onResume() {
         super.onResume();
@@ -577,16 +555,19 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
         viewvideo.start(); //Or use resume() if it doesn't work. I'm not sure
     }
 
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();
     }
 
+    // Video time max
     private String fomartMaxTime(int position) {
         SimpleDateFormat timeMax = new SimpleDateFormat("mm:ss");
         return timeMax.format(position);
     }
 
+    // set up sreen
     private void changeScreen() {
         bt_screen.setOnClickListener(view -> {
 //            keyShow++;
@@ -599,6 +580,7 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
         });
     }
 
+    // Time Running
     private void curentTime() {
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -607,9 +589,9 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
                 SimpleDateFormat timeMax = new SimpleDateFormat("mm:ss");
                 txt_pstine.setText(timeMax.format(viewvideo.getCurrentPosition()));
                 pg_time.setProgress(viewvideo.getCurrentPosition());
-                handler.postDelayed(this, 50);
+                handler.postDelayed(this, 500);
             }
-        }, 100);
+        }, 1000);
     }
 
 
@@ -645,6 +627,44 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
             return getAppCompActivity(context).getWindow();
         } else {
             return scanForActivity(context).getWindow();
+        }
+    }
+    private void pictrueInpictureMode() {
+        hideDH();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Rational aspect = new Rational(viewvideo.getWidth(), viewvideo.getHeight());
+            picture.setAspectRatio(aspect).build();
+            enterPictureInPictureMode(picture.build());
+        } else {
+
+        }
+    }
+
+    @Override
+    protected void onUserLeaveHint() {
+        super.onUserLeaveHint();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!isInPictureInPictureMode()) {
+                pictrueInpictureMode();
+            } else {
+
+            }
+        }
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+    }
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @Override
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, @NonNull Configuration newConfig) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
+        if (isInPictureInPictureMode) {
+//            bt_out.setVisibility(GONE);
+        } else {
+//            bt_out.setVisibility(View.VISIBLE);
         }
     }
 
