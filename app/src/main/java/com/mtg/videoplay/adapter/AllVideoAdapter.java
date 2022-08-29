@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.media.MediaMetadataRetriever;
@@ -13,6 +14,7 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,12 +59,17 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
     public ArrayList<FileVideo> videoList;
     public Context context;
     private PowerMenu powerMenu;
+    private OnClickOptionListener onClickOptionListener;
+
+    public void setOnClickOptionListener(OnClickOptionListener onClickOptionListener) {
+        this.onClickOptionListener = onClickOptionListener;
+    }
+
     private static final int TYPE_ITEM = 1;
     Intent intent;
     String rotation;
     int ITEM_TYPE = 0;
 
-    public OnItemOptionClick onItemOptionClick;
     private int position;
 
 
@@ -175,7 +182,7 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
                                     share(videoList.get(position).getPath());
                                     powerMenu.dismiss();
                                 } else if ("Rename".equals(title)) {
-                                    dialogRename(position);
+                                    onClickOptionListener.onRename(position);
                                     powerMenu.dismiss();
                                 } else if ("Delete".equals(title)) {
                                     dialogDelete(position);
@@ -230,7 +237,7 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
 
         dialog.setCallback((key, data) -> {
             if (key.equals("delete")) {
-                if(Build.VERSION.SDK_INT < Build.VERSION_CODES.R ){
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
                     File file = new File(videoList.get(position).getPath());
                     file.delete();
                     MediaScannerConnection.scanFile(context,
@@ -252,7 +259,7 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
                         videoList.remove(videoList.get(position));
 //                    notifyItemRemoved(videoList.indexOf(videoList.get(position)));
                     }
-                }else{
+                } else {
                     FileUtils.deleteFileAndroid11((AppCompatActivity) context, videoList.get(position), launcher);
                 }
 
@@ -265,44 +272,64 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
         dialog.show();
     }
 
-    public void dialogRename(int position) {
-        final File file = new File(videoList.get(position).getPath());
-        RenameDialog dialog = new RenameDialog(context, videoList.get(position).getPath());
-        dialog.setCallback((key, data) -> {
+    //    public void dialogRename(int position) {
+//        final File file = new File(videoList.get(position).getPath());
+//        RenameDialog dialog = new RenameDialog(context, videoList.get(position).getPath());
+//        dialog.setCallback((key, data) -> {
+//
+//            if (key.equals("rename")) {
+//                String newName = (String) data;
+//                String onlyPath = file.getParent();
+//                newName = newName + ".mp4";
+//                String renamepath = onlyPath + "/" + newName;
+//                File from = new File(videoList.get(position).getPath());
+//                File to = new File(onlyPath, newName);
+//                try {
+//                    to.createNewFile();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                if (from.exists())
+//                if (from.renameTo(to)) {
+//                    removeMedia(context, from);
+//                    addMedia(context, to);
+//                    MediaScannerConnection.scanFile(context,
+//                            new String[]{from.toString()},
+//                            null, null);
+//                    MediaScannerConnection.scanFile(context,
+//                            new String[]{to.toString()},
+//                            null, null);
+//                }
+//                notifyDataSetChanged();
+//                dialog.dismiss();
+//            }
+//        });
+//        dialog.show();
+//    }
+//    public ArrayList<FileVideo> getdata() {
+//        Cursor csr;
+//        ArrayList<FileVideo> videoListPath = new ArrayList<>();
+//        String[] proj = new String[]{
+//                MediaStore.Video.Media.DATA, MediaStore.Video.Media._ID
+//        };
+//        csr = context.getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, proj, null, null, null);
+//        while (csr.moveToNext()) {
+//            int ind = csr.getColumnIndex(MediaStore.Video.Media.DATA);
+//            int idCol = csr.getColumnIndex(MediaStore.Video.Media._ID);
+//            String path = csr.getString(ind);
+//            int id = csr.getInt(idCol);
+//            Log.d("pathofpath", path);
+//            if (new File(path).exists())
+//                videoListPath.add(new FileVideo(path, id));
+//
+//        }
+//        return videoListPath;
+//    }
 
-            if (key.equals("rename")) {
-                String newName = (String) data;
-                String onlyPath = file.getParent();
-                newName = newName + ".mp4";
-                String renamepath = onlyPath + "/" + newName;
-                File from = new File(videoList.get(position).getPath());
-                File to = new File(onlyPath, newName);
-                try {
-                    to.createNewFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                if (from.exists())
-                if (from.renameTo(to)) {
-                    removeMedia(context, from);
-                    addMedia(context, to);
-//                    videoList.set(position,to.getAbsolutePath().);
-
-                    MediaScannerConnection.scanFile(context,
-                            new String[]{from.toString()},
-                            null, null);
-                    MediaScannerConnection.scanFile(context,
-                            new String[]{to.toString()},
-                            null, null);
-                    notifyDataSetChanged();
-                }
-                notifyDataSetChanged();
-                dialog.dismiss();
-            }
-        });
-        dialog.show();
+    public  void update(ArrayList<FileVideo> mList){
+        this.videoList = mList;
+        notifyDataSetChanged();
     }
-
     public void dialogInfo(String path) {
         InfoDialog dialog = new InfoDialog(context, path);
         dialog.show();
@@ -316,20 +343,8 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
     }
 
 
-    public interface OnItemOptionClick {
-        public void onMore(int pos, View view);
+
+    public interface OnClickOptionListener {
+        void onRename(int position);
     }
-
-    private static void removeMedia(Context c, File f) {
-        ContentResolver resolver = c.getContentResolver();
-        resolver.delete(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, MediaStore.Video.Media.DATA + "=?", new String[]{f.getAbsolutePath()});
-    }
-
-    public static void addMedia(Context c, File f) {
-        Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        intent.setData(Uri.fromFile(f));
-        c.sendBroadcast(intent);
-    }
-
-
 }

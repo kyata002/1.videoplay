@@ -68,7 +68,6 @@
             android:src="@drawable/ic_first_screen"/>
         <ImageView
             android:id="@+id/bt_share_play"
-            android:layout_marginRight="@dimen/_16sdp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

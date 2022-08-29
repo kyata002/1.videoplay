@@ -19,12 +19,14 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
+            android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/_16sdp"
             android:layout_marginTop="@dimen/_16sdp"
             android:layout_marginRight="@dimen/_16sdp"
             android:text="Rename"
+            android:textStyle="bold"
             android:textColor="@color/black"
             android:textSize="@dimen/_20sdp"
              />

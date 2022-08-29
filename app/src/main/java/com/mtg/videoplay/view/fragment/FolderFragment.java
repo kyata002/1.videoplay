@@ -58,22 +58,26 @@ public class FolderFragment extends BaseFragment {
         rvFolder.setAdapter(adapter);
     }
     public ArrayList<Folder> getdataFolder() {
-        allvidFile = getAllVideoPath(getActivity());
-
-        for (int i = 0; i < allvidFile.length; i++) {
-            allfolderpath.add(allvidFile[i]);
-        }
+//        allvidFile = getAllVideoPath(getActivity());
+//
+//        for (int i = 0; i < allvidFile.length; i++) {
+//            allfolderpath.add(allvidFile[i]);
+//        }
 
         String[] proj = new String[]{
                 MediaStore.Video.Media.DATA
         };
         csr = getActivity().getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, proj, null, null, null);
+        folderPath.clear();
 
         while (csr.moveToNext()) {
             int ind = csr.getColumnIndex(MediaStore.Video.Media.DATA);
             String path = csr.getString(ind);
             String fpath = new File(path).getParent();
-            allfolderpath.add(fpath);
+//            if (!allfolderpath.contains(fpath)) {
+                allfolderpath.add(fpath);
+//            }
+//            allfolderpath.add(fpath);
             Collections.sort(allfolderpath);
 
             if (!folderPath.contains(fpath)) {
@@ -108,6 +112,7 @@ public class FolderFragment extends BaseFragment {
     public void onResume() {
         super.onResume();
         folderList.clear();
+        allfolderpath.clear();
         folderList = getdataFolder();
         if(folderList.size() !=0){
             lr_no_folder.setVisibility(View.GONE);
