@@ -54,7 +54,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class VideoPlayActivity extends BaseActivity implements View.OnTouchListener {
-    ImageView bt_play, bt_pre, bt_next, bt_speed, bt_screen, bt_lock, bt_back, bt_share, bt_out;
+    ImageView bt_play, bt_pre, bt_next, bt_speed, bt_screen, bt_lock, bt_back, bt_share, bt_out, bt_replay;
     TextView txt_name, txt_pstine, txt_maxtime;
     VideoView viewvideo;
     SeekBar pg_time;
@@ -244,7 +244,7 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
 
     }
 
-    private  void mLink(){
+    private void mLink() {
         bt_play = findViewById(R.id.bt_play);
         bt_pre = findViewById(R.id.bt_prive_play);
         bt_next = findViewById(R.id.bt_next_play);
@@ -263,6 +263,7 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
         viewvideo = findViewById(R.id.videoView);
         videoPlay = findViewById(R.id.videoPlay);
         fr_lock = findViewById(R.id.fr_lock);
+        bt_replay = findViewById(R.id.bt_replay);
     }
 
     private void progessbar() {
@@ -299,7 +300,8 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
         viewvideo.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
-                pg_time.setProgress(0);
+                bt_replay.setVisibility(View.VISIBLE);
+//                pg_time.setProgress(0);
             }
         });
         viewvideo.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
@@ -355,10 +357,6 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
         dh_top.setVisibility(View.VISIBLE);
         dh_bottom.setVisibility(View.VISIBLE);
         fr_lock.setVisibility(View.VISIBLE);
-//        if(keyShow!=0){
-//            Timer.cancel();
-//        }
-//        keyShow++;
         Timer = new CountDownTimer(5000, 1000) {
             public void onTick(long millisUntilFinished) {
                 keyPlay = 1;
@@ -422,7 +420,7 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
                         //.addItemList(list) // list has "Novel", "Poerty", "Art"
                         .addItem(new PowerMenuItem("0.5x", false)) // add an item.
                         .addItem(new PowerMenuItem("0.75x", false))
-                        .addItem(new PowerMenuItem("1x(Normal)", false)) // add an item.
+                        .addItem(new PowerMenuItem("1x (Normal)", false)) // add an item.
                         .addItem(new PowerMenuItem("1.25x", false)) // add an item.
                         .addItem(new PowerMenuItem("1.5x", false)) // aad an item list.
 //                    .setAnimation(MenuAnimation.SHOWUP_TOP_LEFT) // Animation start point (TOP | LEFT).
@@ -479,12 +477,16 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
                 powerMenu.showAsDropDown(view);
             }
         });
+        bt_replay.setOnClickListener(view -> {
+            viewvideo.seekTo(0);
+            viewvideo.start();
+            bt_replay.setVisibility(GONE);
+        });
         dhAdmin();
         dhTop();
         changeScreen();
 
     }
-
 
 
     //Controler top
@@ -629,8 +631,10 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
             return scanForActivity(context).getWindow();
         }
     }
+
     private void pictrueInpictureMode() {
         hideDH();
+        bt_replay.setVisibility(GONE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Rational aspect = new Rational(viewvideo.getWidth(), viewvideo.getHeight());
             picture.setAspectRatio(aspect).build();
@@ -657,6 +661,7 @@ public class VideoPlayActivity extends BaseActivity implements View.OnTouchListe
         super.onNewIntent(intent);
         setIntent(intent);
     }
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, @NonNull Configuration newConfig) {
