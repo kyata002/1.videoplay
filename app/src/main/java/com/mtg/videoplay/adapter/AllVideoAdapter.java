@@ -132,16 +132,16 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
 
 
         holder.itemView.setOnClickListener(view -> {
-            MediaMetadataRetriever m = new MediaMetadataRetriever();
-            m.setDataSource(videoList.get(position).getPath());
-            if (Build.VERSION.SDK_INT >= 17) {
-                rotation = m.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
-            }
+//            MediaMetadataRetriever m = new MediaMetadataRetriever();
+//            m.setDataSource(videoList.get(position).getPath());
+//            if (Build.VERSION.SDK_INT >= 17) {
+//                rotation = m.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
+//            }
             VideoPlayActivity.keyPlay = 0;
             intent = new Intent(context, VideoPlayActivity.class);
             intent.putExtra("file", position);
             intent.putExtra("list", videoList);
-            intent.putExtra("rotation", rotation);
+//            intent.putExtra("rotation", rotation);
             context.startActivity(intent);
         });
         holder.bt_more.setOnClickListener(view -> {
