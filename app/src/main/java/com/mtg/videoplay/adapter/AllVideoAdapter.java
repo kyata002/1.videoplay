@@ -3,18 +3,14 @@ package com.mtg.videoplay.adapter;
 import static com.mtg.videoplay.view.activity.HomeActicity.launcher;
 
 import android.annotation.SuppressLint;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,10 +27,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.mtg.videoplay.R;
-import com.mtg.videoplay.Util.FileUtils;
-import com.mtg.videoplay.Util.Utils;
+import com.mtg.videoplay.utils.FileUtils;
+import com.mtg.videoplay.utils.Utils;
 import com.mtg.videoplay.model.FileVideo;
-import com.mtg.videoplay.view.activity.VideoPlayActivity;
+import com.mtg.videoplay.view.activity.VideoPlayer;
 import com.mtg.videoplay.view.dialog.DeleteDialog;
 
 import java.io.File;
@@ -45,7 +41,6 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import com.mtg.videoplay.view.dialog.InfoDialog;
-import com.mtg.videoplay.view.dialog.RenameDialog;
 import com.skydoves.powermenu.OnMenuItemClickListener;
 import com.skydoves.powermenu.PowerMenu;
 import com.skydoves.powermenu.PowerMenuItem;
@@ -137,8 +132,8 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
 //            if (Build.VERSION.SDK_INT >= 17) {
 //                rotation = m.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
 //            }
-            VideoPlayActivity.keyPlay = 0;
-            intent = new Intent(context, VideoPlayActivity.class);
+            VideoPlayer.Companion.setKeyPlay(0);
+            intent = new Intent(context, VideoPlayer.class);
             intent.putExtra("file", position);
             intent.putExtra("list", videoList);
 //            intent.putExtra("rotation", rotation);
@@ -158,7 +153,7 @@ public class AllVideoAdapter extends RecyclerView.Adapter<AllVideoAdapter.ListVi
                         .setMenuRadius(12f)
 //                    .setTextTypeface(ResourcesCompat.getFont(context, R.font.lexend_regular)!!)
                         .setPadding(48)// sets the corner radius.
-                        .setSize(LinearLayout.LayoutParams.WRAP_CONTENT, 630)
+                        .setSize(LinearLayout.LayoutParams.WRAP_CONTENT, 660)
                         .setMenuShadow(10f) // sets the shadow.
                         .setIconSize(28)
                         .setTextSize(14)

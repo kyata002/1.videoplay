@@ -57,8 +57,8 @@
                 android:id="@+id/lc_Main"
                 android:layout_width="match_parent"
                 android:layout_gravity="center"
-                android:layout_marginLeft="@dimen/_12sdp"
-                android:layout_marginRight="@dimen/_8sdp"
+                android:layout_marginLeft="@dimen/_9sdp"
+                android:layout_marginRight="@dimen/_3sdp"
                 android:background="#FFF"
                 android:layout_height="@dimen/_40sdp">
                 <LinearLayout
@@ -69,15 +69,15 @@
                     android:layout_height="@dimen/_40sdp"
                     android:orientation="horizontal">
                     <ImageView
-                        android:layout_width="@dimen/_32sdp"
-                        android:layout_height="@dimen/_32sdp"
+                        android:layout_width="@dimen/_30sdp"
+                        android:layout_height="@dimen/_30sdp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_app"
                         />
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/_4sdp"
+                        android:layout_marginLeft="@dimen/_8sdp"
                         android:src="@drawable/ic_app_text"
                         android:layout_gravity="center"
                         />
@@ -121,7 +121,7 @@
             android:layout_height="@dimen/_26sdp"
             android:layout_marginTop="@dimen/_8sdp"
             android:layout_marginRight="@dimen/_144sdp"
-            android:layout_marginLeft="@dimen/_14sdp"
+            android:layout_marginLeft="@dimen/_11sdp"
             android:background="#00ECE8E8"
             app:tabIndicator="@drawable/selector"
             app:tabIndicatorAnimationMode="elastic"

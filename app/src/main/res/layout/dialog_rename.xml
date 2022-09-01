@@ -7,7 +7,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
-        android:layout_width="@dimen/_286sdp"
+        android:layout_width="@dimen/_260sdp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="@drawable/bg_dialog"
@@ -42,7 +42,7 @@
 
             <EditText
                 android:id="@+id/edt_name"
-                android:layout_width="@dimen/_250sdp"
+                android:layout_width="@dimen/_222sdp"
                 android:layout_height="@dimen/_35sdp"
                 android:layout_gravity="center"
                 android:paddingEnd="@dimen/_24sdp"

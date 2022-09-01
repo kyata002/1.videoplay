@@ -1,4 +1,4 @@
-package com.mtg.videoplay.Util;
+package com.mtg.videoplay.utils;
 
 import java.util.ArrayList;
 

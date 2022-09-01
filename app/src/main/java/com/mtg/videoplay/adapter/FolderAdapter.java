@@ -5,17 +5,15 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.mtg.videoplay.R;
-import com.mtg.videoplay.Util.Utils;
+import com.mtg.videoplay.utils.Utils;
 import com.mtg.videoplay.model.Folder;
 import com.mtg.videoplay.view.activity.VideoListActivity;
-import com.mtg.videoplay.view.activity.VideoPlayActivity;
 
 import java.io.File;
 import java.util.ArrayList;

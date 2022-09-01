@@ -1,60 +1,41 @@
 package com.mtg.videoplay.view.fragment;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.CountDownTimer;
 import android.os.Environment;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.IntentSenderRequest;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.snackbar.Snackbar;
 import com.mtg.videoplay.R;
-import com.mtg.videoplay.Util.FileUtils;
 import com.mtg.videoplay.adapter.AllVideoAdapter;
 import com.mtg.videoplay.base.BaseFragment;
 import com.mtg.videoplay.model.FileVideo;
-import com.mtg.videoplay.view.activity.HomeActicity;
-import com.mtg.videoplay.view.dialog.InfoDialog;
 import com.mtg.videoplay.view.dialog.RenameDialog;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 
 
 public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnClickOptionListener {
@@ -133,8 +114,8 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
             int idCol = csr.getColumnIndex(MediaStore.Video.Media._ID);
             String path = csr.getString(ind);
             int id = csr.getInt(idCol);
-            Log.d("pathofpath", path);
-            if (new File(path).exists())
+//            Log.d("pathofpath", path);
+            if (new File(path).exists()&&path.endsWith(".mp4"))
                 videoListPath.add(new FileVideo(path, id));
 
         }

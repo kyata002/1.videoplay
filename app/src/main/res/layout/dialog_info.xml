@@ -6,9 +6,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
-        android:layout_width="@dimen/_286sdp"
+        android:layout_width="@dimen/_260sdp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/_16sdp"
+        android:layout_marginHorizontal="@dimen/_24sdp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -51,8 +51,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_margin="3dp"
                     android:paddingLeft="@dimen/_8sdp"
+                    android:layout_marginTop="@dimen/_4sdp"
                     >
 
                     <TextView
@@ -77,7 +77,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_margin="3dp"
+                    android:layout_marginTop="@dimen/_6sdp"
                     android:paddingLeft="@dimen/_8sdp"
                     >
 
@@ -85,7 +85,7 @@
                         android:id="@+id/txtlocation"
                         android:layout_width="120dp"
                         android:layout_height="wrap_content"
-                        android:text="Location"
+                        android:text="Path"
                         android:textSize="18dp"
                         android:textColor="@color/titel_ìno"/>
 
@@ -103,7 +103,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_margin="3dp"
+                    android:layout_marginTop="@dimen/_6sdp"
                     android:paddingLeft="@dimen/_8sdp">
 
                     <TextView
@@ -127,7 +127,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_margin="3dp"
+                    android:layout_marginTop="@dimen/_6sdp"
                     android:paddingLeft="@dimen/_8sdp">
 
                     <TextView
@@ -151,7 +151,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_margin="3dp"
+                    android:layout_marginTop="@dimen/_6sdp"
                     android:paddingLeft="@dimen/_8sdp">
 
                     <TextView
@@ -175,7 +175,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_margin="3dp"
+                    android:layout_marginTop="@dimen/_6sdp"
                     android:paddingLeft="@dimen/_8sdp">
 
                     <TextView
@@ -204,7 +204,7 @@
                     android:textColor="#8941FF"
                     android:layout_gravity="right"
                     android:textStyle="bold"
-                    android:layout_marginRight="@dimen/_32sdp"
+                    android:layout_marginRight="@dimen/_28sdp"
                     android:layout_marginBottom="@dimen/_4sdp"
                     android:padding="@dimen/_8sdp"/>
             </LinearLayout>

@@ -1,6 +1,9 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-android'
+    id 'kotlin-android-extensions'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -14,6 +17,64 @@ android {
         versionName "1.0"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    flavorDimensions "dimen"
+    productFlavors {
+        vDevelop_ {
+            applicationId "com.mtg.videoplay"
+            buildConfigField "boolean", "TEST_AD", "false"
+            buildConfigField "boolean", "PURCHASED", "false"
+            dimension "dimen"
+            versionName "develop"
+
+
+            def addConstantTo = { target, constantName, constantValue ->
+                target.manifestPlaceholders += [(constantName): constantValue]
+                target.buildConfigField "String", "${constantName}", "\"${constantValue}\""
+            }
+            addConstantTo(owner, "APP_ID", "ca-app-pub-3940256099942544~3347511713")
+
+            addConstantTo(owner, "inter_open_app", "ca-app-pub-3270179691816977/8715644873")
+            addConstantTo(owner, "inter_open_file", "ca-app-pub-3270179691816977/7782826835")
+
+            addConstantTo(owner, "native_folder", "ca-app-pub-3270179691816977/2150236529")
+            addConstantTo(owner, "native_detail_folder", "ca-app-pub-3270179691816977/2150236529")
+            addConstantTo(owner, "native_pause", "ca-app-pub-3270179691816977/2150236529")
+            addConstantTo(owner, "native_list_file", "ca-app-pub-3270179691816977/2150236529")
+
+            addConstantTo(owner, "open_app", "ca-app-pub-3270179691816977/6827848130")
+
+            addConstantTo(owner, "banner_main", "ca-app-pub-3270179691816977/9262439782")
+            addConstantTo(owner, "banner_detail_folder", "ca-app-pub-3270179691816977/3722354408")
+
+        }
+
+        vOfficial_ {
+            applicationId "com.mtg.videoplay"
+
+            buildConfigField "boolean", "TEST_AD", "false"
+            buildConfigField "boolean", "PURCHASED", "false"
+            dimension "dimen"
+
+            def addConstantTo = { target, constantName, constantValue ->
+                target.manifestPlaceholders += [(constantName): constantValue]
+                target.buildConfigField "String", "${constantName}", "\"${constantValue}\""
+            }
+            addConstantTo(owner, "APP_ID", "ca-app-pub-3940256099942544~3347511713")
+
+            addConstantTo(owner, "inter_open_app", "ca-app-pub-3270179691816977/8715644873")
+            addConstantTo(owner, "inter_open_file", "ca-app-pub-3270179691816977/7782826835")
+
+            addConstantTo(owner, "native_folder", "ca-app-pub-3270179691816977/2150236529")
+            addConstantTo(owner, "native_detail_folder", "ca-app-pub-3270179691816977/2150236529")
+            addConstantTo(owner, "native_pause", "ca-app-pub-3270179691816977/2150236529")
+            addConstantTo(owner, "native_list_file", "ca-app-pub-3270179691816977/2150236529")
+
+            addConstantTo(owner, "open_app", "ca-app-pub-3270179691816977/6827848130")
+
+            addConstantTo(owner, "banner_main", "ca-app-pub-3270179691816977/9262439782")
+            addConstantTo(owner, "banner_detail_folder", "ca-app-pub-3270179691816977/3722354408")
+        }
     }
 
     buildTypes {
@@ -39,8 +100,9 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.6.0'
     implementation 'androidx.appcompat:appcompat:1.5.0'
     implementation 'com.google.android.material:material:1.6.1'
-//    implementation 'com.google.android.gms:play-services-fido:18.1.0'
+    implementation 'com.google.android.gms:play-services-fido:18.1.0'
     implementation 'androidx.databinding:databinding-runtime:4.2.2'
+    implementation 'com.google.android.gms:play-services-ads-lite:20.6.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'

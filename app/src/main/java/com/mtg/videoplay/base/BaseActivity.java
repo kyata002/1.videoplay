@@ -1,5 +1,6 @@
 package com.mtg.videoplay.base;
 
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.view.View;
 
@@ -7,8 +8,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.ViewDataBinding;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+
 
 public abstract class BaseActivity extends AppCompatActivity{
+
 
 
 

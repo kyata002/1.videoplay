@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <LinearLayout
-        android:layout_width="@dimen/_286sdp"
+        android:layout_width="@dimen/_260sdp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/_16sdp"
         android:background="@drawable/bg_dialog"
@@ -29,11 +29,12 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_8sdp"
             android:text="Due to the new privacy policy of Android 11 and later, file permissions are required to manage media files. Please grant permission."
             android:paddingLeft="@dimen/_8sdp"
             android:textColor="@color/black"
             android:fontFamily="@font/roboto_regular"
-            android:textSize="@dimen/_14sdp"/>
+            android:textSize="@dimen/_12sdp"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -50,7 +51,7 @@
                 android:gravity="center"
                 android:text="DENY"
                 android:textColor="#66000000"
-                android:textSize="@dimen/_14sdp"
+                android:textSize="@dimen/_12sdp"
                 android:textStyle="bold" />
 
             <TextView
@@ -62,7 +63,7 @@
                 android:text="ALLOW"
                 android:textAllCaps="true"
                 android:textColor="#8941FF"
-                android:textSize="@dimen/_14sdp"
+                android:textSize="@dimen/_12sdp"
                 android:textStyle="bold" />
         </LinearLayout>
     </LinearLayout>

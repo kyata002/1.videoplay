@@ -12,7 +12,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.mtg.videoplay.R;
-import com.mtg.videoplay.view.activity.VideoPlayActivity;
 
 public class DialogChange{
     public int currentState = -1;

@@ -1,0 +1,535 @@
+package com.mtg.videoplay.view.activity
+
+import android.app.Activity
+import android.app.PictureInPictureParams
+import android.content.Context
+import android.content.ContextWrapper
+import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
+import android.graphics.Color
+import android.graphics.Point
+import android.graphics.Typeface
+import android.media.AudioManager
+import android.media.MediaPlayer
+import android.media.MediaPlayer.OnPreparedListener
+import android.media.PlaybackParams
+import android.net.Uri
+import android.os.Build
+import android.os.CountDownTimer
+import android.os.Handler
+import android.provider.Settings
+import android.util.Rational
+import android.view.*
+import android.view.View.GONE
+import android.view.View.VISIBLE
+import android.widget.SeekBar
+import android.widget.SeekBar.OnSeekBarChangeListener
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.ContextThemeWrapper
+import androidx.core.content.ContextCompat
+import com.mtg.videoplay.R
+import com.mtg.videoplay.base.BaseActivity
+import com.mtg.videoplay.model.FileVideo
+import com.mtg.videoplay.view.dialog.DialogChange
+import com.skydoves.powermenu.PowerMenu
+import com.skydoves.powermenu.PowerMenuItem
+import kotlinx.android.synthetic.main.activity_play.*
+import java.io.File
+import java.text.SimpleDateFormat
+import kotlin.math.roundToInt
+import kotlin.properties.Delegates
+
+
+class VideoPlayer : BaseActivity() {
+    private var ck_pause: Boolean = false
+    private var videoIndex: Int = 0
+    private var powerMenu: PowerMenu? = null
+    private var ck_lock: Boolean = false
+    private var mChangeBrightness: Boolean = false
+    protected var mGestureDownVolume = 0
+    private val ck_Dh: Boolean = false
+    private var mChangeVolume: Boolean = false
+    private var ck_visible: Boolean = false
+    protected var mScreenWidth = 0
+    protected var mScreenHeight = 0
+    protected var mGestureDownBrightness = 0
+    protected var mTouchingProgressBar = false
+    private var mediaPlayer: MediaPlayer? = null
+    var stopPosition: Int = 0
+    var videpList: ArrayList<FileVideo>? = ArrayList()
+    var mDownX: Float = 0.0f
+    var mDownY: Float = 0.0f
+    var Timer2: CountDownTimer? = null
+    var Timer: CountDownTimer? = null
+    var mAudioManager: AudioManager? = null
+    override fun getLayoutId(): Int {
+        return R.layout.activity_play
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun initView() {
+        mScreenWidth = this.resources.displayMetrics.widthPixels
+        mScreenHeight = this.resources.displayMetrics.heightPixels
+        mAudioManager = this.getSystemService(AUDIO_SERVICE) as AudioManager
+        prepareSource(intent)
+        registerListeners()
+        progessbar()
+        videoPlay.setOnTouchListener(object : View.OnTouchListener {
+            override fun onTouch(view: View, motionEvent: MotionEvent): Boolean {
+                val x = motionEvent.x
+                val y = motionEvent.y
+                val id: Int = view.id
+                if (id == R.id.videoPlay) {
+                    if (ck_lock === false) {
+                        when (motionEvent.action) {
+                            MotionEvent.ACTION_DOWN -> {
+                                mDownX = x
+                                mDownY = y
+                                mChangeVolume = false
+                                mChangeBrightness = false
+                                if (ck_Dh) {
+                                    hideDH()
+                                    //                                    Timer.cancel();
+                                } else {
+                                    showDH()
+                                    Timer = object : CountDownTimer(5000, 1000) {
+                                        override fun onTick(millisUntilFinished: Long) {}
+                                        override fun onFinish() {
+                                            hideDH()
+                                        }
+                                    }.start()
+                                }
+                            }
+                            MotionEvent.ACTION_MOVE -> {
+                                if (ck_Dh) {
+                                    Timer?.cancel()
+                                }
+                                val deltaX: Float = x - mDownX
+                                var deltaY: Float = y - mDownY
+                                if (mDownX < mScreenWidth * 0.5f) {
+                                    mChangeBrightness = true
+                                    val lp = getWindow(this@VideoPlayer)?.attributes
+                                    if (lp?.screenBrightness!! < 0) {
+                                        try {
+                                            mGestureDownBrightness = Settings.System.getInt(
+                                                this@VideoPlayer.contentResolver,
+                                                Settings.System.SCREEN_BRIGHTNESS
+                                            )
+                                        } catch (e: Settings.SettingNotFoundException) {
+                                            e.printStackTrace()
+                                        }
+                                    } else {
+                                        mGestureDownBrightness = (lp.screenBrightness * 255).toInt()
+                                    }
+                                } else {
+                                    mChangeVolume = true
+                                    mGestureDownVolume =
+                                        mAudioManager!!.getStreamVolume(AudioManager.STREAM_MUSIC)
+                                }
+                                if (mChangeVolume) {
+                                    deltaY = -deltaY
+                                    val max: Int =
+                                        mAudioManager!!.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+                                    val deltaV = (max * deltaY * 3 / mScreenHeight)
+                                    mAudioManager!!.setStreamVolume(
+                                        AudioManager.STREAM_MUSIC,
+                                        (mGestureDownVolume + deltaV).roundToInt(),
+                                        0
+                                    )
+                                    //dialog
+                                    DialogChange.showVolumeDialog(
+                                        -deltaY,
+                                        ((mGestureDownVolume * 100 / max + deltaY * 3 * 100 / mScreenHeight).toInt()),
+                                        this@VideoPlayer
+                                    )
+                                }
+                                if (mChangeBrightness) {
+                                    deltaY = -deltaY
+                                    val deltaV = (255 * deltaY * 3 / mScreenHeight)
+                                    val params = getWindow(this@VideoPlayer)?.attributes
+                                    if ((mGestureDownBrightness + deltaV) / 255 >= 1) {
+                                        params?.screenBrightness = 1f
+                                    } else if ((mGestureDownBrightness + deltaV) / 255 <= 0) {
+                                        params?.screenBrightness = 0.01f
+                                    } else {
+                                        params?.screenBrightness =
+                                            ((mGestureDownBrightness + deltaV) / 255).toFloat()
+                                    }
+                                    getWindow(this@VideoPlayer)?.attributes = params
+                                    //dialog
+                                    DialogChange.showBrightnessDialog(
+                                        ((mGestureDownBrightness * 100 / 255 + deltaY * 3 * 100 / mScreenHeight).toInt()),
+                                        this@VideoPlayer
+                                    )
+                                }
+                            }
+                            MotionEvent.ACTION_UP -> {
+                                mTouchingProgressBar = false
+                                DialogChange.dismissVolumeDialog()
+                                DialogChange.dismissBrightnessDialog()
+                                if (ck_Dh) {
+                                    Timer = object : CountDownTimer(5000, 1000) {
+                                        override fun onTick(millisUntilFinished: Long) {}
+                                        override fun onFinish() {
+                                            hideDH()
+                                        }
+                                    }.start()
+                                }
+                            }
+                        }
+                    } else {
+                        when (motionEvent.action) {
+                            MotionEvent.ACTION_DOWN -> if (ck_visible === false) {
+                                fr_lock.visibility = View.VISIBLE
+                                if (ck_lock === false) Timer2?.cancel()
+                                Timer2 = object : CountDownTimer(5000, 1000) {
+                                    override fun onTick(millisUntilFinished: Long) {}
+                                    override fun onFinish() {
+                                        hideDH()
+                                    }
+                                }.start()
+                                ck_visible = true
+                            } else {
+                                fr_lock.visibility = GONE
+                                Timer2?.cancel()
+                                ck_visible = false
+                            }
+                        }
+                    }
+                }
+                return true
+            }
+        })
+    }
+
+    private fun showDH() {
+        fr_lock.visibility = VISIBLE
+        dh_bottom.visibility = VISIBLE
+        dh_top.visibility = VISIBLE
+    }
+
+    private fun hideDH() {
+        fr_lock.visibility = GONE
+        dh_top.visibility = GONE
+        dh_bottom.visibility = GONE
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    override fun addEvent() {
+        var file: File
+        file = File(videpList?.get(videoIndex)?.path)
+        txt_name_play.setText(file.name)
+        fr_lock.setOnClickListener {
+            if (ck_lock == false) {
+                ck_lock = true
+                bt_lock_play.setImageResource(R.drawable.ic_lock)
+                ck_visible = false
+                hideDH()
+            } else {
+                showDH()
+                bt_lock_play.setImageResource(R.drawable.ic_unlock)
+                ck_lock = false
+            }
+        }
+        bt_replay.setOnClickListener {
+            videoView.seekTo(0)
+            videoView.start()
+            bt_replay.visibility = GONE
+        }
+        bt_back_play.setOnClickListener {
+            onBackPressed()
+        }
+        bt_share_play.setOnClickListener {
+            val shareIntent = Intent(Intent.ACTION_SEND)
+            shareIntent.type = "image/jpg"
+            shareIntent.putExtra(
+                Intent.EXTRA_STREAM,
+                Uri.parse(videpList?.get(videoIndex)?.getPath())
+            )
+            this.startActivity(Intent.createChooser(shareIntent, "Share image using"))
+        }
+
+        // popup change speed
+        bt_speed_play.setOnClickListener {
+            if (powerMenu != null && powerMenu!!.isShowing == true) {
+                return@setOnClickListener
+            } else {
+                powerMenu =
+                    PowerMenu.Builder(this) //.addItemList(list) // list has "Novel", "Poerty", "Art"
+                        .addItem(PowerMenuItem("0.5x", false)) // add an item.
+                        .addItem(PowerMenuItem("0.75x", false))
+                        .addItem(PowerMenuItem("1x (Normal)", false)) // add an item.
+                        .addItem(PowerMenuItem("1.25x", false)) // add an item.
+                        .addItem(PowerMenuItem("1.5x", false)) // aad an item list.
+                        //                    .setAnimation(MenuAnimation.SHOWUP_TOP_LEFT) // Animation start point (TOP | LEFT).
+                        .setMenuRadius(12f) //                    .setTextTypeface(ResourcesCompat.getFont(context, R.font.lexend_regular)!!)
+                        .setPadding(10) // sets the corner radius.
+                        .setSize(400, 760)
+                        .setMenuShadow(10f) // sets the shadow.
+                        //                        .setIconSize(28)
+                        .setTextSize(16) //                        .setIconPadding(2)
+                        .setMenuColor(0)
+                        .setBackgroundColor(Color.TRANSPARENT)
+                        .setOnBackgroundClickListener { view1: View? -> powerMenu?.dismiss() } //.setTextColor(ContextCompat.getColor(context, Color.parseColor("#3C3C3C")))
+                        .setTextGravity(Gravity.LEFT)
+                        .setTextTypeface(
+                            Typeface.create(
+                                "font/lexend_regular.ttf",
+                                Typeface.NORMAL
+                            )
+                        )
+                        .setSelectedTextColor(ContextCompat.getColor(this, R.color.white))
+                        .setMenuColor(ContextCompat.getColor(this, R.color.white))
+                        .setSelectedMenuColor(ContextCompat.getColor(this, R.color.black))
+                        .setOnMenuItemClickListener { posit, item ->
+                            val title = item.title
+                            if ("0.5x" == title) {
+                                speed = 0.5f
+                                setNewSpeed()
+                                powerMenu?.dismiss()
+                            } else if ("0.75x" == title) {
+                                speed = 0.75f
+                                setNewSpeed()
+                                powerMenu?.dismiss()
+                            } else if ("1x (Normal)" == title) {
+                                speed = 1f
+                                setNewSpeed()
+                                powerMenu?.dismiss()
+                            } else if ("1.25x" == title) {
+                                speed = 1.25f
+                                setNewSpeed()
+                                powerMenu?.dismiss()
+                            } else if ("1.5x" == title) {
+                                speed = 6f
+                                setNewSpeed()
+                                powerMenu?.dismiss()
+                            }
+                        }.build()
+                powerMenu?.showAsDropDown(it);
+            }
+        }
+        bt_play.setOnClickListener { view: View? ->
+            if (ck_pause) {
+                onResume()
+            } else {
+                onPause()
+            }
+        }
+        bt_prive_play.setOnClickListener { view: View? ->
+            if (videoIndex > 0 && videoIndex < videpList?.size!!) {
+                if (keyPlay == 1) videoIndex = pos
+                videoIndex--
+                speed = 1f
+                videoView.stopPlayback()
+                pathVideo = videpList!!.get(videoIndex).getPath()
+                videoView.apply {
+                    setVideoPath(videoIndex?.let { videpList!!.get(it).path })
+                    start()
+                }
+                pos = videoIndex
+            }
+        }
+        bt_next_play.setOnClickListener { view: View? ->
+            if (videoIndex < videpList?.size!! - 1) {
+                if (keyPlay == 1) videoIndex = pos
+                videoIndex++
+                speed = 1f
+                videoView.stopPlayback()
+                pathVideo = videpList!!.get(videoIndex).getPath()
+                videoView.apply {
+                    setVideoPath(videoIndex?.let { videpList!!.get(it).path })
+                    start()
+                }
+                pos = videoIndex
+            }
+        }
+        bt_play.setOnClickListener {
+            if (ck_pause) {
+                onResume()
+            } else {
+                onPause()
+            }
+        }
+        bt_phone_screen.setOnClickListener { view: View? ->
+//            keyShow++;
+            val orientation = resources.configuration.orientation
+            requestedOrientation = if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            } else {
+                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun registerListeners() {
+        bt_zoom_out.setOnClickListener {
+            enterPipMode()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun enterPipMode() {
+        val d: Display = windowManager.defaultDisplay
+        val p = Point()
+        d.getSize(p)
+        val width: Int = p.x
+        val height: Int = p.y
+        val ratio = Rational(width, height)
+        val pipBuilder = PictureInPictureParams.Builder()
+        pipBuilder.setAspectRatio(ratio)
+        hideUnnecessaryViews()
+        this.enterPictureInPictureMode(pipBuilder.build())
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun prepareSource(intent: Intent?) {
+        videoIndex = intent?.getIntExtra("file", -1)!!
+        videpList = intent?.getSerializableExtra("list") as ArrayList<FileVideo>
+        speed=1f
+        videoView.apply {
+            setVideoPath(videoIndex?.let { videpList!!.get(it).path })
+            start()
+        }
+        videoView.setOnCompletionListener {
+            when (isInPictureInPictureMode) {
+                true -> hideUnnecessaryViews()
+                false -> bt_replay.visibility = VISIBLE
+            }
+        }
+        videoView.setOnPreparedListener(OnPreparedListener { mediaPlayer ->
+            this@VideoPlayer.mediaPlayer = mediaPlayer
+            txt_time_max.setText(fomartMaxTime(mediaPlayer.duration))
+            pg_time_load.setMax(mediaPlayer.duration)
+            curentTime()
+            setNewSpeed()
+            bt_replay.visibility = GONE
+        })
+    }
+
+    private fun progessbar() {
+        pg_time_load.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {}
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                videoView.seekTo(pg_time_load.getProgress())
+                videoView.start()
+            }
+        })
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        videoView.apply {
+            stopPlayback()
+            releaseInstance()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                prepareSource(intent)
+            }
+        }
+    }
+
+    private fun setNewSpeed() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val myPlayBackParams = PlaybackParams()
+                myPlayBackParams.speed = speed //you can set speed here
+                this.mediaPlayer?.setPlaybackParams(myPlayBackParams)
+        }
+    }
+
+    private fun fomartMaxTime(position: Int): String? {
+        val timeMax = SimpleDateFormat("mm:ss")
+        return timeMax.format(position)
+    }
+
+    private fun curentTime() {
+        val handler = Handler()
+        handler.postDelayed(object : Runnable {
+            override fun run() {
+                val timeMax = SimpleDateFormat("mm:ss")
+                txt_time_position.text = timeMax.format(videoView.currentPosition)
+                pg_time_load.progress = videoView.currentPosition
+                handler.postDelayed(this, 50)
+            }
+        }, 100)
+    }
+
+    private fun hideUnnecessaryViews() {
+        hideDH()
+    }
+
+    private fun showViews() {
+        showDH()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: Configuration
+    ) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        when (isInPictureInPictureMode) {
+            true -> hideUnnecessaryViews()
+            false -> showViews()
+        }
+    }
+
+    fun getWindow(context: Context?): Window? {
+        return if (getAppCompActivity(context) != null) {
+            getAppCompActivity(context)?.window
+        } else {
+            scanForActivity(context)?.window
+        }
+    }
+    fun getAppCompActivity(context: Context?): AppCompatActivity? {
+        if (context == null) return null
+        if (context is AppCompatActivity) {
+            return context
+        } else if (context is ContextThemeWrapper) {
+            return getAppCompActivity(context.baseContext)
+        }
+        return null
+    }
+    fun scanForActivity(context: Context?): Activity? {
+        if (context == null) return null
+        if (context is Activity) {
+            return context
+        } else if (context is ContextWrapper) {
+            return scanForActivity(context.baseContext)
+        }
+        return null
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    override fun onPause() {
+        super.onPause()
+        if (isInPictureInPictureMode()) {
+            onResume();
+        } else {
+            bt_play.setImageResource(R.drawable.ic_play);
+            stopPosition = videoView.getCurrentPosition(); //stopPosition is an int
+            videoView.pause();
+            ck_pause = true;
+        }
+
+    }
+
+    // resume video
+    override fun onResume() {
+        super.onResume()
+        bt_play.setImageResource(R.drawable.ic_pause)
+        ck_pause = false
+        videoView.seekTo(stopPosition)
+        videoView.start() //Or use resume() if it doesn't work. I'm not sure
+    }
+    companion object{
+//        @kotlin.jvm.JvmField
+//        var keyPlay: Int
+        var keyPlay =0
+        var speed=1f
+        var pos by Delegates.notNull<Int>()
+        lateinit var pathVideo:String
+    }
+}
