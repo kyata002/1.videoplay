@@ -27,7 +27,7 @@ public class CommonUtils {
     private static final String TAG = CommonUtils.class.getName();
     public static final String KEY_LOAD_ANIM_END = "KEY_LOAD_ANIM";
     public static final String EMAIL = "verifiedapps.help@gmail.com";
-    public static final String SUBJECT = "Feedback for App Excel Reader";
+    public static final String SUBJECT = "Feedback for App Video Player";
     private static final String PUBLISH_NAME = "";
 
     public static boolean isShowNewInter = false;

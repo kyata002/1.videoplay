@@ -1,7 +1,20 @@
 package com.mtg.videoplay.view.activity;
 
+import static com.mtg.videoplay.view.dialog.DialogChange.context;
+
+import android.app.Dialog;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
+import android.os.CountDownTimer;
+import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
+import android.view.View;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -9,39 +22,56 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.common.control.manager.AdmobManager;
+import com.mtg.videoplay.BuildConfig;
 import com.mtg.videoplay.R;
 import com.mtg.videoplay.adapter.AllVideoAdapter;
+import com.mtg.videoplay.adapter.FileFolderAdapter;
 import com.mtg.videoplay.base.BaseActivity;
 import com.mtg.videoplay.model.FileVideo;
+import com.mtg.videoplay.view.dialog.RenameDialog;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
-public class VideoListActivity extends BaseActivity {
+public class VideoListActivity extends BaseActivity implements FileFolderAdapter.OnClickOption1Listener {
     Cursor cursor;
     ImageView bt_back;
     TextView txtNameFolder;
-    private AllVideoAdapter adapter;
+    private FileFolderAdapter adapter;
     ArrayList<FileVideo> mFile;
+    int Load_Ads =0;
+
     @Override
     protected int getLayoutId() {
         return R.layout.activity_videolist;
     }
 
 
-
     @Override
     protected void initView() {
+        AdmobManager.getInstance().loadBanner(this, BuildConfig.banner_detail_folder);
         bt_back = findViewById(R.id.bt_back);
         txtNameFolder = findViewById(R.id.folderName);
-        mFile=getdata();
+        mFile = getdata();
         RecyclerView rv_videol = findViewById(R.id.rv_videol);
         rv_videol.setLayoutManager(new LinearLayoutManager(this));
-        GridLayoutManager linearLayoutManager = new GridLayoutManager(this,2, GridLayoutManager.VERTICAL,false);
-//        videoList.addAll(homeActicity.getdata());
-        adapter = new AllVideoAdapter(this,mFile);
-        rv_videol.setLayoutManager(linearLayoutManager);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false);
+        adapter = new FileFolderAdapter(this, mFile);
+        adapter.setOnClickOption1Listener(this);
+        rv_videol.setLayoutManager(gridLayoutManager);
         rv_videol.setAdapter(adapter);
+        gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                if(adapter.getItemViewType(position) == 1 ){
+                    return 2;
+                }else if(adapter.getItemViewType(position) == 0){
+                    return 1;
+                }else return -1;
+            }
+        });
 
     }
 
@@ -52,26 +82,32 @@ public class VideoListActivity extends BaseActivity {
         });
 
     }
+
     public ArrayList<FileVideo> getdata() {
         ArrayList<FileVideo> fileFolder = new ArrayList<>();
-        int id =0;
         String folder = getIntent().getStringExtra("folder");
         txtNameFolder.setText(new File(folder).getName());
         String[] proj = new String[]{
-                MediaStore.Video.Media.DATA
+                MediaStore.Video.Media.DATA, MediaStore.Video.Media._ID
         };
         cursor = this.getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, proj, null, null, null);
 
         while (cursor.moveToNext()) {
             int ind = cursor.getColumnIndex(MediaStore.Video.Media.DATA);
+            int idCol = cursor.getColumnIndex(MediaStore.Video.Media._ID);
             String path = cursor.getString(ind);
+            int id = cursor.getInt(idCol);
 //            Log.d("vidpath", path);
             if (isFileExits(path)) {
                 if (folder.equals(new File(path).getParent())) {
-
+                    Load_Ads++;
                     FileVideo mFile = new FileVideo(path, id);
-                    fileFolder.add(mFile);
-                    id++;
+                    if(Load_Ads%6==0){
+                        fileFolder.add(mFile);
+                        fileFolder.add(null);
+                    }else{
+                        fileFolder.add(mFile);
+                    }
                 }
             }
 
@@ -82,8 +118,10 @@ public class VideoListActivity extends BaseActivity {
 //        rviewVideoList.setLayoutManager(layoutManager);
 //        Collections.sort(fileFolder);
 
+        Load_Ads=0;
         return fileFolder;
     }
+
     private boolean isFileExits(String filePath) {
         File file = new File(filePath);
         if (file.exists()) {
@@ -96,5 +134,131 @@ public class VideoListActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+    }
+
+    @Override
+    public void onRenameFolder(int position) {
+//        showDialog(requireActivity(),videoList.get(position).getPath());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (Environment.isExternalStorageManager()) {
+                final File file = new File(mFile.get(position).getPath());
+                RenameDialog dialog = new RenameDialog(this, mFile.get(position).getPath());
+                dialog.setCallback((key, data) -> {
+                    String newName = (String) data;
+                    if (key.equals("rename")) {
+
+                        String onlyPath = file.getParent();
+                        newName = newName + ".mp4";
+//                String renamepath = onlyPath + "/" + newName;
+                        File from = new File(mFile.get(position).getPath());
+                        File to = new File(onlyPath, newName);
+                        try {
+                            to.createNewFile();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        if (from.exists()) {
+                            from.renameTo(to);
+                            removeMedia(this, from);
+                            addMedia(this, to);
+                            CountDownTimer Timer2 = new CountDownTimer(1050, 1000) {
+                                public void onTick(long millisUntilFinished) {
+
+                                }
+
+                                public void onFinish() {
+                                    mFile.clear();
+                                    mFile = getdata();
+                                    adapter.update(mFile);
+
+                                }
+                            }.start();
+                        }
+                    }
+                });
+                dialog.show();
+            } else {
+                showDialog(this);
+            }
+        } else {
+            final File file = new File(mFile.get(position).getPath());
+            RenameDialog dialog = new RenameDialog(context, mFile.get(position).getPath());
+            dialog.setCallback((key, data) -> {
+                String newName = (String) data;
+                if (key.equals("rename")) {
+
+                    String onlyPath = file.getParent();
+                    newName = newName + ".mp4";
+//                String renamepath = onlyPath + "/" + newName;
+                    File from = new File(mFile.get(position).getPath());
+                    File to = new File(onlyPath, newName);
+                    try {
+                        to.createNewFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    if (from.exists()) {
+                        from.renameTo(to);
+                        removeMedia(this, from);
+                        addMedia(this, to);
+                        CountDownTimer Timer2 = new CountDownTimer(1050, 1000) {
+                            public void onTick(long millisUntilFinished) {
+
+                            }
+
+                            public void onFinish() {
+                                mFile.clear();
+                                mFile = getdata();
+                                adapter.update(mFile);
+
+                            }
+                        }.start();
+                    }
+                }
+            });
+            dialog.show();
+        }
+    }
+
+    public void showDialog(Context activity) {
+        final Dialog dialog = new Dialog(activity);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(true);
+        dialog.setContentView(R.layout.dialog_request_allfile);
+        TextView allow = (TextView) dialog.findViewById(R.id.bt_allow);
+        TextView deny = (TextView) dialog.findViewById(R.id.bt_deny);
+        allow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    if (Environment.isExternalStorageManager()) {
+                    } else { //request for the permission
+                        Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                        Uri uri = Uri.fromParts("package", "com.mtg.videoplay", null);
+                        intent.setData(uri);
+                        startActivity(intent);
+                    }
+                    dialog.dismiss();
+                }
+            }
+        });
+        deny.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+    }
+
+    private static void removeMedia(Context c, File f) {
+        ContentResolver resolver = c.getContentResolver();
+        resolver.delete(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, MediaStore.Video.Media.DATA + "=?", new String[]{f.getAbsolutePath()});
+    }
+
+    public static void addMedia(Context c, File f) {
+        Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        intent.setData(Uri.fromFile(f));
+        c.sendBroadcast(intent);
     }
 }

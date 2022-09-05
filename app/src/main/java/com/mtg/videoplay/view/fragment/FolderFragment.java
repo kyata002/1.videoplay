@@ -46,18 +46,19 @@ public class FolderFragment extends BaseFragment {
 
     @Override
     protected void initView() {
+        folderList = getdataFolder();
+//        setList(folderList);
         rvFolder = requireActivity().findViewById(R.id.rv_folder);
         lr_no_folder = requireActivity().findViewById(R.id.no_folder);
-
-    }
-    public void setList(ArrayList<Folder> mlistFolder){
         rvFolder.setLayoutManager(new LinearLayoutManager(getContext()));
         linearLayoutManager= new LinearLayoutManager(getContext());
         adapter = new FolderAdapter(getContext(),folderList);
         rvFolder.setLayoutManager(linearLayoutManager);
         rvFolder.setAdapter(adapter);
+
     }
     public ArrayList<Folder> getdataFolder() {
+        int ck_ads = 1;
 //        allvidFile = getAllVideoPath(getActivity());
 //
 //        for (int i = 0; i < allvidFile.length; i++) {
@@ -81,13 +82,24 @@ public class FolderFragment extends BaseFragment {
             Collections.sort(allfolderpath);
 
             if (!folderPath.contains(fpath)) {
-                folderPath.add(fpath);
+                if(ck_ads%4!=0){
+                    folderPath.add(fpath);
+                }else{
+                    folderPath.add(null);
+                    folderPath.add(fpath);
+                    ck_ads=0;
+                }
+                ck_ads++;
             }
         }
-
+        ck_ads=0;
         for (int i = 0; i < folderPath.size(); i++) {
-            int occurrences = Collections.frequency(allfolderpath, folderPath.get(i));
-            folderList.add(new Folder(folderPath.get(i),occurrences));
+            if(folderPath.get(i)==null ){
+                folderList.add(null);
+            }else{
+                int occurrences = Collections.frequency(allfolderpath, folderPath.get(i));
+                folderList.add(new Folder(folderPath.get(i),occurrences));
+            }
         }
 
         return folderList;
@@ -111,15 +123,15 @@ public class FolderFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
-        folderList.clear();
-        allfolderpath.clear();
-        folderList = getdataFolder();
-        if(folderList.size() !=0){
-            lr_no_folder.setVisibility(View.GONE);
-            setList(folderList);
-        }else{
-            lr_no_folder.setVisibility(View.VISIBLE);
-            setList(folderList);
-        }
+//        folderList.clear();
+//        allfolderpath.clear();
+//        folderList = getdataFolder();
+//        if(folderList.size() !=0){
+//            lr_no_folder.setVisibility(View.GONE);
+//            setList(folderList);
+//        }else{
+//            lr_no_folder.setVisibility(View.VISIBLE);
+//            setList(folderList);
+//        }
     }
 }

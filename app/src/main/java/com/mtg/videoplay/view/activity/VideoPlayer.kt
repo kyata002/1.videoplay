@@ -18,6 +18,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.CountDownTimer
 import android.os.Handler
+import android.os.StrictMode
+import android.os.StrictMode.VmPolicy
 import android.provider.Settings
 import android.util.Rational
 import android.view.*
@@ -37,6 +39,7 @@ import com.skydoves.powermenu.PowerMenu
 import com.skydoves.powermenu.PowerMenuItem
 import kotlinx.android.synthetic.main.activity_play.*
 import java.io.File
+import java.net.URLConnection
 import java.text.SimpleDateFormat
 import kotlin.math.roundToInt
 import kotlin.properties.Delegates
@@ -216,7 +219,6 @@ class VideoPlayer : BaseActivity() {
         dh_bottom.visibility = GONE
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     override fun addEvent() {
         var file: File
         file = File(videpList?.get(videoIndex)?.path)
@@ -236,19 +238,21 @@ class VideoPlayer : BaseActivity() {
         bt_replay.setOnClickListener {
             videoView.seekTo(0)
             videoView.start()
-            bt_replay.visibility = GONE
+            bg_replay.visibility = GONE
         }
         bt_back_play.setOnClickListener {
             onBackPressed()
         }
         bt_share_play.setOnClickListener {
-            val shareIntent = Intent(Intent.ACTION_SEND)
-            shareIntent.type = "image/jpg"
-            shareIntent.putExtra(
+            val builder = VmPolicy.Builder()
+            StrictMode.setVmPolicy(builder.build())
+            val intentShareFile = Intent(Intent.ACTION_SEND)
+            intentShareFile.type = URLConnection.guessContentTypeFromName(file.name)
+            intentShareFile.putExtra(
                 Intent.EXTRA_STREAM,
-                Uri.parse(videpList?.get(videoIndex)?.getPath())
+                Uri.fromFile(file)
             )
-            this.startActivity(Intent.createChooser(shareIntent, "Share image using"))
+            this.startActivity(Intent.createChooser(intentShareFile, "Share File"))
         }
 
         // popup change speed
@@ -288,22 +292,27 @@ class VideoPlayer : BaseActivity() {
                             if ("0.5x" == title) {
                                 speed = 0.5f
                                 setNewSpeed()
+                                bg_replay.visibility = GONE
                                 powerMenu?.dismiss()
                             } else if ("0.75x" == title) {
                                 speed = 0.75f
                                 setNewSpeed()
+                                bg_replay.visibility = GONE
                                 powerMenu?.dismiss()
                             } else if ("1x (Normal)" == title) {
                                 speed = 1f
                                 setNewSpeed()
+                                bg_replay.visibility = GONE
                                 powerMenu?.dismiss()
                             } else if ("1.25x" == title) {
                                 speed = 1.25f
                                 setNewSpeed()
+                                bg_replay.visibility = GONE
                                 powerMenu?.dismiss()
                             } else if ("1.5x" == title) {
-                                speed = 6f
+                                speed = 1.5f
                                 setNewSpeed()
+                                bg_replay.visibility = GONE
                                 powerMenu?.dismiss()
                             }
                         }.build()
@@ -396,8 +405,9 @@ class VideoPlayer : BaseActivity() {
         videoView.setOnCompletionListener {
             when (isInPictureInPictureMode) {
                 true -> hideUnnecessaryViews()
-                false -> bt_replay.visibility = VISIBLE
+                false -> bg_replay.visibility = VISIBLE
             }
+            pg_time_load.progress= it.duration
         }
         videoView.setOnPreparedListener(OnPreparedListener { mediaPlayer ->
             this@VideoPlayer.mediaPlayer = mediaPlayer
@@ -405,7 +415,7 @@ class VideoPlayer : BaseActivity() {
             pg_time_load.setMax(mediaPlayer.duration)
             curentTime()
             setNewSpeed()
-            bt_replay.visibility = GONE
+            bg_replay.visibility = GONE
         })
     }
 
@@ -414,6 +424,7 @@ class VideoPlayer : BaseActivity() {
             override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {}
             override fun onStartTrackingTouch(seekBar: SeekBar) {}
             override fun onStopTrackingTouch(seekBar: SeekBar) {
+                bg_replay.visibility = GONE
                 videoView.seekTo(pg_time_load.getProgress())
                 videoView.start()
             }
@@ -451,7 +462,7 @@ class VideoPlayer : BaseActivity() {
                 val timeMax = SimpleDateFormat("mm:ss")
                 txt_time_position.text = timeMax.format(videoView.currentPosition)
                 pg_time_load.progress = videoView.currentPosition
-                handler.postDelayed(this, 50)
+                handler.postDelayed(this, 500)
             }
         }, 100)
     }
@@ -502,16 +513,17 @@ class VideoPlayer : BaseActivity() {
         return null
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     override fun onPause() {
         super.onPause()
-        if (isInPictureInPictureMode()) {
-            onResume();
-        } else {
-            bt_play.setImageResource(R.drawable.ic_play);
-            stopPosition = videoView.getCurrentPosition(); //stopPosition is an int
-            videoView.pause();
-            ck_pause = true;
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.N){
+            if (isInPictureInPictureMode()&&Build.VERSION.SDK_INT>=Build.VERSION_CODES.N) {
+                onResume();
+            } else {
+                bt_play.setImageResource(R.drawable.ic_play);
+                stopPosition = videoView.getCurrentPosition(); //stopPosition is an int
+                videoView.pause();
+                ck_pause = true;
+            }
         }
 
     }

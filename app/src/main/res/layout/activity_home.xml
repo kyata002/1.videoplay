@@ -109,6 +109,8 @@
     </LinearLayout>
 
     <LinearLayout
+        android:layout_weight="1"
+
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#00ECE8E8"
@@ -136,8 +138,18 @@
             android:id="@+id/view_Pager"
             android:layout_gravity="center"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/fakeAds"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="0dp">
+        <include layout="@layout/layout_banner_control" />
+    </FrameLayout>
 
 
 </LinearLayout>

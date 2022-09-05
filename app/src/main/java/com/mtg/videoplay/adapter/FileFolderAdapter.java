@@ -2,7 +2,6 @@ package com.mtg.videoplay.adapter;
 
 import static com.mtg.videoplay.view.activity.HomeActicity.launcher;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -34,12 +33,16 @@ import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.mtg.videoplay.BuildConfig;
 import com.mtg.videoplay.R;
+import com.mtg.videoplay.model.FileVideo;
 import com.mtg.videoplay.utils.FileUtils;
 import com.mtg.videoplay.utils.Utils;
-import com.mtg.videoplay.model.FileVideo;
-import com.mtg.videoplay.view.activity.SplashActivity;
+import com.mtg.videoplay.view.activity.VideoListActivity;
 import com.mtg.videoplay.view.activity.VideoPlayer;
 import com.mtg.videoplay.view.dialog.DeleteDialog;
+import com.mtg.videoplay.view.dialog.InfoDialog;
+import com.skydoves.powermenu.OnMenuItemClickListener;
+import com.skydoves.powermenu.PowerMenu;
+import com.skydoves.powermenu.PowerMenuItem;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,26 +51,22 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-
-import com.mtg.videoplay.view.dialog.InfoDialog;
-import com.skydoves.powermenu.OnMenuItemClickListener;
-import com.skydoves.powermenu.PowerMenu;
-import com.skydoves.powermenu.PowerMenuItem;
-
 import java.util.concurrent.TimeUnit;
 
-
-public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 //    final ActivityResultLauncher<IntentSenderRequest> launcher ;
 
     public ArrayList<FileVideo> videoList;
     public Context context;
     private PowerMenu powerMenu;
-    private OnClickOptionListener onClickOptionListener;
 
-    public void setOnClickOptionListener(OnClickOptionListener onClickOptionListener) {
-        this.onClickOptionListener = onClickOptionListener;
+    public void setOnClickOption1Listener(OnClickOption1Listener onClickOption1Listener) {
+        this.onClickOption1Listener = onClickOption1Listener;
     }
+
+    private FileFolderAdapter.OnClickOption1Listener onClickOption1Listener;
+
+
 
     Intent intent;
     public static int ITEM_TYPE = 0,ADS_TYPE=1;
@@ -75,7 +74,7 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     private static int ck_play=0;
 
 
-    public AllVideoAdapter(Context context, ArrayList<FileVideo> videoList) {
+    public FileFolderAdapter(Context context, ArrayList<FileVideo> videoList) {
         this.videoList = videoList;
         this.context = context;
 
@@ -108,18 +107,18 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         View view;
         if(viewType==ADS_TYPE){
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.nav_layout, parent, false);
-            return new AdsHolderFile(view);
+            return new AdsHolderFileFolder(view);
         }else {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_file_video, parent, false);
-            return new ListViewHolder(view);
+            return new AllVideoAdapter.ListViewHolder(view);
         }
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (videoList.size() == 0) return;
-        if(holder instanceof ListViewHolder){
-            AllVideoAdapter.ListViewHolder listViewHolder = (ListViewHolder) holder;
+        if(holder instanceof AllVideoAdapter.ListViewHolder){
+            AllVideoAdapter.ListViewHolder listViewHolder = (AllVideoAdapter.ListViewHolder) holder;
             RequestOptions requestOptions = new RequestOptions();
             requestOptions.placeholder(R.drawable.ic_defaut);
             Glide.with(context).setDefaultRequestOptions(requestOptions).load(videoList.get(position).getPath())
@@ -190,7 +189,7 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                         shareFile(context,new File(videoList.get(posit).getPath()));
                                         powerMenu.dismiss();
                                     } else if ("Rename".equals(title)) {
-                                        onClickOptionListener.onRename(position);
+                                        onClickOption1Listener.onRenameFolder(position);
                                         powerMenu.dismiss();
                                     } else if ("Delete".equals(title)) {
                                         dialogDelete(position);
@@ -228,6 +227,7 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         Utils.listSize = videoList.size();
         return videoList.size();
     }
+
 
 
     public static class ListViewHolder extends RecyclerView.ViewHolder {
@@ -279,7 +279,6 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     }
                 } else {
                     FileUtils.deleteFileAndroid11((AppCompatActivity) context, videoList.get(position), launcher);
-                    videoList.remove(videoList.get(position));
                 }
 
 
@@ -306,7 +305,7 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         StrictMode.setVmPolicy(builder.build());
         Intent intentShareFile = new Intent(Intent.ACTION_SEND);
         intentShareFile.setType(URLConnection.guessContentTypeFromName(file.getName()));
-        intentShareFile.putExtra(Intent.EXTRA_STREAM,Uri.fromFile(file));
+        intentShareFile.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
         context.startActivity(Intent.createChooser(intentShareFile, "Share File"));
     }
 
@@ -363,7 +362,8 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
 
 
-    public interface OnClickOptionListener {
-        void onRename(int position);
+    public interface OnClickOption1Listener {
+        void onRenameFolder(int position);
+
     }
 }

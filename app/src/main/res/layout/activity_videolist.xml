@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    android:layout_weight="1"
     android:orientation="vertical"
     android:background="#39ECE8E8"
     android:layout_height="match_parent">
@@ -26,10 +27,20 @@
             android:layout_gravity="center"/>
     </LinearLayout>
     <androidx.recyclerview.widget.RecyclerView
+        android:layout_weight="1"
         android:id="@+id/rv_videol"
         android:layout_marginTop="@dimen/_16sdp"
         android:paddingHorizontal="@dimen/_8sdp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+    <FrameLayout
+        android:id="@+id/fakeAds"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="0dp">
+        <include layout="@layout/layout_banner_control" />
+    </FrameLayout>
 
 </LinearLayout>

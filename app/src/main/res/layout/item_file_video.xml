@@ -11,7 +11,7 @@
         android:layout_marginBottom="@dimen/_8sdp"
         android:paddingStart="@dimen/_5sdp"
         android:paddingRight="@dimen/_5sdp"
-        android:paddingTop="@dimen/_8sdp"
+        android:paddingTop="@dimen/_2sdp"
         android:layout_height="wrap_content"
         android:orientation="vertical">
         <FrameLayout
@@ -108,11 +108,12 @@
                 android:text="day"/>
             <FrameLayout
                 android:id="@+id/bt_more"
-                android:layout_width="@dimen/_16sdp"
+                android:layout_width="@dimen/_24sdp"
+                android:padding="@dimen/_2sdp"
                 android:layout_height="wrap_content">
                 <ImageView
                     android:layout_gravity="right"
-                    android:layout_width="@dimen/_6sdp"
+                    android:layout_width="@dimen/_8sdp"
                     android:layout_height="@dimen/_14sdp"
                     android:src="@drawable/ic_more_1"/>
             </FrameLayout>

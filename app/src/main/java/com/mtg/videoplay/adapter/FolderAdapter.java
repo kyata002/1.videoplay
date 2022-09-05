@@ -19,9 +19,11 @@ import java.io.File;
 import java.util.ArrayList;
 
 
-public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.ListViewHolder> {
+public class FolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public ArrayList<Folder> folderList;
     public Context context;
+    private static final int TYPE_ITEM = 1;
+    private  static final int TYPE_ADS = 2;
 
     public FolderAdapter(Context context, ArrayList<Folder> folderList) {
         this.folderList = folderList;
@@ -30,24 +32,41 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.ListViewHo
     }
     @NonNull
     @Override
-    public ListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_folder,parent,false);
-        return  new ListViewHolder(view);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view;
+        if(viewType == TYPE_ADS){
+            view= LayoutInflater.from(parent.getContext()).inflate(R.layout.nav_layout,parent,false);
+            return  new AdsHolderFolder(view);
+        }else {
+            view= LayoutInflater.from(parent.getContext()).inflate(R.layout.item_folder,parent,false);
+            return  new ListViewHolder(view);
+        }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ListViewHolder holder, int position) {
-
-        holder.txtfile.setText(folderList.get(position).getFoldersize()+"");
-        holder.foldername.setText(new File(folderList.get(position).getFolderpath()).getName());
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if(holder instanceof ListViewHolder){
+            ListViewHolder listViewHolder = (ListViewHolder) holder;
+            listViewHolder.txtfile.setText(folderList.get(position).getFoldersize()+"");
+            listViewHolder.foldername.setText(new File(folderList.get(position).getFolderpath()).getName());
 //        int occurrences = Collections.frequency(allfolderpath, folderPath.get(i));
-        holder.itemView.setOnClickListener(view -> {
-            Intent intent = new Intent(context, VideoListActivity.class);
-            intent.putExtra("folder",folderList.get(position).getFolderpath());
+            holder.itemView.setOnClickListener(view -> {
+                Intent intent = new Intent(context, VideoListActivity.class);
+                intent.putExtra("folder",folderList.get(position).getFolderpath());
 //            intent.putExtra("list",videoList);
-            context.startActivity(intent);
-        });
+                context.startActivity(intent);
+            });
+        }
+
     }
+
+    @Override
+    public int getItemViewType(int position) {
+        if(folderList.get(position)==null){
+            return TYPE_ADS;
+        }else return TYPE_ITEM;
+    }
+
 
     @Override
     public int getItemCount() {

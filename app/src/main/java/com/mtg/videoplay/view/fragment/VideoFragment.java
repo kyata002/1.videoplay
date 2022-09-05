@@ -1,5 +1,6 @@
 package com.mtg.videoplay.view.fragment;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.ContentResolver;
@@ -17,20 +18,24 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
 
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
 
+import com.google.android.material.tabs.TabLayout;
 import com.mtg.videoplay.R;
 import com.mtg.videoplay.adapter.AllVideoAdapter;
 import com.mtg.videoplay.base.BaseFragment;
 import com.mtg.videoplay.model.FileVideo;
+import com.mtg.videoplay.view.activity.SettingActivity;
 import com.mtg.videoplay.view.dialog.RenameDialog;
 
 import java.io.File;
@@ -40,17 +45,20 @@ import java.util.ArrayList;
 
 public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnClickOptionListener {
     private AllVideoAdapter adapter;
-    LinearLayout lr_No_File;
-
     EditText ed_Search;
+    ImageView bt_backs;
+    TabLayout tab;
+    ViewPager viewPager;
     RecyclerView rvAudio;
-    LinearLayout noVideo;
-    static boolean isFromFolder;
+    LinearLayout noVideo,lr_No_File;
+    LinearLayout lc_search,lc_main;;
+    ImageView bt_search,bt_setting,bt_clear_search;
+    int Load_Ads=0;
 
-    public PopupWindow popupWindow;
 
 
     ArrayList<FileVideo> videoList = new ArrayList<>();
+    ArrayList<FileVideo> videoListSearch = new ArrayList<>();
 
     @Override
     protected int getLayoutId() {
@@ -76,32 +84,93 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
 
             }
         });
+        bt_backs.setOnClickListener(view -> {
+//            key_Search=1;
+            lc_main.setVisibility(View.VISIBLE);
+            lc_search.setVisibility(View.GONE);
+            tab.setVisibility(View.VISIBLE);
+            viewPager.setClickable(true);
+            ed_Search.setText("");
+
+            InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(ed_Search.getWindowToken(), 0);
+            rvAudio.setLayoutManager(new LinearLayoutManager(getContext()));
+            rvAudio.setHasFixedSize(true);
+            rvAudio.setItemViewCacheSize(20);
+            adapter = new AllVideoAdapter(getContext(), videoList);
+            adapter.setOnClickOptionListener(this);
+            GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2, GridLayoutManager.VERTICAL, false);
+            rvAudio.setLayoutManager(gridLayoutManager);
+            rvAudio.setAdapter(adapter);
+            gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                @Override
+                public int getSpanSize(int position) {
+                    if(adapter.getItemViewType(position) == 1 ){
+                        return 2;
+                    }else if(adapter.getItemViewType(position) == 0){
+                        return 1;
+                    }else return -1;
+                }
+            });
+        });
+        bt_search.setOnClickListener(view -> {
+            lc_main.setVisibility(View.GONE);
+            lc_search.setVisibility(View.VISIBLE);
+        });
+
+        bt_setting.setOnClickListener(view -> {
+            Intent intent = new Intent(getContext(), SettingActivity.class);
+            this.startActivity(intent);
+        });
+
+
+        bt_clear_search.setOnClickListener(view -> {
+            ed_Search.setText("");
+        });
 
     }
 
     @Override
     protected void initView() {
+
+        bt_search = requireActivity().findViewById(R.id.bt_search);
+        bt_setting = requireActivity().findViewById(R.id.bt_setting);
+        tab=requireActivity().findViewById(R.id.tab_Layout);
+        viewPager =requireActivity(). findViewById(R.id.view_Pager);
+        lc_search = requireActivity().findViewById(R.id.lc_Search);
+        lc_main = requireActivity().findViewById(R.id.lc_Main);
+        ed_Search = requireActivity().findViewById(R.id.de_search);
+        bt_clear_search = requireActivity().findViewById(R.id.bt_clears);
+        bt_backs = requireActivity().findViewById(R.id.bt_BackS);
         lr_No_File = requireActivity().findViewById(R.id.no_file);
         ed_Search = requireActivity().findViewById(R.id.de_search);
         rvAudio = requireActivity().findViewById(R.id.rv_video);
         noVideo = requireActivity().findViewById(R.id.no_video_search);
-//        videoList=  adddate(getdata());
-//        setList(videoList);
-
-    }
-
-    public void setList(ArrayList<FileVideo> videoList) {
+        videoList = getdata();
         rvAudio.setLayoutManager(new LinearLayoutManager(getContext()));
         rvAudio.setHasFixedSize(true);
         rvAudio.setItemViewCacheSize(20);
         adapter = new AllVideoAdapter(getContext(), videoList);
         adapter.setOnClickOptionListener(this);
-//        adapter.setHasStableIds(true);
-        GridLayoutManager linearLayoutManager = new GridLayoutManager(getContext(), 2, GridLayoutManager.VERTICAL, false);
-        rvAudio.setLayoutManager(linearLayoutManager);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2, GridLayoutManager.VERTICAL, false);
+        rvAudio.setLayoutManager(gridLayoutManager);
         rvAudio.setAdapter(adapter);
+        gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                if(adapter.getItemViewType(position) == 1 ){
+                    return 2;
+                }else if(adapter.getItemViewType(position) == 0){
+                    return 1;
+                }else return -1;
+            }
+        });
+
     }
 
+
+
+    @SuppressLint("Recycle")
     public ArrayList<FileVideo> getdata() {
         Cursor csr;
         ArrayList<FileVideo> videoListPath = new ArrayList<>();
@@ -114,59 +183,61 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
             int idCol = csr.getColumnIndex(MediaStore.Video.Media._ID);
             String path = csr.getString(ind);
             int id = csr.getInt(idCol);
-//            Log.d("pathofpath", path);
-            if (new File(path).exists()&&path.endsWith(".mp4"))
-                videoListPath.add(new FileVideo(path, id));
+            if (new File(path).exists()&&path.endsWith(".mp4")&&new File(path).length()>1){
+                Load_Ads++;
+                if(Load_Ads%6==0){
+                    videoListPath.add(new FileVideo(path, id));
+                    videoListPath.add(null);
+                }else{
+                    videoListPath.add(new FileVideo(path, id));
+                }
+                videoListSearch.add(new FileVideo(path, id));
+            }
+
 
         }
+        Load_Ads=0;
         return videoListPath;
     }
 
-    public ArrayList<FileVideo> adddate(ArrayList<String> videoListPath) {
-        ArrayList<FileVideo> mFile = new ArrayList<>();
-        for (int i = 0; i < videoListPath.size(); i++) {
-            FileVideo file = new FileVideo(videoListPath.get(i), i);
-            mFile.add(file);
-        }
-        return mFile;
-    }
+
 
     public void Filter(String text) {
         ArrayList<FileVideo> listNew = new ArrayList<>();
 
-        for (int i = 0; i < videoList.size(); i++) {
-            if (new File(String.valueOf(videoList.get(i).getPath())).getName().contains(text)) {
-                listNew.add(videoList.get(i));
+        for (int i = 0; i < videoListSearch.size(); i++) {
+            if (new File(String.valueOf(videoListSearch.get(i).getPath())).getName().contains(text)) {
+                listNew.add(videoListSearch.get(i));
             }
         }
 
         if (listNew.size() != 0) {
             noVideo.setVisibility(View.GONE);
-            setList(listNew);
         } else {
             noVideo.setVisibility(View.VISIBLE);
-            setList(listNew);
         }
+        setList(listNew);
 
+    }
+
+    private void setList(ArrayList<FileVideo> listNew) {
+        rvAudio.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvAudio.setHasFixedSize(true);
+        rvAudio.setItemViewCacheSize(20);
+        adapter = new AllVideoAdapter(getContext(), listNew);
+//        adapter.setHasStableIds(true);
+        GridLayoutManager linearLayoutManager = new GridLayoutManager(getContext(), 2, GridLayoutManager.VERTICAL, false);
+        rvAudio.setLayoutManager(linearLayoutManager);
+        rvAudio.setAdapter(adapter);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        videoList.clear();
-        videoList = getdata();
-        if (videoList.size() != 0) {
-            lr_No_File.setVisibility(View.GONE);
-            setList(videoList);
-        } else {
-            lr_No_File.setVisibility(View.VISIBLE);
-            setList(videoList);
-        }
     }
 
     @Override
     public void onRename(int position) {
-//        showDialog(requireActivity(),videoList.get(position).getPath());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if (Environment.isExternalStorageManager()) {
                 final File file = new File(videoList.get(position).getPath());
@@ -177,7 +248,6 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
 
                         String onlyPath = file.getParent();
                         newName = newName + ".mp4";
-//                String renamepath = onlyPath + "/" + newName;
                         File from = new File(videoList.get(position).getPath());
                         File to = new File(onlyPath, newName);
                         try {
@@ -266,6 +336,7 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
                         intent.setData(uri);
                         startActivity(intent);
                     }
+                    dialog.dismiss();
                 }
             }
         });
@@ -294,7 +365,7 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
         File directory = new File(path);
         File[] files = directory.listFiles();
 
-        for (int i = 0; i < files.length; i++) {
+        for (int i = 0; i < (files != null ? files.length : 0); i++) {
 
             String file_name = files[i].getName();
             // you can store name to arraylist and use it later
