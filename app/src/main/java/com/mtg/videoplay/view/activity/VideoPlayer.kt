@@ -143,7 +143,6 @@ class VideoPlayer : BaseActivity() {
                                     )
                                     //dialog
                                     DialogChange.showVolumeDialog(
-                                        -deltaY,
                                         ((mGestureDownVolume * 100 / max + deltaY * 3 * 100 / mScreenHeight).toInt()),
                                         this@VideoPlayer
                                     )

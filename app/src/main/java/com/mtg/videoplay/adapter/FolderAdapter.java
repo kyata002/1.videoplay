@@ -20,8 +20,8 @@ import java.util.ArrayList;
 
 
 public class FolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    public ArrayList<Folder> folderList;
-    public Context context;
+    public final ArrayList<Folder> folderList;
+    public final Context context;
     private static final int TYPE_ITEM = 1;
     private  static final int TYPE_ADS = 2;
 
@@ -75,8 +75,8 @@ public class FolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     public static class ListViewHolder extends RecyclerView.ViewHolder {
-        TextView foldername;
-        TextView txtfile;
+        final TextView foldername;
+        final TextView txtfile;
 
         public ListViewHolder(@NonNull View itemView) {
             super(itemView);

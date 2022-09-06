@@ -2,7 +2,6 @@ package com.mtg.videoplay.adapter;
 
 import static com.mtg.videoplay.view.activity.HomeActicity.launcher;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -37,7 +36,6 @@ import com.mtg.videoplay.R;
 import com.mtg.videoplay.utils.FileUtils;
 import com.mtg.videoplay.utils.Utils;
 import com.mtg.videoplay.model.FileVideo;
-import com.mtg.videoplay.view.activity.SplashActivity;
 import com.mtg.videoplay.view.activity.VideoPlayer;
 import com.mtg.videoplay.view.dialog.DeleteDialog;
 
@@ -61,7 +59,7 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 //    final ActivityResultLauncher<IntentSenderRequest> launcher ;
 
     public ArrayList<FileVideo> videoList;
-    public Context context;
+    public final Context context;
     private PowerMenu powerMenu;
     private OnClickOptionListener onClickOptionListener;
 
@@ -70,7 +68,8 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     Intent intent;
-    public static int ITEM_TYPE = 0,ADS_TYPE=1;
+    public static final int ITEM_TYPE = 0;
+    public static final int ADS_TYPE=1;
 
     private static int ck_play=0;
 
@@ -96,13 +95,13 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         retriever.setDataSource(mFile.getPath());
         String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
         retriever.release();
-        long seconds = Long.valueOf(time);
-        String vidLength = String.format("%02d:%02d",
+        long seconds = Long.parseLong(time);
+        return String.format("%02d:%02d",
                 TimeUnit.MILLISECONDS.toMinutes(seconds) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(seconds)),
                 TimeUnit.MILLISECONDS.toSeconds(seconds) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(seconds)));
-        return vidLength;
     }
 
+    @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view;
@@ -136,11 +135,6 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
 
             holder.itemView.setOnClickListener(view -> {
-//            MediaMetadataRetriever m = new MediaMetadataRetriever();
-//            m.setDataSource(videoList.get(position).getPath());
-//            if (Build.VERSION.SDK_INT >= 17) {
-//                rotation = m.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
-//            }
                 ck_play++;
                 if(ck_play%2==0&&ck_play!=0){
                     loadInter(position);
@@ -153,7 +147,7 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
             });
             listViewHolder.bt_more.setOnClickListener(view -> {
-                if (powerMenu != null && powerMenu.isShowing() == true) {
+                if (powerMenu != null && powerMenu.isShowing()) {
 
                 } else {
                     powerMenu = new PowerMenu.Builder(context)
@@ -173,32 +167,27 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                             .setIconPadding(2)
                             .setMenuColor(0)
                             .setBackgroundColor(Color.TRANSPARENT)
-                            .setOnBackgroundClickListener(view1 -> {
-                                powerMenu.dismiss();
-                            })
+                            .setOnBackgroundClickListener(view1 -> powerMenu.dismiss())
                             //.setTextColor(ContextCompat.getColor(context, Color.parseColor("#3C3C3C")))
                             .setTextGravity(Gravity.LEFT)
                             .setTextTypeface(Typeface.create("font/lexend_regular.ttf", Typeface.NORMAL))
                             .setSelectedTextColor(Color.WHITE)
                             .setMenuColor(Color.WHITE)
                             .setSelectedMenuColor(ContextCompat.getColor(context, R.color.black))
-                            .setOnMenuItemClickListener(new OnMenuItemClickListener<PowerMenuItem>() {
-                                @Override
-                                public void onItemClick(int posit, PowerMenuItem item) {
-                                    CharSequence title = item.getTitle();
-                                    if ("Share".equals(title)) {
-                                        shareFile(context,new File(videoList.get(posit).getPath()));
-                                        powerMenu.dismiss();
-                                    } else if ("Rename".equals(title)) {
-                                        onClickOptionListener.onRename(position);
-                                        powerMenu.dismiss();
-                                    } else if ("Delete".equals(title)) {
-                                        dialogDelete(position);
-                                        powerMenu.dismiss();
-                                    } else if ("Info".equals(title)) {
-                                        dialogInfo(videoList.get(position).getPath());
-                                        powerMenu.dismiss();
-                                    }
+                            .setOnMenuItemClickListener((posit, item) -> {
+                                CharSequence title = item.getTitle();
+                                if ("Share".equals(title)) {
+                                    shareFile(context,new File(videoList.get(posit).getPath()));
+                                    powerMenu.dismiss();
+                                } else if ("Rename".equals(title)) {
+                                    onClickOptionListener.onRename(position);
+                                    powerMenu.dismiss();
+                                } else if ("Delete".equals(title)) {
+                                    dialogDelete(position);
+                                    powerMenu.dismiss();
+                                } else if ("Info".equals(title)) {
+                                    dialogInfo(videoList.get(position).getPath());
+                                    powerMenu.dismiss();
                                 }
                             }).build();
                     powerMenu.showAsDropDown(view);
@@ -208,11 +197,6 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
-//    @Override
-//    public long getItemId(int position) {
-////        return super.getItemId(position);
-//        return videoList.get(position).getId();
-//    }
 
 
     @Override
@@ -231,12 +215,12 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
 
     public static class ListViewHolder extends RecyclerView.ViewHolder {
-        TextView filename;
-        TextView txtDuration;
-        TextView txtSize;
-        TextView txtTime;
-        ImageView imgFile;
-        View bt_more;
+        final TextView filename;
+        final TextView txtDuration;
+        final TextView txtSize;
+        final TextView txtTime;
+        final ImageView imgFile;
+        final View bt_more;
 
         public ListViewHolder(@NonNull View itemView) {
             super(itemView);

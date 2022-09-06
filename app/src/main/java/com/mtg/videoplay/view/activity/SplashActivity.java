@@ -26,21 +26,13 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void reques() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(3000);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            loadInter();
-                        }
-                    });
+        new Thread(() -> {
+            try {
+                Thread.sleep(3000);
+                runOnUiThread(() -> loadInter());
 
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }).start();
     }

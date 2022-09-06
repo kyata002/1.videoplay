@@ -5,18 +5,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.fragment.app.FragmentStatePagerAdapter;
-
-import com.mtg.videoplay.view.fragment.FolderFragment;
-import com.mtg.videoplay.view.fragment.VideoFragment;
 
 import java.util.ArrayList;
 
 
 public class ViewPagerAdapter extends FragmentPagerAdapter {
 
-    ArrayList<Fragment> fragments = new ArrayList<>();
-    ArrayList<String>strings=new ArrayList<>();
+    final ArrayList<Fragment> fragments = new ArrayList<>();
+    final ArrayList<String>strings=new ArrayList<>();
 
     public void addfragemnt(Fragment fm,String title){
         fragments.add(fm);

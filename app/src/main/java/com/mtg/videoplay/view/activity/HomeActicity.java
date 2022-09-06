@@ -18,11 +18,14 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
+import com.common.control.manager.AdmobManager;
 import com.google.android.material.tabs.TabLayout;
+import com.mtg.videoplay.BuildConfig;
 import com.mtg.videoplay.R;
 import com.mtg.videoplay.utils.FileUtils;
 import com.mtg.videoplay.utils.Utils;
@@ -38,10 +41,10 @@ public class HomeActicity extends BaseActivity  {
     ViewPagerAdapter viewPagerAdapter;
     TabLayout tab;
     ViewPager viewPager;
-    LinearLayout lc_search,lc_main;;
+    LinearLayout lc_search,lc_main;
     ImageView bt_search,bt_setting,bt_backs,bt_clear_search;
     EditText ed_Search;
-    DisplayMetrics displayMetrics = new DisplayMetrics();
+    final DisplayMetrics displayMetrics = new DisplayMetrics();
     public static ActivityResultLauncher<IntentSenderRequest> launcher;
 
 
@@ -53,6 +56,7 @@ public class HomeActicity extends BaseActivity  {
     @Override
     protected void initView() {
         checkPermission();
+        AdmobManager.getInstance().loadBanner(this, BuildConfig.banner_main);
         bt_search = findViewById(R.id.bt_search);
         bt_setting = findViewById(R.id.bt_setting);
         bt_backs = findViewById(R.id.bt_BackS);
@@ -69,8 +73,6 @@ public class HomeActicity extends BaseActivity  {
         viewPager.setAdapter(viewPagerAdapter);
         tab.setupWithViewPager(viewPager);
         launcher = FileUtils.requestLauncher(this, (key1, data) -> {
-//            videoList.remove(position);
-//            notifyItemRemoved(position);
         });
     }
 
@@ -98,9 +100,7 @@ public class HomeActicity extends BaseActivity  {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(ed_Search.getWindowToken(), 0);
         });
-        bt_clear_search.setOnClickListener(view -> {
-            ed_Search.setText("");
-        });
+        bt_clear_search.setOnClickListener(view -> ed_Search.setText(""));
 
 
     }
@@ -130,22 +130,19 @@ public class HomeActicity extends BaseActivity  {
         }
     }
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case 1: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == 1) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
 
-                } else {
-                    // permission was Denie
-                    Toast.makeText(this, "Please Allow Permission", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-                return;
+            } else {
+                // permission was Denie
+                Toast.makeText(this, "Please Allow Permission", Toast.LENGTH_SHORT).show();
+                finish();
             }
-
+            return;
         }
     }
 

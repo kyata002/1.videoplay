@@ -41,6 +41,7 @@ import com.mtg.videoplay.view.dialog.RenameDialog;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 
 public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnClickOptionListener {
@@ -51,14 +52,14 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
     ViewPager viewPager;
     RecyclerView rvAudio;
     LinearLayout noVideo,lr_No_File;
-    LinearLayout lc_search,lc_main;;
+    LinearLayout lc_search,lc_main;
     ImageView bt_search,bt_setting,bt_clear_search;
     int Load_Ads=0;
 
 
 
     ArrayList<FileVideo> videoList = new ArrayList<>();
-    ArrayList<FileVideo> videoListSearch = new ArrayList<>();
+    final ArrayList<FileVideo> videoListSearch = new ArrayList<>();
 
     @Override
     protected int getLayoutId() {
@@ -124,9 +125,7 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
         });
 
 
-        bt_clear_search.setOnClickListener(view -> {
-            ed_Search.setText("");
-        });
+        bt_clear_search.setOnClickListener(view -> ed_Search.setText(""));
 
     }
 
@@ -177,7 +176,7 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
         String[] proj = new String[]{
                 MediaStore.Video.Media.DATA, MediaStore.Video.Media._ID
         };
-        csr = getActivity().getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, proj, null, null, null);
+        csr = Objects.requireNonNull(getActivity()).getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, proj, null, null, null);
         while (csr.moveToNext()) {
             int ind = csr.getColumnIndex(MediaStore.Video.Media.DATA);
             int idCol = csr.getColumnIndex(MediaStore.Video.Media._ID);
@@ -257,7 +256,7 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
                         }
                         if (from.exists()) {
                             from.renameTo(to);
-                            removeMedia(getActivity(), from);
+                            removeMedia(Objects.requireNonNull(getActivity()), from);
                             addMedia(getActivity(), to);
                             CountDownTimer Timer2 = new CountDownTimer(1050, 1000) {
                                 public void onTick(long millisUntilFinished) {
@@ -297,7 +296,7 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
                     }
                     if (from.exists()) {
                         from.renameTo(to);
-                        removeMedia(getActivity(), from);
+                        removeMedia(Objects.requireNonNull(getActivity()), from);
                         addMedia(getActivity(), to);
                         CountDownTimer Timer2 = new CountDownTimer(1050, 1000) {
                             public void onTick(long millisUntilFinished) {
@@ -325,53 +324,22 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
         dialog.setContentView(R.layout.dialog_request_allfile);
         TextView allow = (TextView) dialog.findViewById(R.id.bt_allow);
         TextView deny = (TextView) dialog.findViewById(R.id.bt_deny);
-        allow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    if (Environment.isExternalStorageManager()) {
-                    } else { //request for the permission
-                        Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-                        Uri uri = Uri.fromParts("package", "com.mtg.videoplay", null);
-                        intent.setData(uri);
-                        startActivity(intent);
-                    }
-                    dialog.dismiss();
+        allow.setOnClickListener(v -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (Environment.isExternalStorageManager()) {
+                } else { //request for the permission
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                    Uri uri = Uri.fromParts("package", "com.mtg.videoplay", null);
+                    intent.setData(uri);
+                    startActivity(intent);
                 }
-            }
-        });
-        deny.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
                 dialog.dismiss();
             }
         });
-        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-
-                dialog.dismiss();
-
-            }
-        });
+        deny.setOnClickListener(v -> dialog.dismiss());
+        dialog.setOnDismissListener(dialog1 -> dialog1.dismiss());
 
         dialog.show();
-    }
-
-    private ArrayList<String> FetchFolder(String path) {
-
-        ArrayList<String> filenames = new ArrayList<String>();
-
-        File directory = new File(path);
-        File[] files = directory.listFiles();
-
-        for (int i = 0; i < (files != null ? files.length : 0); i++) {
-
-            String file_name = files[i].getName();
-            // you can store name to arraylist and use it later
-            filenames.add(file_name);
-        }
-        return filenames;
     }
 
     private static void removeMedia(Context c, File f) {

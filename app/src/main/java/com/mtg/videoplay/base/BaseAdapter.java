@@ -10,12 +10,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 abstract public class BaseAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    protected List<T> mList;
-    protected Context context;
+    protected final List<T> mList;
+    // --Commented out by Inspection (9/6/2022 8:57 AM):protected final Context context;
 
     public BaseAdapter(List<T> mList, Context context) {
         this.mList = mList;
-        this.context = context;
+//        this.context = context;
     }
 
 

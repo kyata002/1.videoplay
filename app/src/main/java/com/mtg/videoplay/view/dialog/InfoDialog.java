@@ -1,7 +1,6 @@
 package com.mtg.videoplay.view.dialog;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.media.MediaMetadataRetriever;
@@ -11,7 +10,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.mtg.videoplay.OnActionCallback;
 import com.mtg.videoplay.R;
 import com.mtg.videoplay.base.BaseDialog;
 
@@ -23,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 public class InfoDialog extends BaseDialog {
     TextView location,filename,length,size,date,resolution,title;
-    private String pathInfo;
+    private final String pathInfo;
     public InfoDialog(@NonNull Context context, String pathInfo) {
         super(context);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -52,7 +50,7 @@ public class InfoDialog extends BaseDialog {
         retriever.setDataSource(pathInfo);
         String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
         retriever.release();
-        long seconds = Long.valueOf( time );
+        long seconds = Long.parseLong( time );
         String vidLength = String.format("%02d:%02d",
                 TimeUnit.MILLISECONDS.toMinutes(seconds) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(seconds)),
                 TimeUnit.MILLISECONDS.toSeconds(seconds) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(seconds)));
@@ -69,9 +67,7 @@ public class InfoDialog extends BaseDialog {
         String width = metaRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
         resolution.setText(height+"x"+width);
 
-        findViewById(R.id.bt_ok).setOnClickListener(v -> {
-            dismiss();
-        });
+        findViewById(R.id.bt_ok).setOnClickListener(v -> dismiss());
 
 //
     }

@@ -17,7 +17,7 @@ import java.io.File;
 
 public class RenameDialog extends BaseDialog {
     EditText edit_name;
-    String pathName;
+    final String pathName;
     public void setCallback(OnActionCallback callback) {
         this.callback = callback;
     }
@@ -42,15 +42,7 @@ public class RenameDialog extends BaseDialog {
             }
             dismiss();
         });
-        findViewById(R.id.bt_cancel).setOnClickListener(v -> {
-            dismiss();
-        });
-        findViewById(R.id.btn_Clear).setOnClickListener(view -> {
-            edit_name.setText("");
-        });
-//        Admod.getInstance().loadNative((Activity) mContext
-//                , findViewById(com.ads.control.R.id.fl_adplaceholder)
-//                , findViewById(com.ads.control.R.id.shimmer_container),
-//                mContext.getString(R.string.admod_native));
+        findViewById(R.id.bt_cancel).setOnClickListener(v -> dismiss());
+        findViewById(R.id.btn_Clear).setOnClickListener(view -> edit_name.setText(""));
     }
 }

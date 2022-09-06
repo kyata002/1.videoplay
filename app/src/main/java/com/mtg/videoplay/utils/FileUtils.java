@@ -55,7 +55,7 @@ public class FileUtils {
 
                 final String id = DocumentsContract.getDocumentId(uri);
                 final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                        Uri.parse("content://downloads/public_downloads"), Long.parseLong(id));
 
                 return getDataColumn(context, contentUri, null, null);
             }
@@ -161,20 +161,6 @@ public class FileUtils {
         return fileSizeString;
     }
 
-//    public static String getMimeType(Uri uri) {
-//        String mimeType = null;
-//        if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
-//            ContentResolver cr = App.getInstance().getContentResolver();
-//            mimeType = cr.getType(uri);
-//        } else {
-//            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri
-//                    .toString());
-//            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-//                    fileExtension.toLowerCase());
-//        }
-//        return mimeType;
-//    }
-
 
     public static String getFileExtensionNoPoint(String path) {
         if (TextUtils.isEmpty(path)) {
@@ -189,7 +175,7 @@ public class FileUtils {
             return "";
         }
         String fileName = file.getName();
-        if (fileName != null && fileName.length() > 0) {
+        if (fileName.length() > 0) {
             int lastIndex = fileName.lastIndexOf('.');
             if ((lastIndex > -1) && (lastIndex < (fileName.length() - 1))) {
                 return fileName.substring(lastIndex + 1);
@@ -214,20 +200,17 @@ public class FileUtils {
         if (file1 == null || file2 == null) {
             return false;
         }
-        if (file1.getPath().equalsIgnoreCase(file2.getPath())) {
-            return true;
-        }
-        return false;
+        return file1.getPath().equalsIgnoreCase(file2.getPath());
     }
 
 
     private static boolean isSDExist() {
-        return Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
+        return !Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
     }
 
 
     public static String getSDCardFilesPath() {
-        if (!isSDExist()) {
+        if (isSDExist()) {
             return "";
         }
         return Environment.getExternalStorageDirectory().getAbsolutePath() + "/";
@@ -235,7 +218,7 @@ public class FileUtils {
 
 
     private static String getSDCardDownloadPath() {
-        if (!isSDExist()) {
+        if (isSDExist()) {
             return "";
         }
         return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/";
@@ -301,25 +284,6 @@ public class FileUtils {
         }
         return "*/*";
     }
-
-//    public static String getAppTempPath() {
-//        return getAvailableFilesPathAndroidData(true) + DEFAULT_TEMP;
-//    }
-
-
-//    private static String getAvailableFilesPathAndroidData(boolean boolToCache) {
-//        if (!isSDExist()) {
-//            if (boolToCache) {
-//                return App.getInstance().getCacheDir().getAbsolutePath() + "/";
-//            }
-//            return App.getInstance().getFilesDir().getAbsolutePath() + "/";
-//        } else {
-//            if (boolToCache) {
-//                return App.getInstance().getExternalCacheDir().getAbsolutePath() + "/";
-//            }
-//            return App.getInstance().getExternalFilesDir("").getAbsolutePath() + "/";
-//        }
-//    }
 
 
     public static void deleteFileAndroid11(AppCompatActivity activity, FileVideo video, ActivityResultLauncher<IntentSenderRequest> launcher) {

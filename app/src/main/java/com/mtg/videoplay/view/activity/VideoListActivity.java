@@ -25,7 +25,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.common.control.manager.AdmobManager;
 import com.mtg.videoplay.BuildConfig;
 import com.mtg.videoplay.R;
-import com.mtg.videoplay.adapter.AllVideoAdapter;
 import com.mtg.videoplay.adapter.FileFolderAdapter;
 import com.mtg.videoplay.base.BaseActivity;
 import com.mtg.videoplay.model.FileVideo;
@@ -77,9 +76,7 @@ public class VideoListActivity extends BaseActivity implements FileFolderAdapter
 
     @Override
     protected void addEvent() {
-        bt_back.setOnClickListener(view -> {
-            onBackPressed();
-        });
+        bt_back.setOnClickListener(view -> onBackPressed());
 
     }
 
@@ -112,11 +109,6 @@ public class VideoListActivity extends BaseActivity implements FileFolderAdapter
             }
 
         }
-//        Log.v("pathmain", String.valueOf(vidname));
-//        layoutManager = new LinearLayoutManager(this);
-//        rviewVideoList = (RecyclerView) findViewById(R.id.recycle);
-//        rviewVideoList.setLayoutManager(layoutManager);
-//        Collections.sort(fileFolder);
 
         Load_Ads=0;
         return fileFolder;
@@ -124,11 +116,7 @@ public class VideoListActivity extends BaseActivity implements FileFolderAdapter
 
     private boolean isFileExits(String filePath) {
         File file = new File(filePath);
-        if (file.exists()) {
-            return true;
-        } else {
-            return false;
-        }
+        return file.exists();
     }
 
     @Override
@@ -227,27 +215,19 @@ public class VideoListActivity extends BaseActivity implements FileFolderAdapter
         dialog.setContentView(R.layout.dialog_request_allfile);
         TextView allow = (TextView) dialog.findViewById(R.id.bt_allow);
         TextView deny = (TextView) dialog.findViewById(R.id.bt_deny);
-        allow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    if (Environment.isExternalStorageManager()) {
-                    } else { //request for the permission
-                        Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-                        Uri uri = Uri.fromParts("package", "com.mtg.videoplay", null);
-                        intent.setData(uri);
-                        startActivity(intent);
-                    }
-                    dialog.dismiss();
+        allow.setOnClickListener(v -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (Environment.isExternalStorageManager()) {
+                } else { //request for the permission
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                    Uri uri = Uri.fromParts("package", "com.mtg.videoplay", null);
+                    intent.setData(uri);
+                    startActivity(intent);
                 }
-            }
-        });
-        deny.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
                 dialog.dismiss();
             }
         });
+        deny.setOnClickListener(view -> dialog.dismiss());
         dialog.show();
     }
 

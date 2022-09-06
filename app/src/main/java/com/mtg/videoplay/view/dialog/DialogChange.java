@@ -14,7 +14,7 @@ import android.widget.TextView;
 import com.mtg.videoplay.R;
 
 public class DialogChange{
-    public int currentState = -1;
+//    public int currentState = -1;
     protected static Dialog mVolumeDialog;
     protected static ProgressBar mDialogVolumeProgressBar;
     protected static TextView mDialogVolumeTextView;
@@ -24,7 +24,7 @@ public class DialogChange{
     protected static TextView mDialogBrightnessTextView;
     public static Context context;
 
-    public static void showVolumeDialog(float deltaY, int volumePercent,Context ct) {
+    public static void showVolumeDialog(int volumePercent, Context ct) {
         context=ct;
         if (mVolumeDialog == null) {
             View localView = LayoutInflater.from(context).inflate(R.layout.dialog_volume, null);

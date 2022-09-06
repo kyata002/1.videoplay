@@ -26,21 +26,11 @@ public class SettingActivity extends BaseActivity {
 
     @Override
     protected void addEvent() {
-        findViewById(R.id.bt_back).setOnClickListener(view -> {
-            onBackPressed();
-        });
-        findViewById(R.id.bt_rate).setOnClickListener(view -> {
-            rateApp(context);
-        });
-        findViewById(R.id.bt_feed_back).setOnClickListener(view -> {
-            CommonUtils.getInstance().support(this, com.mtg.videoplay.utils.CommonUtils.SUBJECT, com.mtg.videoplay.utils.CommonUtils.EMAIL);
-        });
-        findViewById(R.id.bt_pri).setOnClickListener(view -> {
-            CommonUtils.getInstance().showPolicy(this, com.mtg.videoplay.utils.CommonUtils.POLICY_URL);
-        });
-        findViewById(R.id.bt_share_app).setOnClickListener(view -> {
-            CommonUtils.getInstance().shareApp(this, com.mtg.videoplay.utils.CommonUtils.SUBJECT);
-        });
+        findViewById(R.id.bt_back).setOnClickListener(view -> onBackPressed());
+        findViewById(R.id.bt_rate).setOnClickListener(view -> rateApp(context));
+        findViewById(R.id.bt_feed_back).setOnClickListener(view -> CommonUtils.getInstance().support(this, com.mtg.videoplay.utils.CommonUtils.SUBJECT, com.mtg.videoplay.utils.CommonUtils.EMAIL));
+        findViewById(R.id.bt_pri).setOnClickListener(view -> CommonUtils.getInstance().showPolicy(this, com.mtg.videoplay.utils.CommonUtils.POLICY_URL));
+        findViewById(R.id.bt_share_app).setOnClickListener(view -> CommonUtils.getInstance().shareApp(this, com.mtg.videoplay.utils.CommonUtils.SUBJECT));
 
     }
     public void rateApp(Context context) {

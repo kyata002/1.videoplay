@@ -36,9 +36,5 @@ public class DeleteDialog extends BaseDialog {
             callback.callback("no", null);
             dismiss();
         });
-//        Admod.getInstance().loadNative((Activity) mContext
-//                , findViewById(com.ads.control.R.id.fl_adplaceholder)
-//                , findViewById(com.ads.control.R.id.shimmer_container),
-//                mContext.getString(R.string.admod_native));
     }
 }
