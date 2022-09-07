@@ -1,5 +1,7 @@
 package com.mtg.videoplay.view.fragment;
 
+import static com.mtg.videoplay.view.activity.HomeActicity.launcher;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
@@ -8,6 +10,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.CountDownTimer;
@@ -25,6 +28,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -35,12 +40,15 @@ import com.mtg.videoplay.R;
 import com.mtg.videoplay.adapter.AllVideoAdapter;
 import com.mtg.videoplay.base.BaseFragment;
 import com.mtg.videoplay.model.FileVideo;
+import com.mtg.videoplay.utils.FileUtils;
 import com.mtg.videoplay.view.activity.SettingActivity;
+import com.mtg.videoplay.view.dialog.DeleteDialog;
 import com.mtg.videoplay.view.dialog.RenameDialog;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Objects;
 
 
@@ -59,7 +67,7 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
 
 
     ArrayList<FileVideo> videoList = new ArrayList<>();
-    final ArrayList<FileVideo> videoListSearch = new ArrayList<>();
+    ArrayList<FileVideo> videoListSearch = new ArrayList<>();
 
     @Override
     protected int getLayoutId() {
@@ -86,7 +94,6 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
             }
         });
         bt_backs.setOnClickListener(view -> {
-//            key_Search=1;
             lc_main.setVisibility(View.VISIBLE);
             lc_search.setVisibility(View.GONE);
             tab.setVisibility(View.VISIBLE);
@@ -117,6 +124,8 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
         bt_search.setOnClickListener(view -> {
             lc_main.setVisibility(View.GONE);
             lc_search.setVisibility(View.VISIBLE);
+            tab.setVisibility(View.GONE);
+            viewPager.setClickable(false);
         });
 
         bt_setting.setOnClickListener(view -> {
@@ -131,20 +140,7 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
 
     @Override
     protected void initView() {
-
-        bt_search = requireActivity().findViewById(R.id.bt_search);
-        bt_setting = requireActivity().findViewById(R.id.bt_setting);
-        tab=requireActivity().findViewById(R.id.tab_Layout);
-        viewPager =requireActivity(). findViewById(R.id.view_Pager);
-        lc_search = requireActivity().findViewById(R.id.lc_Search);
-        lc_main = requireActivity().findViewById(R.id.lc_Main);
-        ed_Search = requireActivity().findViewById(R.id.de_search);
-        bt_clear_search = requireActivity().findViewById(R.id.bt_clears);
-        bt_backs = requireActivity().findViewById(R.id.bt_BackS);
-        lr_No_File = requireActivity().findViewById(R.id.no_file);
-        ed_Search = requireActivity().findViewById(R.id.de_search);
-        rvAudio = requireActivity().findViewById(R.id.rv_video);
-        noVideo = requireActivity().findViewById(R.id.no_video_search);
+        link();
         videoList = getdata();
         rvAudio.setLayoutManager(new LinearLayoutManager(getContext()));
         rvAudio.setHasFixedSize(true);
@@ -167,35 +163,63 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
 
     }
 
+    private void link() {
+        bt_search = requireActivity().findViewById(R.id.bt_search);
+        bt_setting = requireActivity().findViewById(R.id.bt_setting);
+        tab=requireActivity().findViewById(R.id.tab_Layout);
+        viewPager =requireActivity(). findViewById(R.id.view_Pager);
+        lc_search = requireActivity().findViewById(R.id.lc_Search);
+        lc_main = requireActivity().findViewById(R.id.lc_Main);
+        ed_Search = requireActivity().findViewById(R.id.de_search);
+        bt_clear_search = requireActivity().findViewById(R.id.bt_clears);
+        bt_backs = requireActivity().findViewById(R.id.bt_BackS);
+        lr_No_File = requireActivity().findViewById(R.id.no_file);
+        ed_Search = requireActivity().findViewById(R.id.de_search);
+        rvAudio = requireActivity().findViewById(R.id.rv_video);
+        noVideo = requireActivity().findViewById(R.id.no_video_search);
+    }
 
 
     @SuppressLint("Recycle")
     public ArrayList<FileVideo> getdata() {
         Cursor csr;
         ArrayList<FileVideo> videoListPath = new ArrayList<>();
+        videoListPath.clear();
+        videoListSearch.clear();
         String[] proj = new String[]{
                 MediaStore.Video.Media.DATA, MediaStore.Video.Media._ID
         };
-        csr = Objects.requireNonNull(getActivity()).getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, proj, null, null, null);
+        csr = requireActivity().getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, proj, null, null, null);
         while (csr.moveToNext()) {
             int ind = csr.getColumnIndex(MediaStore.Video.Media.DATA);
             int idCol = csr.getColumnIndex(MediaStore.Video.Media._ID);
             String path = csr.getString(ind);
             int id = csr.getInt(idCol);
             if (new File(path).exists()&&path.endsWith(".mp4")&&new File(path).length()>1){
-                Load_Ads++;
-                if(Load_Ads%6==0){
-                    videoListPath.add(new FileVideo(path, id));
-                    videoListPath.add(null);
-                }else{
-                    videoListPath.add(new FileVideo(path, id));
-                }
                 videoListSearch.add(new FileVideo(path, id));
             }
-
-
         }
         Load_Ads=0;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            videoListSearch.sort(new Comparator<FileVideo>() {
+                @Override
+                public int compare(FileVideo fileVideo, FileVideo t1) {
+                    return Long.compare(new File(t1.getPath()).lastModified(),new File(fileVideo.getPath()).lastModified());
+                }
+            });
+        }
+        for(int i=0;i<videoListSearch.size();i++){
+//            Load_Ads++;
+            if(i%6==5){
+                videoListPath.add(videoListSearch.get(i));
+                videoListPath.add(null);
+            }else{
+                videoListPath.add(videoListSearch.get(i));
+            }
+        }
+        if(videoListSearch.size()%6==0){
+            videoListPath.remove(videoListPath.size()-1);
+        }
         return videoListPath;
     }
 
@@ -205,7 +229,7 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
         ArrayList<FileVideo> listNew = new ArrayList<>();
 
         for (int i = 0; i < videoListSearch.size(); i++) {
-            if (new File(String.valueOf(videoListSearch.get(i).getPath())).getName().contains(text)) {
+            if (new File(String.valueOf(videoListSearch.get(i).getPath())).getName().toLowerCase().contains(text.toLowerCase())) {
                 listNew.add(videoListSearch.get(i));
             }
         }
@@ -224,7 +248,6 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
         rvAudio.setHasFixedSize(true);
         rvAudio.setItemViewCacheSize(20);
         adapter = new AllVideoAdapter(getContext(), listNew);
-//        adapter.setHasStableIds(true);
         GridLayoutManager linearLayoutManager = new GridLayoutManager(getContext(), 2, GridLayoutManager.VERTICAL, false);
         rvAudio.setLayoutManager(linearLayoutManager);
         rvAudio.setAdapter(adapter);
@@ -256,9 +279,9 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
                         }
                         if (from.exists()) {
                             from.renameTo(to);
-                            removeMedia(Objects.requireNonNull(getActivity()), from);
+                            removeMedia(requireActivity(), from);
                             addMedia(getActivity(), to);
-                            CountDownTimer Timer2 = new CountDownTimer(1050, 1000) {
+                            CountDownTimer Timer2 = new CountDownTimer(1100, 1000) {
                                 public void onTick(long millisUntilFinished) {
 
                                 }
@@ -296,7 +319,7 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
                     }
                     if (from.exists()) {
                         from.renameTo(to);
-                        removeMedia(Objects.requireNonNull(getActivity()), from);
+                        removeMedia(requireActivity(), from);
                         addMedia(getActivity(), to);
                         CountDownTimer Timer2 = new CountDownTimer(1050, 1000) {
                             public void onTick(long millisUntilFinished) {
@@ -315,6 +338,53 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
             });
             dialog.show();
         }
+    }
+
+    @Override
+    public void onDelete(int position) {
+        DeleteDialog dialog = new DeleteDialog(context);
+//        this.position = position;
+
+        dialog.setCallback((key, data) -> {
+            if (key.equals("delete")) {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                    File file = new File(videoList.get(position).getPath());
+                    file.delete();
+                    MediaScannerConnection.scanFile(context,
+                            new String[]{file.toString()},
+                            null, null);
+                    adapter.notifyDataSetChanged();
+                    if (file.exists()) {
+                        try {
+                            file.getCanonicalFile().delete();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        if (file.exists()) {
+                            context.deleteFile(file.getName());
+                        }
+                        videoList.remove(videoList.get(position));
+//                    notifyItemRemoved(videoList.indexOf(videoList.get(position)));
+                    } else {
+                        videoList.remove(videoList.get(position));
+//                    notifyItemRemoved(videoList.indexOf(videoList.get(position)));
+                    }
+                } else {
+                    FileUtils.deleteFileAndroid11((AppCompatActivity) context, videoList.get(position), launcher);
+                    videoList.remove(videoList.get(position));
+                    adapter.notifyDataSetChanged();
+                    videoList.clear();
+                    videoList = getdata();
+                    adapter.update(videoList);
+                }
+
+
+            }
+            if (key.equals("no")) {
+
+            }
+        });
+        dialog.show();
     }
 
     public void showDialog(final Activity activity) {

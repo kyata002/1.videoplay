@@ -36,10 +36,9 @@ import com.mtg.videoplay.R;
 import com.mtg.videoplay.model.FileVideo;
 import com.mtg.videoplay.utils.FileUtils;
 import com.mtg.videoplay.utils.Utils;
-import com.mtg.videoplay.view.activity.VideoPlayer;
+import com.mtg.videoplay.view.activity.VideoPlayerActivity;
 import com.mtg.videoplay.view.dialog.DeleteDialog;
 import com.mtg.videoplay.view.dialog.InfoDialog;
-import com.skydoves.powermenu.OnMenuItemClickListener;
 import com.skydoves.powermenu.PowerMenu;
 import com.skydoves.powermenu.PowerMenuItem;
 
@@ -139,7 +138,7 @@ public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                 if(ck_play%2==0&&ck_play!=0){
                     loadInter(position);
                 }else{
-                    intent = new Intent(context, VideoPlayer.class);
+                    intent = new Intent(context, VideoPlayerActivity.class);
                     intent.putExtra("file", position);
                     intent.putExtra("list", videoList);
                     context.startActivity(intent);
@@ -300,8 +299,8 @@ public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     public void onResultInterstitialAd(InterstitialAd interstitialAd) {
                         super.onResultInterstitialAd(interstitialAd);
                         AdmobManager.getInstance().showInterstitial((Activity) context, interstitialAd, this);
-                        VideoPlayer.Companion.setKeyPlay(0);
-                        intent = new Intent(context, VideoPlayer.class);
+                        VideoPlayerActivity.Companion.setKeyPlay(0);
+                        intent = new Intent(context, VideoPlayerActivity.class);
                         intent.putExtra("file", position);
                         intent.putExtra("list", videoList);
 //            intent.putExtra("rotation", rotation);
@@ -311,8 +310,8 @@ public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     @Override
                     public void onAdFailedToShowFullScreenContent(LoadAdError errAd) {
                         super.onAdFailedToShowFullScreenContent(errAd);
-                        VideoPlayer.Companion.setKeyPlay(0);
-                        intent = new Intent(context, VideoPlayer.class);
+                        VideoPlayerActivity.Companion.setKeyPlay(0);
+                        intent = new Intent(context, VideoPlayerActivity.class);
                         intent.putExtra("file", position);
                         intent.putExtra("list", videoList);
 //            intent.putExtra("rotation", rotation);
@@ -322,8 +321,8 @@ public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     @Override
                     public void onAdFailedToLoad(@NonNull LoadAdError i) {
                         super.onAdFailedToLoad(i);
-                        VideoPlayer.Companion.setKeyPlay(0);
-                        intent = new Intent(context, VideoPlayer.class);
+                        VideoPlayerActivity.Companion.setKeyPlay(0);
+                        intent = new Intent(context, VideoPlayerActivity.class);
                         intent.putExtra("file", position);
                         intent.putExtra("list", videoList);
 //            intent.putExtra("rotation", rotation);
@@ -333,8 +332,8 @@ public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     @Override
                     public void onAdLoaded() {
                         super.onAdLoaded();
-                        VideoPlayer.Companion.setKeyPlay(0);
-                        intent = new Intent(context, VideoPlayer.class);
+                        VideoPlayerActivity.Companion.setKeyPlay(0);
+                        intent = new Intent(context, VideoPlayerActivity.class);
                         intent.putExtra("file", position);
                         intent.putExtra("list", videoList);
 //            intent.putExtra("rotation", rotation);

@@ -45,20 +45,20 @@ import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 
 
-class VideoPlayer : BaseActivity() {
+class VideoPlayerActivity : BaseActivity() {
     private var ck_pause: Boolean = false
     private var videoIndex: Int = 0
     private var powerMenu: PowerMenu? = null
     private var ck_lock: Boolean = false
     private var mChangeBrightness: Boolean = false
-    protected var mGestureDownVolume = 0
+    private var mGestureDownVolume = 0
     private val ck_Dh: Boolean = false
     private var mChangeVolume: Boolean = false
     private var ck_visible: Boolean = false
-    protected var mScreenWidth = 0
-    protected var mScreenHeight = 0
-    protected var mGestureDownBrightness = 0
-    protected var mTouchingProgressBar = false
+    private var mScreenWidth = 0
+    private var mScreenHeight = 0
+    private var mGestureDownBrightness = 0
+    private var mTouchingProgressBar = false
     private var mediaPlayer: MediaPlayer? = null
     var stopPosition: Int = 0
     var videpList: ArrayList<FileVideo>? = ArrayList()
@@ -113,11 +113,11 @@ class VideoPlayer : BaseActivity() {
                                 var deltaY: Float = y - mDownY
                                 if (mDownX < mScreenWidth * 0.5f) {
                                     mChangeBrightness = true
-                                    val lp = getWindow(this@VideoPlayer)?.attributes
+                                    val lp = getWindow(this@VideoPlayerActivity)?.attributes
                                     if (lp?.screenBrightness!! < 0) {
                                         try {
                                             mGestureDownBrightness = Settings.System.getInt(
-                                                this@VideoPlayer.contentResolver,
+                                                this@VideoPlayerActivity.contentResolver,
                                                 Settings.System.SCREEN_BRIGHTNESS
                                             )
                                         } catch (e: Settings.SettingNotFoundException) {
@@ -132,39 +132,43 @@ class VideoPlayer : BaseActivity() {
                                         mAudioManager!!.getStreamVolume(AudioManager.STREAM_MUSIC)
                                 }
                                 if (mChangeVolume) {
-                                    deltaY = -deltaY
-                                    val max: Int =
-                                        mAudioManager!!.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-                                    val deltaV = (max * deltaY * 3 / mScreenHeight)
-                                    mAudioManager!!.setStreamVolume(
-                                        AudioManager.STREAM_MUSIC,
-                                        (mGestureDownVolume + deltaV).roundToInt(),
-                                        0
-                                    )
-                                    //dialog
-                                    DialogChange.showVolumeDialog(
-                                        ((mGestureDownVolume * 100 / max + deltaY * 3 * 100 / mScreenHeight).toInt()),
-                                        this@VideoPlayer
-                                    )
+                                    if (this@VideoPlayerActivity != null) {
+                                        deltaY = -deltaY
+                                        val max: Int =
+                                            mAudioManager!!.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+                                        val deltaV = (max * deltaY * 3 / mScreenHeight)
+                                        mAudioManager!!.setStreamVolume(
+                                            AudioManager.STREAM_MUSIC,
+                                            (mGestureDownVolume + deltaV).roundToInt(),
+                                            0
+                                        )
+                                        //dialog
+                                        DialogChange.showVolumeDialog(
+                                            ((mGestureDownVolume * 100 / max + deltaY * 3 * 100 / mScreenHeight).toInt()),
+                                            this@VideoPlayerActivity
+                                        )
+                                    }
                                 }
                                 if (mChangeBrightness) {
-                                    deltaY = -deltaY
-                                    val deltaV = (255 * deltaY * 3 / mScreenHeight)
-                                    val params = getWindow(this@VideoPlayer)?.attributes
-                                    if ((mGestureDownBrightness + deltaV) / 255 >= 1) {
-                                        params?.screenBrightness = 1f
-                                    } else if ((mGestureDownBrightness + deltaV) / 255 <= 0) {
-                                        params?.screenBrightness = 0.01f
-                                    } else {
-                                        params?.screenBrightness =
-                                            ((mGestureDownBrightness + deltaV) / 255).toFloat()
+                                    if (this@VideoPlayerActivity != null) {
+                                        deltaY = -deltaY
+                                        val deltaV = (255 * deltaY * 3 / mScreenHeight)
+                                        val params = getWindow(this@VideoPlayerActivity)?.attributes
+                                        if ((mGestureDownBrightness + deltaV) / 255 >= 1) {
+                                            params?.screenBrightness = 1f
+                                        } else if ((mGestureDownBrightness + deltaV) / 255 <= 0) {
+                                            params?.screenBrightness = 0.01f
+                                        } else {
+                                            params?.screenBrightness =
+                                                ((mGestureDownBrightness + deltaV) / 255).toFloat()
+                                        }
+                                        getWindow(this@VideoPlayerActivity)?.attributes = params
+                                        //dialog
+                                        DialogChange.showBrightnessDialog(
+                                            ((mGestureDownBrightness * 100 / 255 + deltaY * 3 * 100 / mScreenHeight).toInt()),
+                                            this@VideoPlayerActivity
+                                        )
                                     }
-                                    getWindow(this@VideoPlayer)?.attributes = params
-                                    //dialog
-                                    DialogChange.showBrightnessDialog(
-                                        ((mGestureDownBrightness * 100 / 255 + deltaY * 3 * 100 / mScreenHeight).toInt()),
-                                        this@VideoPlayer
-                                    )
                                 }
                             }
                             MotionEvent.ACTION_UP -> {
@@ -182,7 +186,7 @@ class VideoPlayer : BaseActivity() {
                             }
                         }
                     } else {
-                        when (motionEvent.action) {
+                            when (motionEvent.action) {
                             MotionEvent.ACTION_DOWN -> if (ck_visible === false) {
                                 fr_lock.visibility = View.VISIBLE
                                 if (ck_lock === false) Timer2?.cancel()
@@ -238,6 +242,8 @@ class VideoPlayer : BaseActivity() {
             videoView.seekTo(0)
             videoView.start()
             bg_replay.visibility = GONE
+            bt_play.setImageResource(R.drawable.ic_pause)
+            ck_pause = false;
         }
         bt_back_play.setOnClickListener {
             onBackPressed()
@@ -396,7 +402,7 @@ class VideoPlayer : BaseActivity() {
     private fun prepareSource(intent: Intent?) {
         videoIndex = intent?.getIntExtra("file", -1)!!
         videpList = intent?.getSerializableExtra("list") as ArrayList<FileVideo>
-        speed=1f
+        speed = 1f
         videoView.apply {
             setVideoPath(videoIndex?.let { videpList!!.get(it).path })
             start()
@@ -406,10 +412,12 @@ class VideoPlayer : BaseActivity() {
                 true -> hideUnnecessaryViews()
                 false -> bg_replay.visibility = VISIBLE
             }
-            pg_time_load.progress= it.duration
+            pg_time_load.progress = it.duration
+            bt_play.setImageResource(R.drawable.ic_play);
+            ck_pause = true;
         }
         videoView.setOnPreparedListener(OnPreparedListener { mediaPlayer ->
-            this@VideoPlayer.mediaPlayer = mediaPlayer
+            this@VideoPlayerActivity.mediaPlayer = mediaPlayer
             txt_time_max.setText(fomartMaxTime(mediaPlayer.duration))
             pg_time_load.setMax(mediaPlayer.duration)
             curentTime()
@@ -442,10 +450,10 @@ class VideoPlayer : BaseActivity() {
     }
 
     private fun setNewSpeed() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val myPlayBackParams = PlaybackParams()
-                myPlayBackParams.speed = speed //you can set speed here
-                this.mediaPlayer?.setPlaybackParams(myPlayBackParams)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val myPlayBackParams = PlaybackParams()
+            myPlayBackParams.speed = speed //you can set speed here
+            this.mediaPlayer?.setPlaybackParams(myPlayBackParams)
         }
     }
 
@@ -493,6 +501,7 @@ class VideoPlayer : BaseActivity() {
             scanForActivity(context)?.window
         }
     }
+
     fun getAppCompActivity(context: Context?): AppCompatActivity? {
         if (context == null) return null
         if (context is AppCompatActivity) {
@@ -502,6 +511,7 @@ class VideoPlayer : BaseActivity() {
         }
         return null
     }
+
     fun scanForActivity(context: Context?): Activity? {
         if (context == null) return null
         if (context is Activity) {
@@ -514,8 +524,8 @@ class VideoPlayer : BaseActivity() {
 
     override fun onPause() {
         super.onPause()
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.N){
-            if (isInPictureInPictureMode()&&Build.VERSION.SDK_INT>=Build.VERSION_CODES.N) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if (isInPictureInPictureMode() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 onResume();
             } else {
                 bt_play.setImageResource(R.drawable.ic_play);
@@ -530,17 +540,17 @@ class VideoPlayer : BaseActivity() {
     // resume video
     override fun onResume() {
         super.onResume()
+        bg_replay.visibility = GONE
         bt_play.setImageResource(R.drawable.ic_pause)
         ck_pause = false
         videoView.seekTo(stopPosition)
         videoView.start() //Or use resume() if it doesn't work. I'm not sure
     }
-    companion object{
-//        @kotlin.jvm.JvmField
-//        var keyPlay: Int
-        var keyPlay =0
-        var speed=1f
+
+    companion object {
+        var keyPlay = 0
+        var speed = 1f
         var pos by Delegates.notNull<Int>()
-        lateinit var pathVideo:String
+        lateinit var pathVideo: String
     }
 }

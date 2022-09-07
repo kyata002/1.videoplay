@@ -52,6 +52,29 @@
             android:fontFamily="@font/roboto_regular"/>
 
     </LinearLayout>
+    <LinearLayout
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center">
+        <ImageView
+            android:layout_width="@dimen/_120sdp"
+            android:layout_height="@dimen/_120sdp"
+            android:src="@drawable/ic_no_file"
+            android:layout_gravity="center"/>
+        <Button
+            android:id="@+id/rq_Permission"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No File"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:layout_gravity="center"
+            android:textSize="@dimen/_12sdp"
+            android:textColor="#929292"
+            android:fontFamily="@font/roboto_regular"/>
+
+    </LinearLayout>
     <androidx.recyclerview.widget.RecyclerView
         android:background="#00ECE8E8"
         android:id="@+id/rv_video"

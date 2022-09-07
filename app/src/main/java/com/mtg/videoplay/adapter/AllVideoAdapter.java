@@ -1,16 +1,12 @@
 package com.mtg.videoplay.adapter;
 
-import static com.mtg.videoplay.view.activity.HomeActicity.launcher;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.media.MediaMetadataRetriever;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.os.Build;
 import android.os.StrictMode;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -21,7 +17,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,14 +28,11 @@ import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.mtg.videoplay.BuildConfig;
 import com.mtg.videoplay.R;
-import com.mtg.videoplay.utils.FileUtils;
 import com.mtg.videoplay.utils.Utils;
 import com.mtg.videoplay.model.FileVideo;
-import com.mtg.videoplay.view.activity.VideoPlayer;
-import com.mtg.videoplay.view.dialog.DeleteDialog;
+import com.mtg.videoplay.view.activity.VideoPlayerActivity;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URLConnection;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -48,7 +40,6 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import com.mtg.videoplay.view.dialog.InfoDialog;
-import com.skydoves.powermenu.OnMenuItemClickListener;
 import com.skydoves.powermenu.PowerMenu;
 import com.skydoves.powermenu.PowerMenuItem;
 
@@ -139,7 +130,7 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 if(ck_play%2==0&&ck_play!=0){
                     loadInter(position);
                 }else{
-                    intent = new Intent(context, VideoPlayer.class);
+                    intent = new Intent(context, VideoPlayerActivity.class);
                     intent.putExtra("file", position);
                     intent.putExtra("list", videoList);
                     context.startActivity(intent);
@@ -183,7 +174,8 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                     onClickOptionListener.onRename(position);
                                     powerMenu.dismiss();
                                 } else if ("Delete".equals(title)) {
-                                    dialogDelete(position);
+                                    onClickOptionListener.onDelete(position);
+//                                    dialogDelete(position);
                                     powerMenu.dismiss();
                                 } else if ("Info".equals(title)) {
                                     dialogInfo(videoList.get(position).getPath());
@@ -234,45 +226,7 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
     public void dialogDelete(int position) {
-        DeleteDialog dialog = new DeleteDialog(context);
-//        this.position = position;
 
-        dialog.setCallback((key, data) -> {
-            if (key.equals("delete")) {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-                    File file = new File(videoList.get(position).getPath());
-                    file.delete();
-                    MediaScannerConnection.scanFile(context,
-                            new String[]{file.toString()},
-                            null, null);
-                    notifyDataSetChanged();
-                    if (file.exists()) {
-                        try {
-                            file.getCanonicalFile().delete();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        if (file.exists()) {
-                            context.deleteFile(file.getName());
-                        }
-                        videoList.remove(videoList.get(position));
-//                    notifyItemRemoved(videoList.indexOf(videoList.get(position)));
-                    } else {
-                        videoList.remove(videoList.get(position));
-//                    notifyItemRemoved(videoList.indexOf(videoList.get(position)));
-                    }
-                } else {
-                    FileUtils.deleteFileAndroid11((AppCompatActivity) context, videoList.get(position), launcher);
-                    videoList.remove(videoList.get(position));
-                }
-
-
-            }
-            if (key.equals("no")) {
-
-            }
-        });
-        dialog.show();
     }
 
     public  void update(ArrayList<FileVideo> mList){
@@ -301,8 +255,13 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     public void onResultInterstitialAd(InterstitialAd interstitialAd) {
                         super.onResultInterstitialAd(interstitialAd);
                         AdmobManager.getInstance().showInterstitial((Activity) context, interstitialAd, this);
-                        VideoPlayer.Companion.setKeyPlay(0);
-                        intent = new Intent(context, VideoPlayer.class);
+
+                    }
+                    @Override
+                    public void onAdClosed() {
+                        super.onAdClosed();
+                        VideoPlayerActivity.Companion.setKeyPlay(0);
+                        intent = new Intent(context, VideoPlayerActivity.class);
                         intent.putExtra("file", position);
                         intent.putExtra("list", videoList);
 //            intent.putExtra("rotation", rotation);
@@ -312,8 +271,8 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     @Override
                     public void onAdFailedToShowFullScreenContent(LoadAdError errAd) {
                         super.onAdFailedToShowFullScreenContent(errAd);
-                        VideoPlayer.Companion.setKeyPlay(0);
-                        intent = new Intent(context, VideoPlayer.class);
+                        VideoPlayerActivity.Companion.setKeyPlay(0);
+                        intent = new Intent(context, VideoPlayerActivity.class);
                         intent.putExtra("file", position);
                         intent.putExtra("list", videoList);
 //            intent.putExtra("rotation", rotation);
@@ -323,8 +282,8 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     @Override
                     public void onAdFailedToLoad(@NonNull LoadAdError i) {
                         super.onAdFailedToLoad(i);
-                        VideoPlayer.Companion.setKeyPlay(0);
-                        intent = new Intent(context, VideoPlayer.class);
+                        VideoPlayerActivity.Companion.setKeyPlay(0);
+                        intent = new Intent(context, VideoPlayerActivity.class);
                         intent.putExtra("file", position);
                         intent.putExtra("list", videoList);
 //            intent.putExtra("rotation", rotation);
@@ -334,8 +293,8 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     @Override
                     public void onAdLoaded() {
                         super.onAdLoaded();
-                        VideoPlayer.Companion.setKeyPlay(0);
-                        intent = new Intent(context, VideoPlayer.class);
+                        VideoPlayerActivity.Companion.setKeyPlay(0);
+                        intent = new Intent(context, VideoPlayerActivity.class);
                         intent.putExtra("file", position);
                         intent.putExtra("list", videoList);
 //            intent.putExtra("rotation", rotation);
@@ -349,5 +308,6 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     public interface OnClickOptionListener {
         void onRename(int position);
+        void onDelete(int position);
     }
 }

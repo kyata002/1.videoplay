@@ -40,10 +40,16 @@ public class SplashActivity extends BaseActivity {
         AdmobManager.getInstance()
                 .loadInterAds(this, BuildConfig.inter_open_app, new AdCallback() {
                     @Override
+                    public void onAdClosed() {
+                        super.onAdClosed();
+                        showMain();
+                    }
+
+                    @Override
                     public void onResultInterstitialAd(InterstitialAd interstitialAd) {
                         super.onResultInterstitialAd(interstitialAd);
                         AdmobManager.getInstance().showInterstitial(SplashActivity.this, interstitialAd, this);
-                        showMain();
+//                        showMain();
                     }
 
                     @Override

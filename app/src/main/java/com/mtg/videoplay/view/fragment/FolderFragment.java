@@ -56,7 +56,7 @@ public class FolderFragment extends BaseFragment {
         String[] proj = new String[]{
                 MediaStore.Video.Media.DATA
         };
-        Cursor csr = Objects.requireNonNull(getActivity()).getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, proj, null, null, null);
+        Cursor csr = requireActivity().getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, proj, null, null, null);
         folderPath.clear();
 
         while (csr.moveToNext()) {
