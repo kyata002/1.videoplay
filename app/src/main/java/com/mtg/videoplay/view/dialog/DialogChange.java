@@ -78,6 +78,7 @@ public class DialogChange{
             mBrightnessDialog = createDialogWithView(localView);
         }
         if (!mBrightnessDialog.isShowing()) {
+            mBrightnessDialog.dismiss();
             mBrightnessDialog.show();
         }
         if (brightnessPercent > 100) {

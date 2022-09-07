@@ -109,7 +109,6 @@ class VideoPlayerActivity : BaseActivity() {
                                 if (ck_Dh) {
                                     Timer?.cancel()
                                 }
-                                val deltaX: Float = x - mDownX
                                 var deltaY: Float = y - mDownY
                                 if (mDownX < mScreenWidth * 0.5f) {
                                     mChangeBrightness = true
@@ -132,7 +131,6 @@ class VideoPlayerActivity : BaseActivity() {
                                         mAudioManager!!.getStreamVolume(AudioManager.STREAM_MUSIC)
                                 }
                                 if (mChangeVolume) {
-                                    if (this@VideoPlayerActivity != null) {
                                         deltaY = -deltaY
                                         val max: Int =
                                             mAudioManager!!.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
@@ -147,10 +145,8 @@ class VideoPlayerActivity : BaseActivity() {
                                             ((mGestureDownVolume * 100 / max + deltaY * 3 * 100 / mScreenHeight).toInt()),
                                             this@VideoPlayerActivity
                                         )
-                                    }
                                 }
                                 if (mChangeBrightness) {
-                                    if (this@VideoPlayerActivity != null) {
                                         deltaY = -deltaY
                                         val deltaV = (255 * deltaY * 3 / mScreenHeight)
                                         val params = getWindow(this@VideoPlayerActivity)?.attributes
@@ -168,7 +164,6 @@ class VideoPlayerActivity : BaseActivity() {
                                             ((mGestureDownBrightness * 100 / 255 + deltaY * 3 * 100 / mScreenHeight).toInt()),
                                             this@VideoPlayerActivity
                                         )
-                                    }
                                 }
                             }
                             MotionEvent.ACTION_UP -> {

@@ -256,6 +256,9 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
     @Override
     public void onResume() {
         super.onResume();
+        videoList.clear();
+        videoList = getdata();
+        adapter.update(videoList);
     }
 
     @Override
@@ -321,6 +324,7 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
                         from.renameTo(to);
                         removeMedia(requireActivity(), from);
                         addMedia(getActivity(), to);
+
                         CountDownTimer Timer2 = new CountDownTimer(1050, 1000) {
                             public void onTick(long millisUntilFinished) {
 
@@ -371,11 +375,13 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
                     }
                 } else {
                     FileUtils.deleteFileAndroid11((AppCompatActivity) context, videoList.get(position), launcher);
+                    File file2 = new File(videoList.get(position).getPath());
+                    MediaScannerConnection.scanFile(context,
+                            new String[]{file2.toString()},
+                            null, null);
                     videoList.remove(videoList.get(position));
                     adapter.notifyDataSetChanged();
-                    videoList.clear();
-                    videoList = getdata();
-                    adapter.update(videoList);
+                    onResume();
                 }
 
 
