@@ -34,7 +34,11 @@ public class DialogChange{
             mVolumeDialog = createDialogWithView(localView);
         }
         if (!mVolumeDialog.isShowing()) {
-            mVolumeDialog.show();
+            try{
+                mVolumeDialog.show();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
         if (volumePercent <= 0) {
             mDialogVolumeImageView.setBackgroundResource(R.drawable.vp_close_volume);
@@ -53,6 +57,7 @@ public class DialogChange{
     public static void dismissVolumeDialog() {
         if (mVolumeDialog != null) {
             mVolumeDialog.dismiss();
+            mVolumeDialog = null;
         }
     }
 
@@ -78,8 +83,11 @@ public class DialogChange{
             mBrightnessDialog = createDialogWithView(localView);
         }
         if (!mBrightnessDialog.isShowing()) {
-            mBrightnessDialog.dismiss();
-            mBrightnessDialog.show();
+            try{
+                mBrightnessDialog.show();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
         if (brightnessPercent > 100) {
             brightnessPercent = 100;
@@ -94,6 +102,7 @@ public class DialogChange{
     public static void dismissBrightnessDialog() {
         if (mBrightnessDialog != null) {
             mBrightnessDialog.dismiss();
+            mBrightnessDialog = null;
         }
     }
 

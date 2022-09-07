@@ -6,4 +6,5 @@
     <string name="delete">Delete</string>
     <string name="detail">Info</string>
     <string name="loading">This action can contain ads...</string>
+    <string name="go_to_set">Go to set</string>
 </resources>

@@ -56,6 +56,7 @@ public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     public ArrayList<FileVideo> videoList;
     public final Context context;
+    private InterstitialAd interAds = null;
     private PowerMenu powerMenu;
 
     public void setOnClickOption1Listener(OnClickOption1Listener onClickOption1Listener) {
@@ -117,6 +118,7 @@ public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (videoList.size() == 0) return;
         if(holder instanceof AllVideoAdapter.ListViewHolder){
+            loadInter(position);
             AllVideoAdapter.ListViewHolder listViewHolder = (AllVideoAdapter.ListViewHolder) holder;
             RequestOptions requestOptions = new RequestOptions();
             requestOptions.placeholder(R.drawable.ic_defaut);
@@ -136,12 +138,9 @@ public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             holder.itemView.setOnClickListener(view -> {
                 ck_play++;
                 if(ck_play%2==0&&ck_play!=0){
-                    loadInter(position);
+                    showInter(position);
                 }else{
-                    intent = new Intent(context, VideoPlayerActivity.class);
-                    intent.putExtra("file", position);
-                    intent.putExtra("list", videoList);
-                    context.startActivity(intent);
+                    play(context,position);
                 }
 
             });
@@ -182,7 +181,8 @@ public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                                     onClickOption1Listener.onRenameFolder(position);
                                     powerMenu.dismiss();
                                 } else if ("Delete".equals(title)) {
-                                    dialogDelete(position);
+                                    onClickOption1Listener.onDeleteFolder(position);
+//                                    dialogDelete(position);
                                     powerMenu.dismiss();
                                 } else if ("Info".equals(title)) {
                                     dialogInfo(videoList.get(position).getPath());
@@ -231,47 +231,66 @@ public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             bt_more = itemView.findViewById(R.id.bt_more);
         }
     }
-
-    public void dialogDelete(int position) {
-        DeleteDialog dialog = new DeleteDialog(context);
-//        this.position = position;
-
-        dialog.setCallback((key, data) -> {
-            if (key.equals("delete")) {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-                    File file = new File(videoList.get(position).getPath());
-                    file.delete();
-                    MediaScannerConnection.scanFile(context,
-                            new String[]{file.toString()},
-                            null, null);
-                    notifyDataSetChanged();
-                    if (file.exists()) {
-                        try {
-                            file.getCanonicalFile().delete();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        if (file.exists()) {
-                            context.deleteFile(file.getName());
-                        }
-                        videoList.remove(videoList.get(position));
-//                    notifyItemRemoved(videoList.indexOf(videoList.get(position)));
-                    } else {
-                        videoList.remove(videoList.get(position));
-//                    notifyItemRemoved(videoList.indexOf(videoList.get(position)));
-                    }
-                } else {
-                    FileUtils.deleteFileAndroid11((AppCompatActivity) context, videoList.get(position), launcher);
-                }
+    private void showInter(int position) {
+        AdmobManager.getInstance().showInterstitial((Activity) context, interAds, new AdCallback() {
+            @Override
+            public void onAdClosed() {
+                super.onAdClosed();
+                play(context,position);
 
 
             }
-            if (key.equals("no")) {
 
+            @Override
+            public void onAdFailedToShowFullScreenContent(LoadAdError errAd) {
+                super.onAdFailedToShowFullScreenContent(errAd);
+                play(context,position);
             }
         });
-        dialog.show();
     }
+
+    private void loadInter(int position) {
+        AdmobManager.getInstance()
+                .loadInterAds((Activity) context, BuildConfig.inter_open_app, new AdCallback() {
+                    @Override
+                    public void onResultInterstitialAd(InterstitialAd interstitialAd) {
+                        super.onResultInterstitialAd(interstitialAd);
+                        interAds = interstitialAd;
+                    }
+
+                    @Override
+                    public void onAdFailedToShowFullScreenContent(LoadAdError errAd) {
+                        super.onAdFailedToShowFullScreenContent(errAd);
+                        play(context,position);
+
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError i) {
+                        super.onAdFailedToLoad(i);
+                        play(context,position);
+
+                    }
+
+                    @Override
+                    public void onAdLoaded() {
+                        super.onAdLoaded();
+                        play(context,position);
+                    }
+
+                });
+    }
+
+    private void play(Context context, int position) {
+
+        VideoPlayerActivity.Companion.setKeyPlay(0);
+        intent = new Intent(context, VideoPlayerActivity.class);
+        intent.putExtra("file", position);
+        intent.putExtra("list", videoList);
+//            intent.putExtra("rotation", rotation);
+        context.startActivity(intent);
+    }
+
 
     public  void update(ArrayList<FileVideo> mList){
         this.videoList = mList;
@@ -292,61 +311,12 @@ public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         context.startActivity(Intent.createChooser(intentShareFile, "Share File"));
     }
 
-    private void loadInter(int position) {
-        AdmobManager.getInstance()
-                .loadInterAds((Activity) context, BuildConfig.inter_open_app, new AdCallback() {
-                    @Override
-                    public void onResultInterstitialAd(InterstitialAd interstitialAd) {
-                        super.onResultInterstitialAd(interstitialAd);
-                        AdmobManager.getInstance().showInterstitial((Activity) context, interstitialAd, this);
-                        VideoPlayerActivity.Companion.setKeyPlay(0);
-                        intent = new Intent(context, VideoPlayerActivity.class);
-                        intent.putExtra("file", position);
-                        intent.putExtra("list", videoList);
-//            intent.putExtra("rotation", rotation);
-                        context.startActivity(intent);
-                    }
-
-                    @Override
-                    public void onAdFailedToShowFullScreenContent(LoadAdError errAd) {
-                        super.onAdFailedToShowFullScreenContent(errAd);
-                        VideoPlayerActivity.Companion.setKeyPlay(0);
-                        intent = new Intent(context, VideoPlayerActivity.class);
-                        intent.putExtra("file", position);
-                        intent.putExtra("list", videoList);
-//            intent.putExtra("rotation", rotation);
-                        context.startActivity(intent);
-                    }
-
-                    @Override
-                    public void onAdFailedToLoad(@NonNull LoadAdError i) {
-                        super.onAdFailedToLoad(i);
-                        VideoPlayerActivity.Companion.setKeyPlay(0);
-                        intent = new Intent(context, VideoPlayerActivity.class);
-                        intent.putExtra("file", position);
-                        intent.putExtra("list", videoList);
-//            intent.putExtra("rotation", rotation);
-                        context.startActivity(intent);
-                    }
-
-                    @Override
-                    public void onAdLoaded() {
-                        super.onAdLoaded();
-                        VideoPlayerActivity.Companion.setKeyPlay(0);
-                        intent = new Intent(context, VideoPlayerActivity.class);
-                        intent.putExtra("file", position);
-                        intent.putExtra("list", videoList);
-//            intent.putExtra("rotation", rotation);
-                        context.startActivity(intent);
-                    }
-
-                });
-    }
 
 
 
     public interface OnClickOption1Listener {
         void onRenameFolder(int position);
+        void onDeleteFolder(int position);
 
     }
 }

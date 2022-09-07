@@ -53,6 +53,8 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public final Context context;
     private PowerMenu powerMenu;
     private OnClickOptionListener onClickOptionListener;
+    private InterstitialAd interAds = null;
+
 
     public void setOnClickOptionListener(OnClickOptionListener onClickOptionListener) {
         this.onClickOptionListener = onClickOptionListener;
@@ -109,6 +111,7 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (videoList.size() == 0) return;
         if(holder instanceof ListViewHolder){
+            loadInter(position);
             AllVideoAdapter.ListViewHolder listViewHolder = (ListViewHolder) holder;
             RequestOptions requestOptions = new RequestOptions();
             requestOptions.placeholder(R.drawable.ic_defaut);
@@ -128,12 +131,9 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             holder.itemView.setOnClickListener(view -> {
                 ck_play++;
                 if(ck_play%2==0&&ck_play!=0){
-                    loadInter(position);
+                    showInter(position);
                 }else{
-                    intent = new Intent(context, VideoPlayerActivity.class);
-                    intent.putExtra("file", position);
-                    intent.putExtra("list", videoList);
-                    context.startActivity(intent);
+                    play(context,position);
                 }
 
             });
@@ -247,6 +247,23 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         intentShareFile.putExtra(Intent.EXTRA_STREAM,Uri.fromFile(file));
         context.startActivity(Intent.createChooser(intentShareFile, "Share File"));
     }
+    private void showInter(int position) {
+        AdmobManager.getInstance().showInterstitial((Activity) context, interAds, new AdCallback() {
+            @Override
+            public void onAdClosed() {
+                super.onAdClosed();
+                play(context,position);
+
+
+            }
+
+            @Override
+            public void onAdFailedToShowFullScreenContent(LoadAdError errAd) {
+                super.onAdFailedToShowFullScreenContent(errAd);
+                play(context,position);
+            }
+        });
+    }
 
     private void loadInter(int position) {
         AdmobManager.getInstance()
@@ -254,54 +271,38 @@ public class AllVideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     @Override
                     public void onResultInterstitialAd(InterstitialAd interstitialAd) {
                         super.onResultInterstitialAd(interstitialAd);
-                        AdmobManager.getInstance().showInterstitial((Activity) context, interstitialAd, this);
-
-                    }
-                    @Override
-                    public void onAdClosed() {
-                        super.onAdClosed();
-                        VideoPlayerActivity.Companion.setKeyPlay(0);
-                        intent = new Intent(context, VideoPlayerActivity.class);
-                        intent.putExtra("file", position);
-                        intent.putExtra("list", videoList);
-//            intent.putExtra("rotation", rotation);
-                        context.startActivity(intent);
+                        interAds = interstitialAd;
                     }
 
                     @Override
                     public void onAdFailedToShowFullScreenContent(LoadAdError errAd) {
                         super.onAdFailedToShowFullScreenContent(errAd);
-                        VideoPlayerActivity.Companion.setKeyPlay(0);
-                        intent = new Intent(context, VideoPlayerActivity.class);
-                        intent.putExtra("file", position);
-                        intent.putExtra("list", videoList);
-//            intent.putExtra("rotation", rotation);
-                        context.startActivity(intent);
+                        play(context,position);
+
                     }
 
                     @Override
                     public void onAdFailedToLoad(@NonNull LoadAdError i) {
                         super.onAdFailedToLoad(i);
-                        VideoPlayerActivity.Companion.setKeyPlay(0);
-                        intent = new Intent(context, VideoPlayerActivity.class);
-                        intent.putExtra("file", position);
-                        intent.putExtra("list", videoList);
-//            intent.putExtra("rotation", rotation);
-                        context.startActivity(intent);
+                        play(context,position);
+
                     }
 
                     @Override
                     public void onAdLoaded() {
                         super.onAdLoaded();
-                        VideoPlayerActivity.Companion.setKeyPlay(0);
-                        intent = new Intent(context, VideoPlayerActivity.class);
-                        intent.putExtra("file", position);
-                        intent.putExtra("list", videoList);
-//            intent.putExtra("rotation", rotation);
-                        context.startActivity(intent);
+                       play(context,position);
                     }
 
                 });
+    }
+    public void play(Context context,int position){
+        VideoPlayerActivity.Companion.setKeyPlay(0);
+        intent = new Intent(context, VideoPlayerActivity.class);
+        intent.putExtra("file", position);
+        intent.putExtra("list", videoList);
+//            intent.putExtra("rotation", rotation);
+        context.startActivity(intent);
     }
 
 

@@ -18,59 +18,78 @@ public class SplashActivity extends BaseActivity {
         return R.layout.activity_splash;
     }
 
+    private InterstitialAd interAds = null;
+
     @Override
     protected void initView() {
-
-        reques();
-
+        loadInter();
     }
 
     private void reques() {
         new Thread(() -> {
             try {
                 Thread.sleep(3000);
-                runOnUiThread(() -> loadInter());
+                runOnUiThread(() ->         showInter()
+
+                );
 
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }).start();
     }
+
     private void loadInter() {
         AdmobManager.getInstance()
                 .loadInterAds(this, BuildConfig.inter_open_app, new AdCallback() {
-                    @Override
-                    public void onAdClosed() {
-                        super.onAdClosed();
-                        showMain();
-                    }
 
                     @Override
                     public void onResultInterstitialAd(InterstitialAd interstitialAd) {
                         super.onResultInterstitialAd(interstitialAd);
-                        AdmobManager.getInstance().showInterstitial(SplashActivity.this, interstitialAd, this);
-//                        showMain();
+                        interAds = interstitialAd;
+                        reques();
                     }
 
                     @Override
                     public void onAdFailedToShowFullScreenContent(LoadAdError errAd) {
                         super.onAdFailedToShowFullScreenContent(errAd);
-                        showMain();
+                        reques();
+
                     }
 
                     @Override
                     public void onAdFailedToLoad(@NonNull LoadAdError i) {
                         super.onAdFailedToLoad(i);
-                        showMain();
+                        reques();
+
                     }
 
                     @Override
                     public void onAdLoaded() {
                         super.onAdLoaded();
-                        showMain();
+                        reques();
+
                     }
 
                 });
+    }
+
+    private void showInter() {
+        AdmobManager.getInstance().showInterstitial(this, interAds, new AdCallback() {
+            @Override
+            public void onAdClosed() {
+                super.onAdClosed();
+                showMain();
+
+            }
+
+            @Override
+            public void onAdFailedToShowFullScreenContent(LoadAdError errAd) {
+                super.onAdFailedToShowFullScreenContent(errAd);
+                showMain();
+
+            }
+        });
     }
 
     private void showMain() {

@@ -132,12 +132,52 @@
             app:tabTextAppearance="@style/MyCustomTextAppearance"
             app:tabTextColor="#000" />
 
-        <androidx.viewpager.widget.ViewPager
-            android:background="#00ECE8E8"
-            android:id="@+id/view_Pager"
-            android:layout_gravity="center"
+        <FrameLayout
+
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="match_parent">
+            <LinearLayout
+                android:id="@+id/per_Deny"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center">
+                <ImageView
+                    android:layout_width="@dimen/_120sdp"
+                    android:layout_height="@dimen/_120sdp"
+                    android:src="@drawable/ic_no_file"
+                    android:layout_gravity="center"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Authorization required to watch all videos"
+                    android:textSize="@dimen/_12sdp"
+                    android:textColor="@color/black"/>
+
+                <TextView
+                    android:id="@+id/rq_Permission"
+                    android:background="@drawable/bg_button"
+                    android:layout_width="@dimen/_70sdp"
+                    android:layout_height="@dimen/_30sdp"
+                    android:text="@string/go_to_set"
+                    android:gravity="center"
+                    android:layout_marginTop="@dimen/_8sdp"
+                    android:layout_gravity="center"
+                    android:textSize="@dimen/_12sdp"
+                    android:textColor="@color/white"
+                    />
+
+            </LinearLayout>
+            <androidx.viewpager.widget.ViewPager
+                android:background="#00ECE8E8"
+                android:id="@+id/view_Pager"
+                android:visibility="visible"
+                android:layout_gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </FrameLayout>
+
 
     </LinearLayout>
 

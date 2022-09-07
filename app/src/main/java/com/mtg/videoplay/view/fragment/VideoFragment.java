@@ -63,7 +63,7 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
     LinearLayout lc_search,lc_main;
     ImageView bt_search,bt_setting,bt_clear_search;
     int Load_Ads=0;
-
+    public static int ck_delete = 0;
 
 
     ArrayList<FileVideo> videoList = new ArrayList<>();
@@ -217,7 +217,7 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
                 videoListPath.add(videoListSearch.get(i));
             }
         }
-        if(videoListSearch.size()%6==0){
+        if(videoListSearch.size()%6==0&&videoListSearch.size()!=0){
             videoListPath.remove(videoListPath.size()-1);
         }
         return videoListPath;
@@ -263,8 +263,7 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
 
     @Override
     public void onRename(int position) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (Environment.isExternalStorageManager()) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
                 final File file = new File(videoList.get(position).getPath());
                 RenameDialog dialog = new RenameDialog(context, videoList.get(position).getPath());
                 dialog.setCallback((key, data) -> {
@@ -300,9 +299,6 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
                     }
                 });
                 dialog.show();
-            } else {
-                showDialog(requireActivity());
-            }
         }else{
             final File file = new File(videoList.get(position).getPath());
             RenameDialog dialog = new RenameDialog(context, videoList.get(position).getPath());
@@ -310,37 +306,17 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
                 String newName = (String) data;
                 if (key.equals("rename")) {
 
-                    String onlyPath = file.getParent();
-                    newName = newName + ".mp4";
-//                String renamepath = onlyPath + "/" + newName;
-                    File from = new File(videoList.get(position).getPath());
-                    File to = new File(onlyPath, newName);
-                    try {
-                        to.createNewFile();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    if (from.exists()) {
-                        from.renameTo(to);
-                        removeMedia(requireActivity(), from);
-                        addMedia(getActivity(), to);
-
-                        CountDownTimer Timer2 = new CountDownTimer(1050, 1000) {
-                            public void onTick(long millisUntilFinished) {
-
-                            }
-
-                            public void onFinish() {
-                                videoList.clear();
-                                videoList = getdata();
-                                adapter.update(videoList);
-
-                            }
-                        }.start();
-                    }
+                    FileUtils.rename((AppCompatActivity) context,videoList.get(position),newName,launcher);
+                    File file2 = new File(videoList.get(position).getPath());
+                    MediaScannerConnection.scanFile(context,
+                            new String[]{file2.toString()},
+                            null, null);
+                    adapter.notifyDataSetChanged();
+                    onResume();
                 }
             });
             dialog.show();
+
         }
     }
 
@@ -383,6 +359,7 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
                     adapter.notifyDataSetChanged();
                     onResume();
                 }
+                ck_delete = 1;
 
 
             }

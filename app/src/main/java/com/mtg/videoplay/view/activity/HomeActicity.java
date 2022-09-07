@@ -1,6 +1,8 @@
 package com.mtg.videoplay.view.activity;
 
 
+import static com.mtg.videoplay.utils.FileUtils.requestLauncher;
+
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
@@ -46,9 +48,11 @@ import java.io.File;
 
 public class HomeActicity extends BaseActivity  {
     ViewPagerAdapter viewPagerAdapter;
+    LinearLayout per_Deny;
     TabLayout tab;
     ViewPager viewPager;
-    Button rq_Permission;
+    TextView rq_Permission;
+    private boolean ck_request = false;
 
     final DisplayMetrics displayMetrics = new DisplayMetrics();
     public static ActivityResultLauncher<IntentSenderRequest> launcher;
@@ -62,26 +66,28 @@ public class HomeActicity extends BaseActivity  {
     @Override
     protected void initView() {
         rq_Permission = findViewById(R.id.rq_Permission);
-        checkPermission();
+        per_Deny = findViewById(R.id.per_Deny);
+        viewPager = findViewById(R.id.view_Pager);
+        if(ck_request==false){
+            checkPermission();
+        }
         AdmobManager.getInstance().loadBanner(this, BuildConfig.banner_main);
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         tab=findViewById(R.id.tab_Layout);
-        viewPager = findViewById(R.id.view_Pager);
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         viewPagerAdapter.addfragemnt(new VideoFragment(),"Videos");
         viewPagerAdapter.addfragemnt(new FolderFragment(),"Folders");
         viewPager.setAdapter(viewPagerAdapter);
         tab.setupWithViewPager(viewPager);
-        launcher = FileUtils.requestLauncher(this, (key1, data) -> {
-        });
+//        launcher = requestLauncher(this, (key1, data) -> {
+//        });
     }
 
     @Override
     protected void addEvent() {
-//        rq_Permission.setOnClickListener(view -> {
-//            rq_Permission.setVisibility(View.GONE);
-//            checkPermission();
-//        });
+        rq_Permission.setOnClickListener(view -> {
+            checkPermission();
+        });
     }
     public void checkPermission(){
         if (Build.VERSION.SDK_INT >= 23) {
@@ -89,6 +95,8 @@ public class HomeActicity extends BaseActivity  {
                     != PackageManager.PERMISSION_GRANTED) ||
                     (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                             != PackageManager.PERMISSION_GRANTED)) {
+                viewPager.setVisibility(View.GONE);
+                per_Deny.setVisibility(View.VISIBLE);
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         1);
@@ -111,17 +119,27 @@ public class HomeActicity extends BaseActivity  {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 1) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)||!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            if (requestCode == 1) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
+                    viewPager.setVisibility(View.VISIBLE);
+                    per_Deny.setVisibility(View.GONE);
+                    ck_request=true;
 
-            } else {
+                } else {
 
-                finish();
-//                rq_Permission.setVisibility(View.VISIBLE);
+//                Toast.makeText(this, "Please Allow Permission", Toast.LENGTH_SHORT).show();
+//                finish();
+                    viewPager.setVisibility(View.GONE);
+                    per_Deny.setVisibility(View.VISIBLE);
+                }
+                return;
             }
-            return;
+        }else{
+
         }
+
     }
     public void showDialog(final Activity activity) {
         final Dialog dialog = new Dialog(activity);

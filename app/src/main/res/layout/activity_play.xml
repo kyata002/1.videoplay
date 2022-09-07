@@ -55,6 +55,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_unlock"/>
     </FrameLayout>
+
     <LinearLayout
         android:id="@+id/dh_top"
         android:background="#8D2D2D2D"

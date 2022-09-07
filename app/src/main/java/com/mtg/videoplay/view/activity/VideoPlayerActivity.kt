@@ -73,6 +73,7 @@ class VideoPlayerActivity : BaseActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun initView() {
+        pop();
         mScreenWidth = this.resources.displayMetrics.widthPixels
         mScreenHeight = this.resources.displayMetrics.heightPixels
         mAudioManager = this.getSystemService(AUDIO_SERVICE) as AudioManager
@@ -205,6 +206,93 @@ class VideoPlayerActivity : BaseActivity() {
         })
     }
 
+    private fun pop() {
+        powerMenu =
+            PowerMenu.Builder(this) //.addItemList(list) // list has "Novel", "Poerty", "Art"
+                .addItem(PowerMenuItem("0.5x", false)) // add an item.
+                .addItem(PowerMenuItem("0.75x", false))
+                .addItem(PowerMenuItem("1x (Normal)", true)) // add an item.
+                .addItem(PowerMenuItem("1.25x", false)) // add an item.
+                .addItem(PowerMenuItem("1.5x", false)) // aad an item list.
+                //                    .setAnimation(MenuAnimation.SHOWUP_TOP_LEFT) // Animation start point (TOP | LEFT).
+                .setMenuRadius(12f) //                    .setTextTypeface(ResourcesCompat.getFont(context, R.font.lexend_regular)!!)
+                .setPadding(10) // sets the corner radius.
+                .setSize(400, 760)
+                .setMenuShadow(10f) // sets the shadow.
+                //                        .setIconSize(28)
+                .setTextSize(16) //                        .setIconPadding(2)
+                .setMenuColor(0)
+                .setBackgroundColor(Color.TRANSPARENT)
+                .setOnBackgroundClickListener { view1: View? -> powerMenu?.dismiss() } //.setTextColor(ContextCompat.getColor(context, Color.parseColor("#3C3C3C")))
+                .setTextGravity(Gravity.LEFT)
+                .setTextTypeface(
+                    Typeface.create(
+                        "font/lexend_regular.ttf",
+                        Typeface.NORMAL
+                    )
+                )
+                .setSelectedTextColor(ContextCompat.getColor(this,
+                    android.R.color.holo_red_dark
+                ))
+                .setMenuColor(ContextCompat.getColor(this, R.color.white))
+                .setSelectedMenuColor(ContextCompat.getColor(this, R.color.white))
+                .setOnMenuItemClickListener { posit, item ->
+
+                    val title = item.title
+                    when(posit){
+                        0->{
+                            item.setIsSelected(true)
+                        }
+                        1->{
+                            item.setIsSelected(true)
+                        }
+                        2->{
+                            item.setIsSelected(true)
+                        }
+                        3->{
+                            item.setIsSelected(true)
+                        }
+                        4->{
+                            item.setIsSelected(true)
+                        }
+
+                    }
+                    when(title){
+                        "0.5x"->{
+                            speed = 0.5f
+                            setNewSpeed()
+                            bg_replay.visibility = GONE
+                            powerMenu?.dismiss()
+                        }
+                        "0.75x"->{
+                            speed = 0.75f
+                            setNewSpeed()
+                            bg_replay.visibility = GONE
+                            powerMenu?.dismiss()
+                        }
+                        "1x (Normal)"->{
+                            speed = 1f
+                            setNewSpeed()
+                            bg_replay.visibility = GONE
+                            powerMenu?.dismiss()
+                        }
+                        "1.25x"->{
+                            speed = 1.25f
+                            setNewSpeed()
+                            bg_replay.visibility = GONE
+                            powerMenu?.dismiss()
+                        }
+                        "1.5x"->{
+                            speed = 1.5f
+                            setNewSpeed()
+                            bg_replay.visibility = GONE
+                            powerMenu?.dismiss()
+                        }
+
+                    }
+                }.build()
+    }
+
     private fun showDH() {
         fr_lock.visibility = VISIBLE
         dh_bottom.visibility = VISIBLE
@@ -221,7 +309,7 @@ class VideoPlayerActivity : BaseActivity() {
         var file: File
         file = File(videpList?.get(videoIndex)?.path)
         txt_name_play.setText(file.name)
-        fr_lock.setOnClickListener {
+                    fr_lock.setOnClickListener {
             if (ck_lock == false) {
                 ck_lock = true
                 bt_lock_play.setImageResource(R.drawable.ic_lock)
@@ -260,62 +348,6 @@ class VideoPlayerActivity : BaseActivity() {
             if (powerMenu != null && powerMenu!!.isShowing == true) {
                 return@setOnClickListener
             } else {
-                powerMenu =
-                    PowerMenu.Builder(this) //.addItemList(list) // list has "Novel", "Poerty", "Art"
-                        .addItem(PowerMenuItem("0.5x", false)) // add an item.
-                        .addItem(PowerMenuItem("0.75x", false))
-                        .addItem(PowerMenuItem("1x (Normal)", false)) // add an item.
-                        .addItem(PowerMenuItem("1.25x", false)) // add an item.
-                        .addItem(PowerMenuItem("1.5x", false)) // aad an item list.
-                        //                    .setAnimation(MenuAnimation.SHOWUP_TOP_LEFT) // Animation start point (TOP | LEFT).
-                        .setMenuRadius(12f) //                    .setTextTypeface(ResourcesCompat.getFont(context, R.font.lexend_regular)!!)
-                        .setPadding(10) // sets the corner radius.
-                        .setSize(400, 760)
-                        .setMenuShadow(10f) // sets the shadow.
-                        //                        .setIconSize(28)
-                        .setTextSize(16) //                        .setIconPadding(2)
-                        .setMenuColor(0)
-                        .setBackgroundColor(Color.TRANSPARENT)
-                        .setOnBackgroundClickListener { view1: View? -> powerMenu?.dismiss() } //.setTextColor(ContextCompat.getColor(context, Color.parseColor("#3C3C3C")))
-                        .setTextGravity(Gravity.LEFT)
-                        .setTextTypeface(
-                            Typeface.create(
-                                "font/lexend_regular.ttf",
-                                Typeface.NORMAL
-                            )
-                        )
-                        .setSelectedTextColor(ContextCompat.getColor(this, R.color.white))
-                        .setMenuColor(ContextCompat.getColor(this, R.color.white))
-                        .setSelectedMenuColor(ContextCompat.getColor(this, R.color.black))
-                        .setOnMenuItemClickListener { posit, item ->
-                            val title = item.title
-                            if ("0.5x" == title) {
-                                speed = 0.5f
-                                setNewSpeed()
-                                bg_replay.visibility = GONE
-                                powerMenu?.dismiss()
-                            } else if ("0.75x" == title) {
-                                speed = 0.75f
-                                setNewSpeed()
-                                bg_replay.visibility = GONE
-                                powerMenu?.dismiss()
-                            } else if ("1x (Normal)" == title) {
-                                speed = 1f
-                                setNewSpeed()
-                                bg_replay.visibility = GONE
-                                powerMenu?.dismiss()
-                            } else if ("1.25x" == title) {
-                                speed = 1.25f
-                                setNewSpeed()
-                                bg_replay.visibility = GONE
-                                powerMenu?.dismiss()
-                            } else if ("1.5x" == title) {
-                                speed = 1.5f
-                                setNewSpeed()
-                                bg_replay.visibility = GONE
-                                powerMenu?.dismiss()
-                            }
-                        }.build()
                 powerMenu?.showAsDropDown(it);
             }
         }
@@ -427,6 +459,7 @@ class VideoPlayerActivity : BaseActivity() {
             override fun onStartTrackingTouch(seekBar: SeekBar) {}
             override fun onStopTrackingTouch(seekBar: SeekBar) {
                 bg_replay.visibility = GONE
+                bt_play.setImageResource(R.drawable.ic_pause)
                 videoView.seekTo(pg_time_load.getProgress())
                 videoView.start()
             }

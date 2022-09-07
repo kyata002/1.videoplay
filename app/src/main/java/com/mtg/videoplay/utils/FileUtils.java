@@ -1,9 +1,12 @@
 package com.mtg.videoplay.utils;
 
+import static com.mtg.videoplay.view.dialog.DialogChange.context;
+
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.IntentSender;
 import android.database.Cursor;
@@ -14,17 +17,24 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 
+import com.mtg.videoplay.BuildConfig;
 import com.mtg.videoplay.OnActionCallback;
 import com.mtg.videoplay.model.FileVideo;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -55,7 +65,7 @@ public class FileUtils {
 
                 final String id = DocumentsContract.getDocumentId(uri);
                 final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.parseLong(id));
+                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
 
                 return getDataColumn(context, contentUri, null, null);
             }
@@ -161,6 +171,20 @@ public class FileUtils {
         return fileSizeString;
     }
 
+//    public static String getMimeType(Uri uri) {
+//        String mimeType = null;
+//        if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
+//            ContentResolver cr = App.getInstance().getContentResolver();
+//            mimeType = cr.getType(uri);
+//        } else {
+//            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri
+//                    .toString());
+//            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+//                    fileExtension.toLowerCase());
+//        }
+//        return mimeType;
+//    }
+
 
     public static String getFileExtensionNoPoint(String path) {
         if (TextUtils.isEmpty(path)) {
@@ -175,7 +199,7 @@ public class FileUtils {
             return "";
         }
         String fileName = file.getName();
-        if (fileName.length() > 0) {
+        if (fileName != null && fileName.length() > 0) {
             int lastIndex = fileName.lastIndexOf('.');
             if ((lastIndex > -1) && (lastIndex < (fileName.length() - 1))) {
                 return fileName.substring(lastIndex + 1);
@@ -200,17 +224,20 @@ public class FileUtils {
         if (file1 == null || file2 == null) {
             return false;
         }
-        return file1.getPath().equalsIgnoreCase(file2.getPath());
+        if (file1.getPath().equalsIgnoreCase(file2.getPath())) {
+            return true;
+        }
+        return false;
     }
 
 
     private static boolean isSDExist() {
-        return !Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
+        return Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
     }
 
 
     public static String getSDCardFilesPath() {
-        if (isSDExist()) {
+        if (!isSDExist()) {
             return "";
         }
         return Environment.getExternalStorageDirectory().getAbsolutePath() + "/";
@@ -218,7 +245,7 @@ public class FileUtils {
 
 
     private static String getSDCardDownloadPath() {
-        if (isSDExist()) {
+        if (!isSDExist()) {
             return "";
         }
         return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() + "/";
@@ -285,9 +312,28 @@ public class FileUtils {
         return "*/*";
     }
 
+//    public static String getAppTempPath() {
+//        return getAvailableFilesPathAndroidData(true) + DEFAULT_TEMP;
+//    }
 
-    public static void deleteFileAndroid11(AppCompatActivity activity, FileVideo video, ActivityResultLauncher<IntentSenderRequest> launcher) {
-        File file = new File(video.getPath());
+
+//    private static String getAvailableFilesPathAndroidData(boolean boolToCache) {
+//        if (!isSDExist()) {
+//            if (boolToCache) {
+//                return App.getInstance().getCacheDir().getAbsolutePath() + "/";
+//            }
+//            return App.getInstance().getFilesDir().getAbsolutePath() + "/";
+//        } else {
+//            if (boolToCache) {
+//                return App.getInstance().getExternalCacheDir().getAbsolutePath() + "/";
+//            }
+//            return App.getInstance().getExternalFilesDir("").getAbsolutePath() + "/";
+//        }
+//    }
+
+
+    public static void deleteFileAndroid11(AppCompatActivity activity, FileVideo media, ActivityResultLauncher<IntentSenderRequest> launcher) {
+        File file = new File(media.getPath());
         Uri uri = Uri.fromFile(file);
         ContentResolver contentResolver = activity.getContentResolver();
         PendingIntent pendingIntent = null;
@@ -295,10 +341,17 @@ public class FileUtils {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
 
             ArrayList<Uri> collection = new ArrayList<>();
+//            String mineType = getMimeType(uri);
+            Uri contentUri =MediaStore.Video.Media.getContentUri("external");
 
-            Uri contentUri = MediaStore.Video.Media.getContentUri("external");
-
-            collection.add(ContentUris.withAppendedId(contentUri, video.getId()));
+//            boolean isVideo = mineType.contains("video");
+//            if (isVideo) {
+//            }
+//            boolean isAudio = mineType.contains("audio");
+//            if (isAudio) {
+//                contentUri = MediaStore.Audio.Media.getContentUri("external");
+//            }
+            collection.add(ContentUris.withAppendedId(contentUri, media.getId()));
             pendingIntent = MediaStore.createDeleteRequest(contentResolver, collection);
 
         }
@@ -318,5 +371,53 @@ public class FileUtils {
                     }
                 });
     }
+
+
+    public static void rename(AppCompatActivity activity, FileVideo media, String newName,ActivityResultLauncher<IntentSenderRequest> launcher) {
+        File file = new File(media.getPath());
+        Uri uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file);
+//        Uri uri = Uri.fromFile(file);
+        ContentResolver contentResolver = activity.getContentResolver();
+        PendingIntent pendingIntent = null;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+
+            ArrayList<Uri> collection = new ArrayList<>();
+            Uri contentUri = MediaStore.Video.Media.getContentUri("external");
+            collection.add(ContentUris.withAppendedId(contentUri, media.getId()));
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, newName);
+            contentValues.put(MediaStore.MediaColumns.DATA, new File(media.getPath()).getParent() + "/" + newName);
+            contentValues.put(MediaStore.MediaColumns._ID, media.getId());
+            pendingIntent = MediaStore.createWriteRequest(contentResolver, collection);
+            contentResolver.update(ContentUris.withAppendedId(uri, media.getId()),contentValues,null);
+        }
+
+        if (pendingIntent != null) {
+            IntentSender sender = pendingIntent.getIntentSender();
+            IntentSenderRequest request = new IntentSenderRequest.Builder(sender).build();
+            launcher.launch(request);
+        }
+    }
+
+    public static void copy(File src, File dst) throws IOException {
+        FileInputStream inStream = new FileInputStream(src);
+        FileOutputStream outStream = new FileOutputStream(dst);
+        FileChannel inChannel = inStream.getChannel();
+        FileChannel outChannel = outStream.getChannel();
+        inChannel.transferTo(0, inChannel.size(), outChannel);
+        inStream.close();
+        outStream.close();
+    }
+    public static ActivityResultLauncher<IntentSenderRequest> requestLauncher(AppCompatActivity activity) {
+        return activity.registerForActivityResult(
+                new ActivityResultContracts.StartIntentSenderForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+//                        callback.callback("");
+                    }
+                });
+    }
+
 
 }

@@ -1,5 +1,6 @@
 package com.mtg.videoplay.view.activity;
 
+import static com.mtg.videoplay.view.activity.HomeActicity.launcher;
 import static com.mtg.videoplay.view.dialog.DialogChange.context;
 
 import android.app.Dialog;
@@ -7,6 +8,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.CountDownTimer;
@@ -18,6 +20,7 @@ import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,6 +31,8 @@ import com.mtg.videoplay.R;
 import com.mtg.videoplay.adapter.FileFolderAdapter;
 import com.mtg.videoplay.base.BaseActivity;
 import com.mtg.videoplay.model.FileVideo;
+import com.mtg.videoplay.utils.FileUtils;
+import com.mtg.videoplay.view.dialog.DeleteDialog;
 import com.mtg.videoplay.view.dialog.RenameDialog;
 
 import java.io.File;
@@ -41,6 +46,7 @@ public class VideoListActivity extends BaseActivity implements FileFolderAdapter
     private FileFolderAdapter adapter;
     ArrayList<FileVideo> mFile;
     int Load_Ads =0;
+    public static int ck_delete=0;
 
     @Override
     protected int getLayoutId() {
@@ -206,6 +212,64 @@ public class VideoListActivity extends BaseActivity implements FileFolderAdapter
             });
             dialog.show();
         }
+    }
+
+    @Override
+    public void onDeleteFolder(int position) {
+        DeleteDialog dialog = new DeleteDialog(this);
+//        this.position = position;
+
+        dialog.setCallback((key, data) -> {
+            if (key.equals("delete")) {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                    File file = new File(mFile.get(position).getPath());
+                    file.delete();
+                    MediaScannerConnection.scanFile(this,
+                            new String[]{file.toString()},
+                            null, null);
+                    adapter.notifyDataSetChanged();
+                    if (file.exists()) {
+                        try {
+                            file.getCanonicalFile().delete();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        if (file.exists()) {
+                            this.deleteFile(file.getName());
+                        }
+                        mFile.remove(mFile.get(position));
+//                    notifyItemRemoved(videoList.indexOf(videoList.get(position)));
+                    } else {
+                        mFile.remove(mFile.get(position));
+//                    notifyItemRemoved(videoList.indexOf(videoList.get(position)));
+                    }
+                } else {
+                    FileUtils.deleteFileAndroid11(this, mFile.get(position), launcher);
+                    File file2 = new File(mFile.get(position).getPath());
+                    MediaScannerConnection.scanFile(this,
+                            new String[]{file2.toString()},
+                            null, null);
+                    mFile.remove(mFile.get(position));
+                    adapter.notifyDataSetChanged();
+                    onResume();
+                }
+                ck_delete = 1;
+
+
+            }
+            if (key.equals("no")) {
+
+            }
+        });
+        dialog.show();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mFile.clear();
+        mFile = getdata();
+        adapter.update(mFile);
     }
 
     public void showDialog(Context activity) {

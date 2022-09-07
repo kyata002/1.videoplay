@@ -19,7 +19,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/roboto_regular"
-            android:paddingLeft="@dimen/_8sdp"
             android:paddingTop="@dimen/_8sdp"
             android:text="Request permission"
             android:textColor="@color/black"
@@ -31,7 +30,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_8sdp"
             android:text="Due to the new privacy policy of Android 11 and later, file permissions are required to manage media files. Please grant permission."
-            android:paddingLeft="@dimen/_8sdp"
             android:textColor="@color/black"
             android:fontFamily="@font/roboto_regular"
             android:textSize="@dimen/_12sdp"/>
