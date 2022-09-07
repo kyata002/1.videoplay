@@ -36,11 +36,9 @@ import com.mtg.videoplay.R;
 import com.mtg.videoplay.model.FileVideo;
 import com.mtg.videoplay.utils.FileUtils;
 import com.mtg.videoplay.utils.Utils;
-import com.mtg.videoplay.view.activity.VideoListActivity;
-import com.mtg.videoplay.view.activity.VideoPlayer;
+import com.mtg.videoplay.view.activity.VideoPlayerActivity;
 import com.mtg.videoplay.view.dialog.DeleteDialog;
 import com.mtg.videoplay.view.dialog.InfoDialog;
-import com.skydoves.powermenu.OnMenuItemClickListener;
 import com.skydoves.powermenu.PowerMenu;
 import com.skydoves.powermenu.PowerMenuItem;
 
@@ -57,7 +55,7 @@ public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 //    final ActivityResultLauncher<IntentSenderRequest> launcher ;
 
     public ArrayList<FileVideo> videoList;
-    public Context context;
+    public final Context context;
     private PowerMenu powerMenu;
 
     public void setOnClickOption1Listener(OnClickOption1Listener onClickOption1Listener) {
@@ -69,7 +67,8 @@ public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
 
     Intent intent;
-    public static int ITEM_TYPE = 0,ADS_TYPE=1;
+    public static final int ITEM_TYPE = 0;
+    public static final int ADS_TYPE=1;
 
     private static int ck_play=0;
 
@@ -95,13 +94,13 @@ public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
         retriever.setDataSource(mFile.getPath());
         String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
         retriever.release();
-        long seconds = Long.valueOf(time);
-        String vidLength = String.format("%02d:%02d",
+        long seconds = Long.parseLong(time);
+        return String.format("%02d:%02d",
                 TimeUnit.MILLISECONDS.toMinutes(seconds) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(seconds)),
                 TimeUnit.MILLISECONDS.toSeconds(seconds) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(seconds)));
-        return vidLength;
     }
 
+    @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view;
@@ -135,16 +134,11 @@ public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
 
             holder.itemView.setOnClickListener(view -> {
-//            MediaMetadataRetriever m = new MediaMetadataRetriever();
-//            m.setDataSource(videoList.get(position).getPath());
-//            if (Build.VERSION.SDK_INT >= 17) {
-//                rotation = m.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
-//            }
                 ck_play++;
                 if(ck_play%2==0&&ck_play!=0){
                     loadInter(position);
                 }else{
-                    intent = new Intent(context, VideoPlayer.class);
+                    intent = new Intent(context, VideoPlayerActivity.class);
                     intent.putExtra("file", position);
                     intent.putExtra("list", videoList);
                     context.startActivity(intent);
@@ -152,7 +146,7 @@ public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
             });
             listViewHolder.bt_more.setOnClickListener(view -> {
-                if (powerMenu != null && powerMenu.isShowing() == true) {
+                if (powerMenu != null && powerMenu.isShowing()) {
 
                 } else {
                     powerMenu = new PowerMenu.Builder(context)
@@ -172,32 +166,27 @@ public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                             .setIconPadding(2)
                             .setMenuColor(0)
                             .setBackgroundColor(Color.TRANSPARENT)
-                            .setOnBackgroundClickListener(view1 -> {
-                                powerMenu.dismiss();
-                            })
+                            .setOnBackgroundClickListener(view1 -> powerMenu.dismiss())
                             //.setTextColor(ContextCompat.getColor(context, Color.parseColor("#3C3C3C")))
                             .setTextGravity(Gravity.LEFT)
                             .setTextTypeface(Typeface.create("font/lexend_regular.ttf", Typeface.NORMAL))
                             .setSelectedTextColor(Color.WHITE)
                             .setMenuColor(Color.WHITE)
                             .setSelectedMenuColor(ContextCompat.getColor(context, R.color.black))
-                            .setOnMenuItemClickListener(new OnMenuItemClickListener<PowerMenuItem>() {
-                                @Override
-                                public void onItemClick(int posit, PowerMenuItem item) {
-                                    CharSequence title = item.getTitle();
-                                    if ("Share".equals(title)) {
-                                        shareFile(context,new File(videoList.get(posit).getPath()));
-                                        powerMenu.dismiss();
-                                    } else if ("Rename".equals(title)) {
-                                        onClickOption1Listener.onRenameFolder(position);
-                                        powerMenu.dismiss();
-                                    } else if ("Delete".equals(title)) {
-                                        dialogDelete(position);
-                                        powerMenu.dismiss();
-                                    } else if ("Info".equals(title)) {
-                                        dialogInfo(videoList.get(position).getPath());
-                                        powerMenu.dismiss();
-                                    }
+                            .setOnMenuItemClickListener((posit, item) -> {
+                                CharSequence title = item.getTitle();
+                                if ("Share".equals(title)) {
+                                    shareFile(context,new File(videoList.get(posit).getPath()));
+                                    powerMenu.dismiss();
+                                } else if ("Rename".equals(title)) {
+                                    onClickOption1Listener.onRenameFolder(position);
+                                    powerMenu.dismiss();
+                                } else if ("Delete".equals(title)) {
+                                    dialogDelete(position);
+                                    powerMenu.dismiss();
+                                } else if ("Info".equals(title)) {
+                                    dialogInfo(videoList.get(position).getPath());
+                                    powerMenu.dismiss();
                                 }
                             }).build();
                     powerMenu.showAsDropDown(view);
@@ -206,12 +195,6 @@ public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
             });
         }
     }
-
-//    @Override
-//    public long getItemId(int position) {
-////        return super.getItemId(position);
-//        return videoList.get(position).getId();
-//    }
 
 
     @Override
@@ -231,12 +214,12 @@ public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
 
 
     public static class ListViewHolder extends RecyclerView.ViewHolder {
-        TextView filename;
-        TextView txtDuration;
-        TextView txtSize;
-        TextView txtTime;
-        ImageView imgFile;
-        View bt_more;
+        final TextView filename;
+        final TextView txtDuration;
+        final TextView txtSize;
+        final TextView txtTime;
+        final ImageView imgFile;
+        final View bt_more;
 
         public ListViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -316,8 +299,8 @@ public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     public void onResultInterstitialAd(InterstitialAd interstitialAd) {
                         super.onResultInterstitialAd(interstitialAd);
                         AdmobManager.getInstance().showInterstitial((Activity) context, interstitialAd, this);
-                        VideoPlayer.Companion.setKeyPlay(0);
-                        intent = new Intent(context, VideoPlayer.class);
+                        VideoPlayerActivity.Companion.setKeyPlay(0);
+                        intent = new Intent(context, VideoPlayerActivity.class);
                         intent.putExtra("file", position);
                         intent.putExtra("list", videoList);
 //            intent.putExtra("rotation", rotation);
@@ -327,8 +310,8 @@ public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     @Override
                     public void onAdFailedToShowFullScreenContent(LoadAdError errAd) {
                         super.onAdFailedToShowFullScreenContent(errAd);
-                        VideoPlayer.Companion.setKeyPlay(0);
-                        intent = new Intent(context, VideoPlayer.class);
+                        VideoPlayerActivity.Companion.setKeyPlay(0);
+                        intent = new Intent(context, VideoPlayerActivity.class);
                         intent.putExtra("file", position);
                         intent.putExtra("list", videoList);
 //            intent.putExtra("rotation", rotation);
@@ -338,8 +321,8 @@ public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     @Override
                     public void onAdFailedToLoad(@NonNull LoadAdError i) {
                         super.onAdFailedToLoad(i);
-                        VideoPlayer.Companion.setKeyPlay(0);
-                        intent = new Intent(context, VideoPlayer.class);
+                        VideoPlayerActivity.Companion.setKeyPlay(0);
+                        intent = new Intent(context, VideoPlayerActivity.class);
                         intent.putExtra("file", position);
                         intent.putExtra("list", videoList);
 //            intent.putExtra("rotation", rotation);
@@ -349,8 +332,8 @@ public class FileFolderAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
                     @Override
                     public void onAdLoaded() {
                         super.onAdLoaded();
-                        VideoPlayer.Companion.setKeyPlay(0);
-                        intent = new Intent(context, VideoPlayer.class);
+                        VideoPlayerActivity.Companion.setKeyPlay(0);
+                        intent = new Intent(context, VideoPlayerActivity.class);
                         intent.putExtra("file", position);
                         intent.putExtra("list", videoList);
 //            intent.putExtra("rotation", rotation);

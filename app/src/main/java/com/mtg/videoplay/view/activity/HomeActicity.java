@@ -2,27 +2,37 @@ package com.mtg.videoplay.view.activity;
 
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
+import com.common.control.manager.AdmobManager;
 import com.google.android.material.tabs.TabLayout;
+import com.mtg.videoplay.BuildConfig;
 import com.mtg.videoplay.R;
 import com.mtg.videoplay.utils.FileUtils;
 import com.mtg.videoplay.utils.Utils;
@@ -38,10 +48,9 @@ public class HomeActicity extends BaseActivity  {
     ViewPagerAdapter viewPagerAdapter;
     TabLayout tab;
     ViewPager viewPager;
-    LinearLayout lc_search,lc_main;;
-    ImageView bt_search,bt_setting,bt_backs,bt_clear_search;
-    EditText ed_Search;
-    DisplayMetrics displayMetrics = new DisplayMetrics();
+    Button rq_Permission;
+
+    final DisplayMetrics displayMetrics = new DisplayMetrics();
     public static ActivityResultLauncher<IntentSenderRequest> launcher;
 
 
@@ -52,14 +61,9 @@ public class HomeActicity extends BaseActivity  {
 
     @Override
     protected void initView() {
+        rq_Permission = findViewById(R.id.rq_Permission);
         checkPermission();
-        bt_search = findViewById(R.id.bt_search);
-        bt_setting = findViewById(R.id.bt_setting);
-        bt_backs = findViewById(R.id.bt_BackS);
-        lc_search = findViewById(R.id.lc_Search);
-        lc_main = findViewById(R.id.lc_Main);
-        ed_Search = findViewById(R.id.de_search);
-        bt_clear_search = findViewById(R.id.bt_clears);
+        AdmobManager.getInstance().loadBanner(this, BuildConfig.banner_main);
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         tab=findViewById(R.id.tab_Layout);
         viewPager = findViewById(R.id.view_Pager);
@@ -69,40 +73,15 @@ public class HomeActicity extends BaseActivity  {
         viewPager.setAdapter(viewPagerAdapter);
         tab.setupWithViewPager(viewPager);
         launcher = FileUtils.requestLauncher(this, (key1, data) -> {
-//            videoList.remove(position);
-//            notifyItemRemoved(position);
         });
     }
 
     @Override
     protected void addEvent() {
-
-        bt_search.setOnClickListener(view -> {
-            lc_main.setVisibility(View.GONE);
-            lc_search.setVisibility(View.VISIBLE);
-            tab.setVisibility(View.GONE);
-            viewPager.setClickable(false);
-        });
-
-        bt_setting.setOnClickListener(view -> {
-            Intent intent = new Intent(this, SettingActivity.class);
-            this.startActivity(intent);
-        });
-
-        bt_backs.setOnClickListener(view -> {
-            lc_main.setVisibility(View.VISIBLE);
-            lc_search.setVisibility(View.GONE);
-            tab.setVisibility(View.VISIBLE);
-            viewPager.setClickable(true);
-            ed_Search.setText("");
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(ed_Search.getWindowToken(), 0);
-        });
-        bt_clear_search.setOnClickListener(view -> {
-            ed_Search.setText("");
-        });
-
-
+//        rq_Permission.setOnClickListener(view -> {
+//            rq_Permission.setVisibility(View.GONE);
+//            checkPermission();
+//        });
     }
     public void checkPermission(){
         if (Build.VERSION.SDK_INT >= 23) {
@@ -130,23 +109,33 @@ public class HomeActicity extends BaseActivity  {
         }
     }
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case 1: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == 1) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
 
-                } else {
-                    // permission was Denie
-                    Toast.makeText(this, "Please Allow Permission", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-                return;
+            } else {
+
+                finish();
+//                rq_Permission.setVisibility(View.VISIBLE);
             }
-
+            return;
         }
+    }
+    public void showDialog(final Activity activity) {
+        final Dialog dialog = new Dialog(activity);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(true);
+        dialog.setContentView(R.layout.dialog_request_allfile);
+        TextView allow = (TextView) dialog.findViewById(R.id.bt_allow);
+        TextView deny = (TextView) dialog.findViewById(R.id.bt_deny);
+        allow.setOnClickListener(v -> {
+        });
+        deny.setOnClickListener(v -> dialog.dismiss());
+        dialog.setOnDismissListener(dialog1 -> dialog1.dismiss());
+
+        dialog.show();
     }
 
 

@@ -62,12 +62,8 @@
 
             </intent-filter>
         </activity>
-        <activity android:name=".view.activity.VideoPlayActivity"
-            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
-            android:launchMode="singleTask"
-            android:supportsPictureInPicture="true"/>
         <activity android:name=".view.activity.SettingActivity" />
-        <activity android:name=".view.activity.VideoPlayer"
+        <activity android:name=".view.activity.VideoPlayerActivity"
             android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation"
             android:launchMode="singleTask"
             android:supportsPictureInPicture="true"/>

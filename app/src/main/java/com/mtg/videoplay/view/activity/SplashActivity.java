@@ -26,21 +26,13 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void reques() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(3000);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            loadInter();
-                        }
-                    });
+        new Thread(() -> {
+            try {
+                Thread.sleep(3000);
+                runOnUiThread(() -> loadInter());
 
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }).start();
     }
@@ -48,10 +40,16 @@ public class SplashActivity extends BaseActivity {
         AdmobManager.getInstance()
                 .loadInterAds(this, BuildConfig.inter_open_app, new AdCallback() {
                     @Override
+                    public void onAdClosed() {
+                        super.onAdClosed();
+                        showMain();
+                    }
+
+                    @Override
                     public void onResultInterstitialAd(InterstitialAd interstitialAd) {
                         super.onResultInterstitialAd(interstitialAd);
                         AdmobManager.getInstance().showInterstitial(SplashActivity.this, interstitialAd, this);
-                        showMain();
+//                        showMain();
                     }
 
                     @Override

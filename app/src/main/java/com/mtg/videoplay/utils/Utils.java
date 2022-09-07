@@ -3,7 +3,7 @@ package com.mtg.videoplay.utils;
 import java.util.ArrayList;
 
 public class Utils {
-    public static String FOLDER_NAME = "WV VideoPlayer";
+    public static final String FOLDER_NAME = "WV VideoPlayer";
     public static int isWhatsapp = -1;
     public static ArrayList<String> mainPlayList = new ArrayList<>();
     public static int playPosition;

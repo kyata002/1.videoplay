@@ -9,8 +9,6 @@ public class Folder {
         this.foldersize = foldersize;
     }
 
-    public Folder() {
-    }
 
     public String getFolderpath() {
         return folderpath;

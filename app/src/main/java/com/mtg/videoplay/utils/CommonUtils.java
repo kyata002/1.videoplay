@@ -4,11 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.hardware.Camera;
-import android.hardware.camera2.CameraAccessException;
-import android.hardware.camera2.CameraManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.StrictMode;
 import android.util.Log;
 
@@ -43,47 +39,9 @@ public class CommonUtils {
         return instance;
     }
 
-    public void turnFlashlightOn(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            try {
-                CameraManager camManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
-                String cameraId = null;
-                if (camManager != null) {
-                    cameraId = camManager.getCameraIdList()[0];
-                    camManager.setTorchMode(cameraId, true);
-                }
-            } catch (CameraAccessException e) {
-                Log.e(TAG, e.toString());
-            }
-        } else {
-            Camera mCamera = Camera.open();
-            Camera.Parameters parameters = mCamera.getParameters();
-            parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-            mCamera.setParameters(parameters);
-            mCamera.startPreview();
-        }
-    }
 
-    public void turnFlashlightOff(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            try {
-                String cameraId;
-                CameraManager camManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
-                if (camManager != null) {
-                    cameraId = camManager.getCameraIdList()[0]; // Usually front camera is at 0 position.
-                    camManager.setTorchMode(cameraId, false);
-                }
-            } catch (CameraAccessException e) {
-                e.printStackTrace();
-            }
-        } else {
-            Camera mCamera = Camera.open();
-            Camera.Parameters parameters = mCamera.getParameters();
-            parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-            mCamera.setParameters(parameters);
-            mCamera.stopPreview();
-        }
-    }
+
+
 
 
 
@@ -169,7 +127,7 @@ public class CommonUtils {
         try {
             fout = new FileOutputStream(new File(savePath + "/" + nameFile));
             int lenght = 0;
-            byte buff[] = new byte[1024];
+            byte[] buff = new byte[1024];
             lenght = fin.read(buff);
             while (lenght > 0) {
                 fout.write(buff, 0, lenght);
