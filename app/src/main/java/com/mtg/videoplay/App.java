@@ -4,9 +4,22 @@ package com.mtg.videoplay;
 import com.common.control.MyApplication;
 
 public class App extends MyApplication {
+    private static App instance;
+
+    public static App getInstance() {
+        if (instance == null)
+            instance = new App();
+        return instance;
+    }
+
+    private static void setInstance(App instance) {
+        App.instance = instance;
+    }
+
     @Override
     protected void onApplicationCreate() {
-
+        if (instance == null)
+            setInstance(App.this);
     }
 
     @Override
@@ -21,7 +34,7 @@ public class App extends MyApplication {
 
     @Override
     protected boolean isShowAdsTest() {
-        return true;
+        return BuildConfig.TEST_AD || BuildConfig.DEBUG;
     }
 
     @Override
