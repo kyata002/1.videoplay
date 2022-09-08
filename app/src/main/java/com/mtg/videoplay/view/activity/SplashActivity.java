@@ -33,7 +33,6 @@ public class SplashActivity extends BaseActivity {
             public void run() {
                 AdmobManager.getInstance()
                         .loadInterAds(SplashActivity.this, BuildConfig.inter_open_app, new AdCallback() {
-
                             @Override
                             public void onResultInterstitialAd(InterstitialAd interstitialAd) {
                                 super.onResultInterstitialAd(interstitialAd);

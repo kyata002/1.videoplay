@@ -4,9 +4,8 @@ package com.mtg.videoplay.view.activity;
 import static com.mtg.videoplay.utils.FileUtils.requestLauncher;
 import static com.mtg.videoplay.view.dialog.DialogChange.context;
 
+
 import android.Manifest;
-import android.app.Activity;
-import android.app.Dialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.pm.PackageManager;
@@ -15,7 +14,6 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.view.View;
-import android.view.Window;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -84,11 +82,11 @@ public class HomeActicity extends BaseActivity  {
         });
         launcherRename = requestLauncher(this, (key1,data) -> {
             if(key1.equals("key1")){
-                FileVideo media = VideoFragment.RenameList.get(VideoFragment.lc_rename);
+                FileVideo media = VideoFragment.videoRename;
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, VideoFragment.newName);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    context.getContentResolver().update(ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, media.getId()), contentValues, null);
+                    this.getContentResolver().update(ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, media.getId()), contentValues, null);
                 }
             }
         });

@@ -3,6 +3,7 @@ package com.mtg.videoplay.view.fragment;
 import static com.mtg.videoplay.view.activity.HomeActicity.launcherDelete;
 import static com.mtg.videoplay.view.activity.HomeActicity.launcherRename;
 
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
@@ -56,13 +57,16 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
     ImageView bt_backs;
     TabLayout tab;
     ViewPager viewPager;
-    RecyclerView rvAudio;
-    LinearLayout noVideo,lr_No_File;
+    RecyclerView rvAudio,rvSearch;
+    LinearLayout noVideo,lr_No_File,tv_Home;
     LinearLayout lc_search,lc_main;
     ImageView bt_search,bt_setting,bt_clear_search;
     int Load_Ads=0;
-    public static int ck_delete = 0,lc_rename;
+    public static int ck_delete = 0;
+    public static FileVideo videoRename;
     public static String newName;
+
+
     public static ArrayList<FileVideo> RenameList;
 
 
@@ -97,35 +101,39 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
             lc_main.setVisibility(View.VISIBLE);
             lc_search.setVisibility(View.GONE);
             tab.setVisibility(View.VISIBLE);
+            rvSearch.setVisibility(View.GONE);
+            tv_Home.setVisibility(View.VISIBLE);
             viewPager.setClickable(true);
             ed_Search.setText("");
 
             InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(ed_Search.getWindowToken(), 0);
-            rvAudio.setLayoutManager(new LinearLayoutManager(getContext()));
-            rvAudio.setHasFixedSize(true);
-            rvAudio.setItemViewCacheSize(20);
-            adapter = new AllVideoAdapter(getContext(), videoList);
-            adapter.setOnClickOptionListener(this);
-            GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2, GridLayoutManager.VERTICAL, false);
-            rvAudio.setLayoutManager(gridLayoutManager);
-            rvAudio.setAdapter(adapter);
-            gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-                @Override
-                public int getSpanSize(int position) {
-                    if(adapter.getItemViewType(position) == 1 ){
-                        return 2;
-                    }else if(adapter.getItemViewType(position) == 0){
-                        return 1;
-                    }else return -1;
-                }
-            });
+//            rvAudio.setLayoutManager(new LinearLayoutManager(getContext()));
+//            rvAudio.setHasFixedSize(true);
+//            rvAudio.setItemViewCacheSize(20);
+//            adapter = new AllVideoAdapter(getContext(), videoList);
+//            adapter.setOnClickOptionListener(this);
+//            GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2, GridLayoutManager.VERTICAL, false);
+//            rvAudio.setLayoutManager(gridLayoutManager);
+//            rvAudio.setAdapter(adapter);
+//            gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+//                @Override
+//                public int getSpanSize(int position) {
+//                    if(adapter.getItemViewType(position) == 1 ){
+//                        return 2;
+//                    }else if(adapter.getItemViewType(position) == 0){
+//                        return 1;
+//                    }else return -1;
+//                }
+//            });
         });
         bt_search.setOnClickListener(view -> {
+            rvSearch.setVisibility(View.VISIBLE);
             lc_main.setVisibility(View.GONE);
             lc_search.setVisibility(View.VISIBLE);
-            tab.setVisibility(View.GONE);
+            tv_Home.setVisibility(View.GONE);
             viewPager.setClickable(false);
+            setList(videoListSearch);
         });
 
         bt_setting.setOnClickListener(view -> {
@@ -181,7 +189,9 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
         lr_No_File = requireActivity().findViewById(R.id.no_file);
         ed_Search = requireActivity().findViewById(R.id.de_search);
         rvAudio = requireActivity().findViewById(R.id.rv_video);
+        rvSearch = requireActivity().findViewById(R.id.rvSreach);
         noVideo = requireActivity().findViewById(R.id.no_video_search);
+        tv_Home = requireActivity().findViewById(R.id.tv_Home);
     }
 
 
@@ -233,29 +243,40 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
     public void Filter(String text) {
         ArrayList<FileVideo> listNew = new ArrayList<>();
 
-        for (int i = 0; i < videoListSearch.size(); i++) {
-            if (new File(String.valueOf(videoListSearch.get(i).getPath())).getName().toLowerCase().contains(text.toLowerCase())) {
-                listNew.add(videoListSearch.get(i));
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < videoListSearch.size(); i++) {
+                    if (new File(String.valueOf(videoListSearch.get(i).getPath())).getName().toLowerCase().contains(text.toLowerCase())) {
+                        listNew.add(videoListSearch.get(i));
+                    }
+                }
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (listNew.size() != 0) {
+                            noVideo.setVisibility(View.GONE);
+                        } else {
+                            noVideo.setVisibility(View.VISIBLE);
+                        }
+                        setList(listNew);
+                    }
+                });
             }
-        }
+        }).start();
 
-        if (listNew.size() != 0) {
-            noVideo.setVisibility(View.GONE);
-        } else {
-            noVideo.setVisibility(View.VISIBLE);
-        }
-        setList(listNew);
+
 
     }
 
     private void setList(ArrayList<FileVideo> listNew) {
-        rvAudio.setLayoutManager(new LinearLayoutManager(getContext()));
-        rvAudio.setHasFixedSize(true);
-        rvAudio.setItemViewCacheSize(20);
+        rvSearch.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvSearch.setHasFixedSize(true);
+        rvSearch.setItemViewCacheSize(20);
         adapter = new AllVideoAdapter(getContext(), listNew);
         GridLayoutManager linearLayoutManager = new GridLayoutManager(getContext(), 2, GridLayoutManager.VERTICAL, false);
-        rvAudio.setLayoutManager(linearLayoutManager);
-        rvAudio.setAdapter(adapter);
+        rvSearch.setLayoutManager(linearLayoutManager);
+        rvSearch.setAdapter(adapter);
     }
 
     @Override
@@ -277,7 +298,6 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
                     if (key.equals("rename")) {
                         String onlyPath = file.getParent();
                         newName = newName + ".mp4";
-                        lc_rename = position;
                         File from = new File(videoList.get(position).getPath());
                         File to = new File(onlyPath, newName);
                         try {
@@ -309,10 +329,10 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
             final File file = new File(videoList.get(position).getPath());
             RenameDialog dialog = new RenameDialog(context, videoList.get(position).getPath());
             dialog.setCallback((key, data) -> {
-                String newName = (String) data;
+                newName = (String) data;
                 if (key.equals("rename")) {
-
-                    FileUtils.rename(context,videoList.get(position), launcherRename);
+                    videoRename = videoList.get(position);
+                    FileUtils.rename(getContext(),videoList.get(position), launcherRename);
                     File file2 = new File(videoList.get(position).getPath());
                     MediaScannerConnection.scanFile(context,
                             new String[]{file2.toString()},

@@ -368,7 +368,7 @@ public class FileUtils {
                 new ActivityResultContracts.StartIntentSenderForResult(),
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
-                        callback.callback("key1",null);
+                        callback.callback("key1",activity);
                     }
                 });
     }
@@ -406,20 +406,6 @@ public class FileUtils {
         outStream.close();
     }
 
-    public static ActivityResultLauncher<IntentSenderRequest> requestLauncher(AppCompatActivity activity) {
-        return activity.registerForActivityResult(
-                new ActivityResultContracts.StartIntentSenderForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        FileVideo media = VideoFragment.RenameList.get(VideoFragment.lc_rename);
-                        ContentValues contentValues = new ContentValues();
-                        contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, VideoFragment.newName);
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                            context.getContentResolver().update(ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, media.getId()), contentValues, null);
-                        }
-                    }
-                });
-    }
 
 
 }
