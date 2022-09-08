@@ -132,39 +132,39 @@ class VideoPlayerActivity : BaseActivity() {
                                         mAudioManager!!.getStreamVolume(AudioManager.STREAM_MUSIC)
                                 }
                                 if (mChangeVolume) {
-                                        deltaY = -deltaY
-                                        val max: Int =
-                                            mAudioManager!!.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-                                        val deltaV = (max * deltaY * 3 / mScreenHeight)
-                                        mAudioManager!!.setStreamVolume(
-                                            AudioManager.STREAM_MUSIC,
-                                            (mGestureDownVolume + deltaV).roundToInt(),
-                                            0
-                                        )
-                                        //dialog
-                                        DialogChange.showVolumeDialog(
-                                            ((mGestureDownVolume * 100 / max + deltaY * 3 * 100 / mScreenHeight).toInt()),
-                                            this@VideoPlayerActivity
-                                        )
+                                    deltaY = -deltaY
+                                    val max: Int =
+                                        mAudioManager!!.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+                                    val deltaV = (max * deltaY * 3 / mScreenHeight)
+                                    mAudioManager!!.setStreamVolume(
+                                        AudioManager.STREAM_MUSIC,
+                                        (mGestureDownVolume + deltaV).roundToInt(),
+                                        0
+                                    )
+                                    //dialog
+                                    DialogChange.showVolumeDialog(
+                                        ((mGestureDownVolume * 100 / max + deltaY * 3 * 100 / mScreenHeight).toInt()),
+                                        this@VideoPlayerActivity
+                                    )
                                 }
                                 if (mChangeBrightness) {
-                                        deltaY = -deltaY
-                                        val deltaV = (255 * deltaY * 3 / mScreenHeight)
-                                        val params = getWindow(this@VideoPlayerActivity)?.attributes
-                                        if ((mGestureDownBrightness + deltaV) / 255 >= 1) {
-                                            params?.screenBrightness = 1f
-                                        } else if ((mGestureDownBrightness + deltaV) / 255 <= 0) {
-                                            params?.screenBrightness = 0.01f
-                                        } else {
-                                            params?.screenBrightness =
-                                                ((mGestureDownBrightness + deltaV) / 255).toFloat()
-                                        }
-                                        getWindow(this@VideoPlayerActivity)?.attributes = params
-                                        //dialog
-                                        DialogChange.showBrightnessDialog(
-                                            ((mGestureDownBrightness * 100 / 255 + deltaY * 3 * 100 / mScreenHeight).toInt()),
-                                            this@VideoPlayerActivity
-                                        )
+                                    deltaY = -deltaY
+                                    val deltaV = (255 * deltaY * 3 / mScreenHeight)
+                                    val params = getWindow(this@VideoPlayerActivity)?.attributes
+                                    if ((mGestureDownBrightness + deltaV) / 255 >= 1) {
+                                        params?.screenBrightness = 1f
+                                    } else if ((mGestureDownBrightness + deltaV) / 255 <= 0) {
+                                        params?.screenBrightness = 0.01f
+                                    } else {
+                                        params?.screenBrightness =
+                                            ((mGestureDownBrightness + deltaV) / 255).toFloat()
+                                    }
+                                    getWindow(this@VideoPlayerActivity)?.attributes = params
+                                    //dialog
+                                    DialogChange.showBrightnessDialog(
+                                        ((mGestureDownBrightness * 100 / 255 + deltaY * 3 * 100 / mScreenHeight).toInt()),
+                                        this@VideoPlayerActivity
+                                    )
                                 }
                             }
                             MotionEvent.ACTION_UP -> {
@@ -182,7 +182,7 @@ class VideoPlayerActivity : BaseActivity() {
                             }
                         }
                     } else {
-                            when (motionEvent.action) {
+                        when (motionEvent.action) {
                             MotionEvent.ACTION_DOWN -> if (ck_visible === false) {
                                 fr_lock.visibility = View.VISIBLE
                                 if (ck_lock === false) Timer2?.cancel()
@@ -231,58 +231,54 @@ class VideoPlayerActivity : BaseActivity() {
                         Typeface.NORMAL
                     )
                 )
-                .setSelectedTextColor(ContextCompat.getColor(this,
-                    android.R.color.holo_red_dark
-                ))
                 .setMenuColor(ContextCompat.getColor(this, R.color.white))
                 .setSelectedMenuColor(ContextCompat.getColor(this, R.color.white))
                 .setOnMenuItemClickListener { posit, item ->
 
                     val title = item.title
-                    when(posit){
-                        0->{
-                            item.setIsSelected(true)
+                    when (posit) {
+                        0 -> {
+                            selectColor(powerMenu, item)
                         }
-                        1->{
-                            item.setIsSelected(true)
+                        1 -> {
+                            selectColor(powerMenu, item)
                         }
-                        2->{
-                            item.setIsSelected(true)
+                        2 -> {
+                            selectColor(powerMenu, item)
                         }
-                        3->{
-                            item.setIsSelected(true)
+                        3 -> {
+                            selectColor(powerMenu, item)
                         }
-                        4->{
-                            item.setIsSelected(true)
+                        4 -> {
+                            selectColor(powerMenu, item)
                         }
-
                     }
-                    when(title){
-                        "0.5x"->{
+                    when (title) {
+                        "0.5x" -> {
                             speed = 0.5f
                             setNewSpeed()
                             bg_replay.visibility = GONE
                             powerMenu?.dismiss()
                         }
-                        "0.75x"->{
+                        "0.75x" -> {
                             speed = 0.75f
                             setNewSpeed()
                             bg_replay.visibility = GONE
                             powerMenu?.dismiss()
                         }
-                        "1x (Normal)"->{
+                        "1x (Normal)" -> {
                             speed = 1f
                             setNewSpeed()
                             bg_replay.visibility = GONE
                             powerMenu?.dismiss()
                         }
-                        "1.25x"->{
+                        "1.25x" -> {
                             speed = 1.25f
                             setNewSpeed()
                             bg_replay.visibility = GONE
                             powerMenu?.dismiss()
                         }
-                        "1.5x"->{
+                        "1.5x" -> {
                             speed = 1.5f
                             setNewSpeed()
                             bg_replay.visibility = GONE
@@ -290,7 +286,21 @@ class VideoPlayerActivity : BaseActivity() {
                         }
 
                     }
-                }.build()
+                }
+                .setSelectedTextColor(
+                    ContextCompat.getColor(
+                        this,
+                        android.R.color.holo_red_dark
+                    )
+                )
+                .build()
+    }
+
+    private fun selectColor(powerMenu: PowerMenu?, item: PowerMenuItem?) {
+        powerMenu?.itemList?.forEach {
+            it.setIsSelected(false)
+        }
+        item?.setIsSelected(true)
     }
 
     private fun showDH() {
@@ -309,7 +319,7 @@ class VideoPlayerActivity : BaseActivity() {
         var file: File
         file = File(videpList?.get(videoIndex)?.path)
         txt_name_play.setText(file.name)
-                    fr_lock.setOnClickListener {
+        fr_lock.setOnClickListener {
             if (ck_lock == false) {
                 ck_lock = true
                 bt_lock_play.setImageResource(R.drawable.ic_lock)

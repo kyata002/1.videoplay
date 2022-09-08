@@ -7,7 +7,6 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.media.MediaScannerConnection;
@@ -27,8 +26,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -49,7 +46,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Objects;
 
 
 public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnClickOptionListener {
@@ -59,10 +55,10 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
     TabLayout tab;
     ViewPager viewPager;
     RecyclerView rvAudio;
-    LinearLayout noVideo,lr_No_File;
-    LinearLayout lc_search,lc_main;
-    ImageView bt_search,bt_setting,bt_clear_search;
-    int Load_Ads=0;
+    LinearLayout noVideo, lr_No_File;
+    LinearLayout lc_search, lc_main;
+    ImageView bt_search, bt_setting, bt_clear_search;
+    int Load_Ads = 0;
     public static int ck_delete = 0;
 
 
@@ -113,11 +109,11 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
             gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
                 @Override
                 public int getSpanSize(int position) {
-                    if(adapter.getItemViewType(position) == 1 ){
+                    if (adapter.getItemViewType(position) == 1) {
                         return 2;
-                    }else if(adapter.getItemViewType(position) == 0){
+                    } else if (adapter.getItemViewType(position) == 0) {
                         return 1;
-                    }else return -1;
+                    } else return -1;
                 }
             });
         });
@@ -153,11 +149,11 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
         gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
             public int getSpanSize(int position) {
-                if(adapter.getItemViewType(position) == 1 ){
+                if (adapter.getItemViewType(position) == 1) {
                     return 2;
-                }else if(adapter.getItemViewType(position) == 0){
+                } else if (adapter.getItemViewType(position) == 0) {
                     return 1;
-                }else return -1;
+                } else return -1;
             }
         });
 
@@ -166,8 +162,8 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
     private void link() {
         bt_search = requireActivity().findViewById(R.id.bt_search);
         bt_setting = requireActivity().findViewById(R.id.bt_setting);
-        tab=requireActivity().findViewById(R.id.tab_Layout);
-        viewPager =requireActivity(). findViewById(R.id.view_Pager);
+        tab = requireActivity().findViewById(R.id.tab_Layout);
+        viewPager = requireActivity().findViewById(R.id.view_Pager);
         lc_search = requireActivity().findViewById(R.id.lc_Search);
         lc_main = requireActivity().findViewById(R.id.lc_Main);
         ed_Search = requireActivity().findViewById(R.id.de_search);
@@ -195,34 +191,33 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
             int idCol = csr.getColumnIndex(MediaStore.Video.Media._ID);
             String path = csr.getString(ind);
             int id = csr.getInt(idCol);
-            if (new File(path).exists()&&path.endsWith(".mp4")&&new File(path).length()>1){
+            if (new File(path).exists() && path.endsWith(".mp4") && new File(path).length() > 1) {
                 videoListSearch.add(new FileVideo(path, id));
             }
         }
-        Load_Ads=0;
+        Load_Ads = 0;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             videoListSearch.sort(new Comparator<FileVideo>() {
                 @Override
                 public int compare(FileVideo fileVideo, FileVideo t1) {
-                    return Long.compare(new File(t1.getPath()).lastModified(),new File(fileVideo.getPath()).lastModified());
+                    return Long.compare(new File(t1.getPath()).lastModified(), new File(fileVideo.getPath()).lastModified());
                 }
             });
         }
-        for(int i=0;i<videoListSearch.size();i++){
+        for (int i = 0; i < videoListSearch.size(); i++) {
 //            Load_Ads++;
-            if(i%6==5){
+            if (i % 6 == 5) {
                 videoListPath.add(videoListSearch.get(i));
                 videoListPath.add(null);
-            }else{
+            } else {
                 videoListPath.add(videoListSearch.get(i));
             }
         }
-        if(videoListSearch.size()%6==0&&videoListSearch.size()!=0){
-            videoListPath.remove(videoListPath.size()-1);
+        if (videoListSearch.size() % 6 == 0 && videoListSearch.size() != 0) {
+            videoListPath.remove(videoListPath.size() - 1);
         }
         return videoListPath;
     }
-
 
 
     public void Filter(String text) {
@@ -264,49 +259,49 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
     @Override
     public void onRename(int position) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-                final File file = new File(videoList.get(position).getPath());
-                RenameDialog dialog = new RenameDialog(context, videoList.get(position).getPath());
-                dialog.setCallback((key, data) -> {
-                    String newName = (String) data;
-                    if (key.equals("rename")) {
-
-                        String onlyPath = file.getParent();
-                        newName = newName + ".mp4";
-                        File from = new File(videoList.get(position).getPath());
-                        File to = new File(onlyPath, newName);
-                        try {
-                            to.createNewFile();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        if (from.exists()) {
-                            from.renameTo(to);
-                            removeMedia(requireActivity(), from);
-                            addMedia(getActivity(), to);
-                            CountDownTimer Timer2 = new CountDownTimer(1100, 1000) {
-                                public void onTick(long millisUntilFinished) {
-
-                                }
-
-                                public void onFinish() {
-                                    videoList.clear();
-                                    videoList = getdata();
-                                    adapter.update(videoList);
-
-                                }
-                            }.start();
-                        }
-                    }
-                });
-                dialog.show();
-        }else{
             final File file = new File(videoList.get(position).getPath());
             RenameDialog dialog = new RenameDialog(context, videoList.get(position).getPath());
             dialog.setCallback((key, data) -> {
                 String newName = (String) data;
                 if (key.equals("rename")) {
 
-                    FileUtils.rename((AppCompatActivity) context,videoList.get(position),newName,launcher);
+                    String onlyPath = file.getParent();
+                    newName = newName + ".mp4";
+                    File from = new File(videoList.get(position).getPath());
+                    File to = new File(onlyPath, newName);
+                    try {
+                        to.createNewFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    if (from.exists()) {
+                        from.renameTo(to);
+                        removeMedia(requireActivity(), from);
+                        addMedia(getActivity(), to);
+                        CountDownTimer Timer2 = new CountDownTimer(1100, 1000) {
+                            public void onTick(long millisUntilFinished) {
+
+                            }
+
+                            public void onFinish() {
+                                videoList.clear();
+                                videoList = getdata();
+                                adapter.update(videoList);
+
+                            }
+                        }.start();
+                    }
+                }
+            });
+            dialog.show();
+        } else {
+            final File file = new File(videoList.get(position).getPath());
+            RenameDialog dialog = new RenameDialog(context, videoList.get(position).getPath());
+            dialog.setCallback((key, data) -> {
+                String newName = (String) data;
+                if (key.equals("rename")) {
+
+                    FileUtils.rename((AppCompatActivity) context, videoList.get(position), newName, launcher);
                     File file2 = new File(videoList.get(position).getPath());
                     MediaScannerConnection.scanFile(context,
                             new String[]{file2.toString()},

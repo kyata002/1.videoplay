@@ -1,11 +1,13 @@
 package com.mtg.videoplay.view.activity;
 
 import android.content.Intent;
+import android.os.Handler;
 
 import androidx.annotation.NonNull;
 
 import com.common.control.interfaces.AdCallback;
 import com.common.control.manager.AdmobManager;
+import com.common.control.manager.AppOpenManager;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.mtg.videoplay.BuildConfig;
@@ -18,78 +20,46 @@ public class SplashActivity extends BaseActivity {
         return R.layout.activity_splash;
     }
 
-    private InterstitialAd interAds = null;
-
     @Override
     protected void initView() {
-        loadInter();
+        request();
+        AppOpenManager.getInstance().disableAppResume();
     }
 
-    private void reques() {
-        new Thread(() -> {
-            try {
-                Thread.sleep(3000);
-                runOnUiThread(() ->         showInter()
-
-                );
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }).start();
-    }
-
-    private void loadInter() {
-        AdmobManager.getInstance()
-                .loadInterAds(this, BuildConfig.inter_open_app, new AdCallback() {
-
-                    @Override
-                    public void onResultInterstitialAd(InterstitialAd interstitialAd) {
-                        super.onResultInterstitialAd(interstitialAd);
-                        interAds = interstitialAd;
-                        reques();
-                    }
-
-                    @Override
-                    public void onAdFailedToShowFullScreenContent(LoadAdError errAd) {
-                        super.onAdFailedToShowFullScreenContent(errAd);
-                        reques();
-
-                    }
-
-                    @Override
-                    public void onAdFailedToLoad(@NonNull LoadAdError i) {
-                        super.onAdFailedToLoad(i);
-                        reques();
-
-                    }
-
-                    @Override
-                    public void onAdLoaded() {
-                        super.onAdLoaded();
-                        reques();
-
-                    }
-
-                });
-    }
-
-    private void showInter() {
-        AdmobManager.getInstance().showInterstitial(this, interAds, new AdCallback() {
+    private void request() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
             @Override
-            public void onAdClosed() {
-                super.onAdClosed();
-                showMain();
+            public void run() {
+                AdmobManager.getInstance()
+                        .loadInterAds(SplashActivity.this, BuildConfig.inter_open_app, new AdCallback() {
 
+                            @Override
+                            public void onResultInterstitialAd(InterstitialAd interstitialAd) {
+                                super.onResultInterstitialAd(interstitialAd);
+                                AdmobManager.getInstance().showInterstitial(SplashActivity.this, interstitialAd, this);
+                            }
+
+                            @Override
+                            public void onAdFailedToShowFullScreenContent(LoadAdError errAd) {
+                                super.onAdFailedToShowFullScreenContent(errAd);
+                                showMain();
+                            }
+
+                            @Override
+                            public void onAdFailedToLoad(@NonNull LoadAdError i) {
+                                super.onAdFailedToLoad(i);
+                                showMain();
+                            }
+
+                            @Override
+                            public void onAdClosed() {
+                                super.onAdClosed();
+                                showMain();
+                            }
+                        });
             }
-
-            @Override
-            public void onAdFailedToShowFullScreenContent(LoadAdError errAd) {
-                super.onAdFailedToShowFullScreenContent(errAd);
-                showMain();
-
-            }
-        });
+        }, 2000);
     }
 
     private void showMain() {
