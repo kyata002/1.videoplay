@@ -1,16 +1,12 @@
 package com.mtg.videoplay.adapter;
 
-import static com.mtg.videoplay.view.activity.HomeActicity.launcher;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.media.MediaMetadataRetriever;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.os.Build;
 import android.os.StrictMode;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -21,7 +17,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -34,16 +29,13 @@ import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.mtg.videoplay.BuildConfig;
 import com.mtg.videoplay.R;
 import com.mtg.videoplay.model.FileVideo;
-import com.mtg.videoplay.utils.FileUtils;
 import com.mtg.videoplay.utils.Utils;
 import com.mtg.videoplay.view.activity.VideoPlayerActivity;
-import com.mtg.videoplay.view.dialog.DeleteDialog;
 import com.mtg.videoplay.view.dialog.InfoDialog;
 import com.skydoves.powermenu.PowerMenu;
 import com.skydoves.powermenu.PowerMenuItem;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URLConnection;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;

@@ -1,6 +1,6 @@
 package com.mtg.videoplay.view.activity;
 
-import static com.mtg.videoplay.view.activity.HomeActicity.launcher;
+import static com.mtg.videoplay.view.activity.HomeActicity.launcherDelete;
 import static com.mtg.videoplay.view.dialog.DialogChange.context;
 
 import android.app.Dialog;
@@ -15,12 +15,10 @@ import android.os.CountDownTimer;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
-import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -244,7 +242,7 @@ public class VideoListActivity extends BaseActivity implements FileFolderAdapter
 //                    notifyItemRemoved(videoList.indexOf(videoList.get(position)));
                     }
                 } else {
-                    FileUtils.deleteFileAndroid11(this, mFile.get(position), launcher);
+                    FileUtils.deleteFileAndroid11(this, mFile.get(position), launcherDelete);
                     File file2 = new File(mFile.get(position).getPath());
                     MediaScannerConnection.scanFile(this,
                             new String[]{file2.toString()},

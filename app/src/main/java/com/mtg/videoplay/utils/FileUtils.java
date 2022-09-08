@@ -29,6 +29,7 @@ import androidx.core.content.FileProvider;
 import com.mtg.videoplay.BuildConfig;
 import com.mtg.videoplay.OnActionCallback;
 import com.mtg.videoplay.model.FileVideo;
+import com.mtg.videoplay.view.fragment.VideoFragment;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -342,7 +343,7 @@ public class FileUtils {
 
             ArrayList<Uri> collection = new ArrayList<>();
 //            String mineType = getMimeType(uri);
-            Uri contentUri =MediaStore.Video.Media.getContentUri("external");
+            Uri contentUri = MediaStore.Video.Media.getContentUri("external");
 
 //            boolean isVideo = mineType.contains("video");
 //            if (isVideo) {
@@ -367,37 +368,32 @@ public class FileUtils {
                 new ActivityResultContracts.StartIntentSenderForResult(),
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
-//                        callback.callback("");
+                        callback.callback("key1",null);
                     }
                 });
     }
 
 
-    public static void rename(AppCompatActivity activity, FileVideo media, String newName,ActivityResultLauncher<IntentSenderRequest> launcher) {
+    public static void rename(Context activity, FileVideo media, ActivityResultLauncher<IntentSenderRequest> launcher) {
         File file = new File(media.getPath());
-        Uri uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file);
-//        Uri uri = Uri.fromFile(file);
+        Uri uri = Uri.fromFile(file);
         ContentResolver contentResolver = activity.getContentResolver();
-        PendingIntent pendingIntent = null;
+        PendingIntent pendingIntent;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
 
             ArrayList<Uri> collection = new ArrayList<>();
             Uri contentUri = MediaStore.Video.Media.getContentUri("external");
             collection.add(ContentUris.withAppendedId(contentUri, media.getId()));
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, newName);
-            contentValues.put(MediaStore.MediaColumns.DATA, new File(media.getPath()).getParent() + "/" + newName);
-            contentValues.put(MediaStore.MediaColumns._ID, media.getId());
             pendingIntent = MediaStore.createWriteRequest(contentResolver, collection);
-            contentResolver.update(ContentUris.withAppendedId(uri, media.getId()),contentValues,null);
+            if (pendingIntent != null) {
+                IntentSender sender = pendingIntent.getIntentSender();
+                IntentSenderRequest request = new IntentSenderRequest.Builder(sender).build();
+                launcher.launch(request);
+            }
         }
 
-        if (pendingIntent != null) {
-            IntentSender sender = pendingIntent.getIntentSender();
-            IntentSenderRequest request = new IntentSenderRequest.Builder(sender).build();
-            launcher.launch(request);
-        }
+
     }
 
     public static void copy(File src, File dst) throws IOException {
@@ -409,12 +405,18 @@ public class FileUtils {
         inStream.close();
         outStream.close();
     }
+
     public static ActivityResultLauncher<IntentSenderRequest> requestLauncher(AppCompatActivity activity) {
         return activity.registerForActivityResult(
                 new ActivityResultContracts.StartIntentSenderForResult(),
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
-//                        callback.callback("");
+                        FileVideo media = VideoFragment.RenameList.get(VideoFragment.lc_rename);
+                        ContentValues contentValues = new ContentValues();
+                        contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, VideoFragment.newName);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            context.getContentResolver().update(ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, media.getId()), contentValues, null);
+                        }
                     }
                 });
     }

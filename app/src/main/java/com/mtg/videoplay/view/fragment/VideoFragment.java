@@ -1,13 +1,13 @@
 package com.mtg.videoplay.view.fragment;
 
-import static com.mtg.videoplay.view.activity.HomeActicity.launcher;
+import static com.mtg.videoplay.view.activity.HomeActicity.launcherDelete;
+import static com.mtg.videoplay.view.activity.HomeActicity.launcherRename;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.media.MediaScannerConnection;
@@ -28,7 +28,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -49,7 +48,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Objects;
 
 
 public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnClickOptionListener {
@@ -63,7 +61,9 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
     LinearLayout lc_search,lc_main;
     ImageView bt_search,bt_setting,bt_clear_search;
     int Load_Ads=0;
-    public static int ck_delete = 0;
+    public static int ck_delete = 0,lc_rename;
+    public static String newName;
+    public static ArrayList<FileVideo> RenameList;
 
 
     ArrayList<FileVideo> videoList = new ArrayList<>();
@@ -142,9 +142,14 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
     protected void initView() {
         link();
         videoList = getdata();
+        if(videoList.size()==0){
+            lr_No_File.setVisibility(View.VISIBLE);
+        }else{
+            lr_No_File.setVisibility(View.GONE);
+        }
         rvAudio.setLayoutManager(new LinearLayoutManager(getContext()));
         rvAudio.setHasFixedSize(true);
-        rvAudio.setItemViewCacheSize(20);
+        rvAudio.setItemViewCacheSize(40);
         adapter = new AllVideoAdapter(getContext(), videoList);
         adapter.setOnClickOptionListener(this);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2, GridLayoutManager.VERTICAL, false);
@@ -263,15 +268,16 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
 
     @Override
     public void onRename(int position) {
+        RenameList = videoList;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
                 final File file = new File(videoList.get(position).getPath());
                 RenameDialog dialog = new RenameDialog(context, videoList.get(position).getPath());
                 dialog.setCallback((key, data) -> {
-                    String newName = (String) data;
+                     newName = (String) data;
                     if (key.equals("rename")) {
-
                         String onlyPath = file.getParent();
                         newName = newName + ".mp4";
+                        lc_rename = position;
                         File from = new File(videoList.get(position).getPath());
                         File to = new File(onlyPath, newName);
                         try {
@@ -306,7 +312,7 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
                 String newName = (String) data;
                 if (key.equals("rename")) {
 
-                    FileUtils.rename((AppCompatActivity) context,videoList.get(position),newName,launcher);
+                    FileUtils.rename(context,videoList.get(position), launcherRename);
                     File file2 = new File(videoList.get(position).getPath());
                     MediaScannerConnection.scanFile(context,
                             new String[]{file2.toString()},
@@ -349,8 +355,10 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
                         videoList.remove(videoList.get(position));
 //                    notifyItemRemoved(videoList.indexOf(videoList.get(position)));
                     }
+                    adapter.notifyDataSetChanged();
+                    onResume();
                 } else {
-                    FileUtils.deleteFileAndroid11((AppCompatActivity) context, videoList.get(position), launcher);
+                    FileUtils.deleteFileAndroid11((AppCompatActivity) context, videoList.get(position), launcherDelete);
                     File file2 = new File(videoList.get(position).getPath());
                     MediaScannerConnection.scanFile(context,
                             new String[]{file2.toString()},
@@ -370,30 +378,7 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
         dialog.show();
     }
 
-    public void showDialog(final Activity activity) {
-        final Dialog dialog = new Dialog(activity);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCancelable(true);
-        dialog.setContentView(R.layout.dialog_request_allfile);
-        TextView allow = (TextView) dialog.findViewById(R.id.bt_allow);
-        TextView deny = (TextView) dialog.findViewById(R.id.bt_deny);
-        allow.setOnClickListener(v -> {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                if (Environment.isExternalStorageManager()) {
-                } else { //request for the permission
-                    Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-                    Uri uri = Uri.fromParts("package", "com.mtg.videoplay", null);
-                    intent.setData(uri);
-                    startActivity(intent);
-                }
-                dialog.dismiss();
-            }
-        });
-        deny.setOnClickListener(v -> dialog.dismiss());
-        dialog.setOnDismissListener(dialog1 -> dialog1.dismiss());
 
-        dialog.show();
-    }
 
     private static void removeMedia(Context c, File f) {
         ContentResolver resolver = c.getContentResolver();

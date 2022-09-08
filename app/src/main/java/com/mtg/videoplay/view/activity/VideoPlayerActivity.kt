@@ -71,7 +71,6 @@ class VideoPlayerActivity : BaseActivity() {
         return R.layout.activity_play
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun initView() {
         pop();
         mScreenWidth = this.resources.displayMetrics.widthPixels
@@ -359,32 +358,91 @@ class VideoPlayerActivity : BaseActivity() {
             }
         }
         bt_prive_play.setOnClickListener { view: View? ->
+
             if (videoIndex > 0 && videoIndex < videpList?.size!!) {
                 if (keyPlay == 1) videoIndex = pos
                 videoIndex--
-                speed = 1f
-                videoView.stopPlayback()
-                pathVideo = videpList!!.get(videoIndex).getPath()
-                videoView.apply {
-                    setVideoPath(videoIndex?.let { videpList!!.get(it).path })
-                    start()
-                }
-                pos = videoIndex
+               if(videpList!!.get(videoIndex)!=null){
+                   var file: File
+                   file = File(videpList?.get(videoIndex)?.path)
+                   txt_name_play.setText(file.name)
+                   speed = 1f
+                   videoView.stopPlayback()
+                   pathVideo = videpList!!.get(videoIndex).getPath()
+                   videoView.apply {
+                       setVideoPath(videoIndex?.let { videpList!!.get(it).path })
+                       start()
+                   }
+                   pos = videoIndex
+               }else{
+                   videoIndex--
+                   var file: File
+                   file = File(videpList?.get(videoIndex)?.path)
+                   txt_name_play.setText(file.name)
+                   speed = 1f
+                   videoView.stopPlayback()
+                   pathVideo = videpList!!.get(videoIndex).getPath()
+                   videoView.apply {
+                       setVideoPath(videoIndex?.let { videpList!!.get(it).path })
+                       start()
+                   }
+                   pos = videoIndex
+               }
             }
+            if(videoIndex == 0){
+                bt_next_play.setImageResource(R.drawable.ic_next)
+                bt_prive_play.setImageResource(R.drawable.ic_no_previous)
+            }else{
+                bt_play.setImageResource(R.drawable.ic_pause)
+                ck_pause=false;
+                bt_next_play.setImageResource(R.drawable.ic_next)
+                bt_prive_play.setImageResource(R.drawable.ic_previous)
+            }
+
         }
         bt_next_play.setOnClickListener { view: View? ->
+
             if (videoIndex < videpList?.size!! - 1) {
                 if (keyPlay == 1) videoIndex = pos
                 videoIndex++
-                speed = 1f
-                videoView.stopPlayback()
-                pathVideo = videpList!!.get(videoIndex).getPath()
-                videoView.apply {
-                    setVideoPath(videoIndex?.let { videpList!!.get(it).path })
-                    start()
+                if(videpList!!.get(videoIndex)!=null){
+                    var file: File
+                    file = File(videpList?.get(videoIndex)?.path)
+                    txt_name_play.setText(file.name)
+                    speed = 1f
+                    videoView.stopPlayback()
+                    pathVideo = videpList!!.get(videoIndex).getPath()
+                    videoView.apply {
+                        setVideoPath(videoIndex?.let { videpList!!.get(it).path })
+                        start()
+                    }
+                    pos = videoIndex
+                }else{
+                    videoIndex++
+                    var file: File
+                    file = File(videpList?.get(videoIndex)?.path)
+                    txt_name_play.setText(file.name)
+                    speed = 1f
+                    videoView.stopPlayback()
+                    pathVideo = videpList!!.get(videoIndex).getPath()
+                    videoView.apply {
+                        setVideoPath(videoIndex?.let { videpList!!.get(it).path })
+                        start()
+                    }
+                    pos = videoIndex
                 }
-                pos = videoIndex
             }
+            if(videoIndex == videpList!!.size-1){
+                bt_next_play.setImageResource(R.drawable.ic_no_next_play)
+                bt_prive_play.setImageResource(R.drawable.ic_previous)
+            }else{
+                bt_play.setImageResource(R.drawable.ic_pause)
+                ck_pause=false;
+                bt_next_play.setImageResource(R.drawable.ic_next)
+                bt_prive_play.setImageResource(R.drawable.ic_previous)
+            }
+
+
         }
         bt_play.setOnClickListener {
             if (ck_pause) {
@@ -404,10 +462,11 @@ class VideoPlayerActivity : BaseActivity() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun registerListeners() {
         bt_zoom_out.setOnClickListener {
-            enterPipMode()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                enterPipMode()
+            }
         }
     }
 
@@ -425,23 +484,34 @@ class VideoPlayerActivity : BaseActivity() {
         this.enterPictureInPictureMode(pipBuilder.build())
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     private fun prepareSource(intent: Intent?) {
         videoIndex = intent?.getIntExtra("file", -1)!!
         videpList = intent?.getSerializableExtra("list") as ArrayList<FileVideo>
+        if(videoIndex == 0){
+            bt_next_play.setImageResource(R.drawable.ic_next)
+            bt_prive_play.setImageResource(R.drawable.ic_no_previous)
+        }else if(videoIndex == videpList!!.size-1 ){
+            bt_next_play.setImageResource(R.drawable.ic_next)
+            bt_prive_play.setImageResource(R.drawable.ic_previous)
+        }
         speed = 1f
         videoView.apply {
             setVideoPath(videoIndex?.let { videpList!!.get(it).path })
             start()
         }
         videoView.setOnCompletionListener {
-            when (isInPictureInPictureMode) {
-                true -> hideUnnecessaryViews()
-                false -> bg_replay.visibility = VISIBLE
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                when (isInPictureInPictureMode) {
+                    true -> hideUnnecessaryViews()
+                    false -> bg_replay.visibility = VISIBLE
+                }
+                bt_play.setImageResource(R.drawable.ic_play);
+                ck_pause = true;
+            }else{
+                bg_replay.visibility = VISIBLE
+                bt_play.setImageResource(R.drawable.ic_play);
+                ck_pause = true;
             }
-            pg_time_load.progress = it.duration
-            bt_play.setImageResource(R.drawable.ic_play);
-            ck_pause = true;
         }
         videoView.setOnPreparedListener(OnPreparedListener { mediaPlayer ->
             this@VideoPlayerActivity.mediaPlayer = mediaPlayer
@@ -497,9 +567,9 @@ class VideoPlayerActivity : BaseActivity() {
                 val timeMax = SimpleDateFormat("mm:ss")
                 txt_time_position.text = timeMax.format(videoView.currentPosition)
                 pg_time_load.progress = videoView.currentPosition
-                handler.postDelayed(this, 500)
+                handler.postDelayed(this, 10)
             }
-        }, 100)
+        }, 10)
     }
 
     private fun hideUnnecessaryViews() {

@@ -2,24 +2,20 @@ package com.mtg.videoplay.view.activity;
 
 
 import static com.mtg.videoplay.utils.FileUtils.requestLauncher;
+import static com.mtg.videoplay.view.dialog.DialogChange.context;
 
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
-import android.content.Intent;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.provider.Settings;
+import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.Window;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,11 +28,13 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
+import com.common.control.interfaces.RateCallback;
 import com.common.control.manager.AdmobManager;
 import com.google.android.material.tabs.TabLayout;
 import com.mtg.videoplay.BuildConfig;
 import com.mtg.videoplay.R;
-import com.mtg.videoplay.utils.FileUtils;
+import com.mtg.videoplay.model.FileVideo;
+import com.mtg.videoplay.utils.SharePreferenceUtils;
 import com.mtg.videoplay.utils.Utils;
 import com.mtg.videoplay.adapter.ViewPagerAdapter;
 import com.mtg.videoplay.base.BaseActivity;
@@ -53,9 +51,11 @@ public class HomeActicity extends BaseActivity  {
     ViewPager viewPager;
     TextView rq_Permission;
     private boolean ck_request = false;
+    int ck_quit=0;
 
     final DisplayMetrics displayMetrics = new DisplayMetrics();
-    public static ActivityResultLauncher<IntentSenderRequest> launcher;
+    public static ActivityResultLauncher<IntentSenderRequest> launcherDelete;
+    public static ActivityResultLauncher<IntentSenderRequest> launcherRename;
 
 
     @Override
@@ -79,8 +79,19 @@ public class HomeActicity extends BaseActivity  {
         viewPagerAdapter.addfragemnt(new FolderFragment(),"Folders");
         viewPager.setAdapter(viewPagerAdapter);
         tab.setupWithViewPager(viewPager);
-//        launcher = requestLauncher(this, (key1, data) -> {
-//        });
+        launcherDelete = requestLauncher(this, (key1,data) -> {
+
+        });
+        launcherRename = requestLauncher(this, (key1,data) -> {
+            if(key1.equals("key1")){
+                FileVideo media = VideoFragment.RenameList.get(VideoFragment.lc_rename);
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, VideoFragment.newName);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    context.getContentResolver().update(ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, media.getId()), contentValues, null);
+                }
+            }
+        });
     }
 
     @Override
@@ -141,20 +152,50 @@ public class HomeActicity extends BaseActivity  {
         }
 
     }
-    public void showDialog(final Activity activity) {
-        final Dialog dialog = new Dialog(activity);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCancelable(true);
-        dialog.setContentView(R.layout.dialog_request_allfile);
-        TextView allow = (TextView) dialog.findViewById(R.id.bt_allow);
-        TextView deny = (TextView) dialog.findViewById(R.id.bt_deny);
-        allow.setOnClickListener(v -> {
-        });
-        deny.setOnClickListener(v -> dialog.dismiss());
-        dialog.setOnDismissListener(dialog1 -> dialog1.dismiss());
 
-        dialog.show();
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if(!SharePreferenceUtils.isRated(this)){
+            showExitDialog();
+        }else{
+
+            ck_quit++;
+            if(ck_quit==1){
+                Toast.makeText(HomeActicity.this, "Press again to exit the app", Toast.LENGTH_SHORT).show();
+            }else{
+                QuitApp();
+            }
+        }
     }
+    private void showExitDialog() {
+        com.common.control.dialog.RateAppDialog rateAppDialog = new com.common.control.dialog.RateAppDialog(this);
+        rateAppDialog.setCallback(new RateCallback() {
+            @Override
+            public void onMaybeLater() {
+                QuitApp();
+            }
 
+            @Override
+            public void onSubmit(String review) {
+                com.mtg.videoplay.utils.SharePreferenceUtils.setRated(HomeActicity.this);
+//                    Toast.makeText(MainActivity.this, review, Toast.LENGTH_SHORT).show();
+            }
 
+            @Override
+            public void onRate() {
+                com.common.control.utils.CommonUtils.getInstance().rateApp(HomeActicity.this);
+                com.mtg.videoplay.utils.SharePreferenceUtils.setRated(HomeActicity.this);
+            }
+        });
+        rateAppDialog.show();
+
+//            QuitApp();
+
+    }
+    public void QuitApp() {
+        HomeActicity.this.finish();
+        System.exit(0);
+    }
 }

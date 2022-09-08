@@ -45,12 +45,17 @@ public class FolderFragment extends BaseFragment {
         folderList = getdataFolder();
         rvFolder = requireActivity().findViewById(R.id.rv_folder);
         lr_no_folder = requireActivity().findViewById(R.id.no_folder);
+        if(folderList.size() !=0){
+            lr_no_folder.setVisibility(View.GONE);
+            rvFolder.setLayoutManager(new LinearLayoutManager(getContext()));
+            linearLayoutManager= new LinearLayoutManager(getContext());
+            adapter = new FolderAdapter(getContext(), folderList);
+            rvFolder.setLayoutManager(linearLayoutManager);
+            rvFolder.setAdapter(adapter);
+        }else{
+            lr_no_folder.setVisibility(View.VISIBLE);
+        }
 
-        rvFolder.setLayoutManager(new LinearLayoutManager(getContext()));
-        linearLayoutManager= new LinearLayoutManager(getContext());
-        adapter = new FolderAdapter(getContext(), folderList);
-        rvFolder.setLayoutManager(linearLayoutManager);
-        rvFolder.setAdapter(adapter);
 
     }
     public void setList(ArrayList<Folder> mlistFolder){
