@@ -100,9 +100,9 @@ class VideoPlayerActivity : BaseActivity() {
                                 mChangeVolume = false
                                 mChangeBrightness = false
 
-                                if(ck_Dh){
+                                if (ck_Dh) {
                                     hideDH()
-                                }else{
+                                } else {
                                     showDH()
                                 }
 
@@ -170,14 +170,14 @@ class VideoPlayerActivity : BaseActivity() {
                                 mTouchingProgressBar = false
                                 DialogChange.dismissVolumeDialog()
                                 DialogChange.dismissBrightnessDialog()
-                                if(ck_Dh){
+                                if (ck_Dh) {
                                     Timer = object : CountDownTimer(5000, 1000) {
                                         override fun onTick(millisUntilFinished: Long) {}
                                         override fun onFinish() {
                                             hideDH()
                                         }
                                     }.start()
-                                }else{
+                                } else {
                                     Timer?.cancel()
                                 }
                             }
@@ -189,13 +189,14 @@ class VideoPlayerActivity : BaseActivity() {
                                 Timer2 = object : CountDownTimer(5000, 1000) {
                                     override fun onTick(millisUntilFinished: Long) {
                                     }
+
                                     override fun onFinish() {
                                         fr_lock.visibility = GONE
                                         ck_visible = false
                                     }
                                 }.start()
                                 ck_visible = true
-                            }else{
+                            } else {
                                 Timer2?.cancel()
                                 fr_lock.visibility = GONE
                                 ck_visible = false
@@ -292,7 +293,7 @@ class VideoPlayerActivity : BaseActivity() {
                 .setSelectedTextColor(
                     ContextCompat.getColor(
                         this,
-                        android.R.color.holo_red_dark
+                        android.R.color.holo_purple
                     )
                 )
                 .build()
@@ -309,14 +310,14 @@ class VideoPlayerActivity : BaseActivity() {
         fr_lock.visibility = VISIBLE
         dh_bottom.visibility = VISIBLE
         dh_top.visibility = VISIBLE
-        ck_Dh=true
+        ck_Dh = true
     }
 
     private fun hideDH() {
         fr_lock.visibility = GONE
         dh_top.visibility = GONE
         dh_bottom.visibility = GONE
-        ck_Dh=false
+        ck_Dh = false
     }
 
     override fun addEvent() {
@@ -596,12 +597,14 @@ class VideoPlayerActivity : BaseActivity() {
         showDH()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+
     override fun onPictureInPictureModeChanged(
         isInPictureInPictureMode: Boolean,
         newConfig: Configuration
     ) {
-        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        }
         when (isInPictureInPictureMode) {
             true -> hideUnnecessaryViews()
             false -> showViews()
@@ -639,7 +642,7 @@ class VideoPlayerActivity : BaseActivity() {
     override fun onPause() {
         super.onPause()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            if (isInPictureInPictureMode() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            if (isInPictureInPictureMode()) {
                 onResume();
             } else {
                 bt_play.setImageResource(R.drawable.ic_play);
@@ -647,6 +650,11 @@ class VideoPlayerActivity : BaseActivity() {
                 videoView.pause();
                 ck_pause = true;
             }
+        }else{
+            bt_play.setImageResource(R.drawable.ic_play);
+            stopPosition = videoView.getCurrentPosition(); //stopPosition is an int
+            videoView.pause();
+            ck_pause = true;
         }
 
     }

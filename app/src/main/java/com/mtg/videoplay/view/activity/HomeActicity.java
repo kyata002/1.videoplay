@@ -26,6 +26,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
+import com.common.control.dialog.RateAppDialog;
 import com.common.control.interfaces.RateCallback;
 import com.common.control.manager.AdmobManager;
 import com.google.android.material.tabs.TabLayout;
@@ -50,7 +51,7 @@ public class HomeActicity extends BaseActivity  {
     TextView rq_Permission;
     private boolean ck_request = false;
     int ck_quit=0;
-
+    public static boolean  isShare = false;
     final DisplayMetrics displayMetrics = new DisplayMetrics();
     public static ActivityResultLauncher<IntentSenderRequest> launcherDelete;
     public static ActivityResultLauncher<IntentSenderRequest> launcherRename;
@@ -154,21 +155,24 @@ public class HomeActicity extends BaseActivity  {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        if(!SharePreferenceUtils.isRated(this)){
-            showExitDialog();
+        if(isShare){
+            isShare=false;
+            VideoFragment.hideshare();
         }else{
-
-            ck_quit++;
-            if(ck_quit==1){
-                Toast.makeText(HomeActicity.this, "Press again to exit the app", Toast.LENGTH_SHORT).show();
+            if(!SharePreferenceUtils.isRated(this)){
+                showExitDialog();
             }else{
-                QuitApp();
+                ck_quit++;
+                if(ck_quit==1){
+                    Toast.makeText(HomeActicity.this, "Press again to exit the app", Toast.LENGTH_SHORT).show();
+                }else{
+                    QuitApp();
+                }
             }
         }
     }
     private void showExitDialog() {
-        com.common.control.dialog.RateAppDialog rateAppDialog = new com.common.control.dialog.RateAppDialog(this);
+        RateAppDialog rateAppDialog = new com.common.control.dialog.RateAppDialog(this);
         rateAppDialog.setCallback(new RateCallback() {
             @Override
             public void onMaybeLater() {

@@ -1,5 +1,6 @@
 package com.mtg.videoplay.view.fragment;
 
+import static com.mtg.videoplay.view.activity.HomeActicity.isShare;
 import static com.mtg.videoplay.view.activity.HomeActicity.launcherDelete;
 import static com.mtg.videoplay.view.activity.HomeActicity.launcherRename;
 
@@ -38,9 +39,11 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.tabs.TabLayout;
 import com.mtg.videoplay.R;
 import com.mtg.videoplay.adapter.AllVideoAdapter;
+import com.mtg.videoplay.adapter.ShareAdapter;
 import com.mtg.videoplay.base.BaseFragment;
 import com.mtg.videoplay.model.FileVideo;
 import com.mtg.videoplay.utils.FileUtils;
+import com.mtg.videoplay.view.activity.HomeActicity;
 import com.mtg.videoplay.view.activity.SettingActivity;
 import com.mtg.videoplay.view.dialog.DeleteDialog;
 import com.mtg.videoplay.view.dialog.RenameDialog;
@@ -57,10 +60,11 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
     ImageView bt_backs;
     TabLayout tab;
     ViewPager viewPager;
-    RecyclerView rvAudio,rvSearch;
-    LinearLayout noVideo,lr_No_File,tv_Home;
-    LinearLayout lc_search,lc_main;
-    ImageView bt_search,bt_setting,bt_clear_search;
+    RecyclerView rvAudio;
+    static RecyclerView rvSearch;
+    static LinearLayout noVideo,lr_No_File,tv_Home;
+    static LinearLayout lc_search,lc_main;
+    static ImageView bt_search,bt_setting,bt_clear_search;
     int Load_Ads=0;
     public static int ck_delete = 0;
     public static FileVideo videoRename;
@@ -98,6 +102,7 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
             }
         });
         bt_backs.setOnClickListener(view -> {
+            isShare=false;
             lc_main.setVisibility(View.VISIBLE);
             lc_search.setVisibility(View.GONE);
             tab.setVisibility(View.VISIBLE);
@@ -108,24 +113,7 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
 
             InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(ed_Search.getWindowToken(), 0);
-//            rvAudio.setLayoutManager(new LinearLayoutManager(getContext()));
-//            rvAudio.setHasFixedSize(true);
-//            rvAudio.setItemViewCacheSize(20);
-//            adapter = new AllVideoAdapter(getContext(), videoList);
-//            adapter.setOnClickOptionListener(this);
-//            GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 2, GridLayoutManager.VERTICAL, false);
-//            rvAudio.setLayoutManager(gridLayoutManager);
-//            rvAudio.setAdapter(adapter);
-//            gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-//                @Override
-//                public int getSpanSize(int position) {
-//                    if(adapter.getItemViewType(position) == 1 ){
-//                        return 2;
-//                    }else if(adapter.getItemViewType(position) == 0){
-//                        return 1;
-//                    }else return -1;
-//                }
-//            });
+
         });
         bt_search.setOnClickListener(view -> {
             rvSearch.setVisibility(View.VISIBLE);
@@ -133,6 +121,7 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
             lc_search.setVisibility(View.VISIBLE);
             tv_Home.setVisibility(View.GONE);
             viewPager.setClickable(false);
+            isShare=true;
             setList(videoListSearch);
         });
 
@@ -268,12 +257,20 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
 
 
     }
+    public static void hideshare() {
+        rvSearch.setVisibility(View.GONE);
+        lc_main.setVisibility(View.VISIBLE);
+        lc_search.setVisibility(View.GONE);
+        rvSearch.setVisibility(View.GONE);
+        tv_Home.setVisibility(View.VISIBLE);
+        noVideo.setVisibility(View.GONE);
+    }
 
     private void setList(ArrayList<FileVideo> listNew) {
         rvSearch.setLayoutManager(new LinearLayoutManager(getContext()));
         rvSearch.setHasFixedSize(true);
         rvSearch.setItemViewCacheSize(20);
-        adapter = new AllVideoAdapter(getContext(), listNew);
+        ShareAdapter adapter = new ShareAdapter(getContext(), listNew);
         GridLayoutManager linearLayoutManager = new GridLayoutManager(getContext(), 2, GridLayoutManager.VERTICAL, false);
         rvSearch.setLayoutManager(linearLayoutManager);
         rvSearch.setAdapter(adapter);
@@ -282,9 +279,9 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
     @Override
     public void onResume() {
         super.onResume();
-        videoList.clear();
-        videoList = getdata();
-        adapter.update(videoList);
+            videoList.clear();
+            videoList = getdata();
+            adapter.update(videoList);
     }
 
     @Override
@@ -410,4 +407,5 @@ public class VideoFragment extends BaseFragment implements AllVideoAdapter.OnCli
         intent.setData(Uri.fromFile(f));
         c.sendBroadcast(intent);
     }
+
 }

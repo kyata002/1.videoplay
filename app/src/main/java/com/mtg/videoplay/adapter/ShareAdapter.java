@@ -1,0 +1,318 @@
+package com.mtg.videoplay.adapter;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.media.MediaMetadataRetriever;
+import android.net.Uri;
+import android.os.StrictMode;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.common.control.interfaces.AdCallback;
+import com.common.control.manager.AdmobManager;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.mtg.videoplay.BuildConfig;
+import com.mtg.videoplay.R;
+import com.mtg.videoplay.utils.Utils;
+import com.mtg.videoplay.model.FileVideo;
+import com.mtg.videoplay.view.activity.VideoPlayerActivity;
+
+import java.io.File;
+import java.net.URLConnection;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+
+import com.mtg.videoplay.view.dialog.InfoDialog;
+import com.skydoves.powermenu.PowerMenu;
+import com.skydoves.powermenu.PowerMenuItem;
+
+import java.util.concurrent.TimeUnit;
+
+
+public class ShareAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+//    final ActivityResultLauncher<IntentSenderRequest> launcher ;
+
+    public ArrayList<FileVideo> videoList;
+    public final Context context;
+    private PowerMenu powerMenu;
+    private OnClickOptionListener onClickOptionListener;
+    private InterstitialAd interAds = null;
+
+    public ShareAdapter(Context context) {
+        this.context = context;
+    }
+
+
+    public void setOnClickOptionListener(OnClickOptionListener onClickOptionListener) {
+        this.onClickOptionListener = onClickOptionListener;
+    }
+
+    Intent intent;
+    public static final int ITEM_TYPE = 0;
+    public static final int ADS_TYPE=1;
+
+    private static int ck_play=0;
+
+
+    public ShareAdapter(Context context, ArrayList<FileVideo> videoList) {
+        this.videoList = videoList;
+        this.context = context;
+
+    }
+
+    private static String getFileSize(FileVideo mFile) {
+        File mfile = new File(mFile.getPath());
+        long length = mfile.length();
+        if (length <= 0)
+            return "0";
+        final String[] units = new String[]{"B", "KB", "MB", "GB", "TB"};
+        int digitGroups = (int) (Math.log10(length) / Math.log10(1024));
+        return new DecimalFormat("#,##0.#").format(length / Math.pow(1024, digitGroups)) + " " + units[digitGroups];
+    }
+
+    private String timeFile(FileVideo mFile) {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(mFile.getPath());
+        String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+        retriever.release();
+        long seconds = Long.parseLong(time);
+        return String.format("%02d:%02d",
+                TimeUnit.MILLISECONDS.toMinutes(seconds) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(seconds)),
+                TimeUnit.MILLISECONDS.toSeconds(seconds) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(seconds)));
+    }
+
+    @NonNull
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view;
+        if(viewType==ADS_TYPE){
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.nav_layout, parent, false);
+            return new AdsHolderFile(view);
+        }else {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_file_video, parent, false);
+            return new ListViewHolder(view);
+        }
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if (videoList.size() == 0) return;
+        if(holder instanceof ListViewHolder){
+            loadInter(position);
+            ShareAdapter.ListViewHolder listViewHolder = (ListViewHolder) holder;
+            RequestOptions requestOptions = new RequestOptions();
+            requestOptions.placeholder(R.drawable.ic_defaut);
+            Glide.with(context).setDefaultRequestOptions(requestOptions).load(videoList.get(position).getPath())
+                    .into(listViewHolder.imgFile);
+
+            listViewHolder.txtDuration.setText(timeFile(videoList.get(position)));
+
+            listViewHolder.txtSize.setText(getFileSize(videoList.get(position)));
+
+            SimpleDateFormat dateFile = new SimpleDateFormat("dd/MM/yyyy");
+            listViewHolder.txtTime.setText(dateFile.format(new Date(new File(videoList.get(position).getPath()).lastModified())));
+
+            listViewHolder.filename.setText(new File(videoList.get(position).getPath()).getName());
+
+
+            holder.itemView.setOnClickListener(view -> {
+                ck_play++;
+                if(ck_play%2==0&&ck_play!=0){
+                    showInter(position);
+                }else{
+                    play(context,position);
+                }
+
+            });
+            listViewHolder.bt_more.setOnClickListener(view -> {
+                if (powerMenu != null && powerMenu.isShowing()) {
+
+                } else {
+                    powerMenu = new PowerMenu.Builder(context)
+                            //.addItemList(list) // list has "Novel", "Poerty", "Art"
+                            .addItem(new PowerMenuItem(context.getString(R.string.share), R.drawable.ic_share_more, false)) // add an item.
+                            .addItem(new PowerMenuItem(context.getString(R.string.rename), R.drawable.ic_rename_more, false))
+                            .addItem(new PowerMenuItem(context.getString(R.string.delete), R.drawable.ic_delete_more, false)) // add an item.
+                            .addItem(new PowerMenuItem(context.getString(R.string.detail), R.drawable.ic_detail_more, false)) // aad an item list.
+//                    .setAnimation(MenuAnimation.SHOWUP_TOP_LEFT) // Animation start point (TOP | LEFT).
+                            .setMenuRadius(12f)
+//                    .setTextTypeface(ResourcesCompat.getFont(context, R.font.lexend_regular)!!)
+                            .setPadding(48)// sets the corner radius.
+                            .setSize(LinearLayout.LayoutParams.WRAP_CONTENT, 660)
+                            .setMenuShadow(10f) // sets the shadow.
+                            .setIconSize(28)
+                            .setTextSize(14)
+                            .setIconPadding(2)
+                            .setMenuColor(0)
+                            .setBackgroundColor(Color.TRANSPARENT)
+                            .setOnBackgroundClickListener(view1 -> powerMenu.dismiss())
+                            //.setTextColor(ContextCompat.getColor(context, Color.parseColor("#3C3C3C")))
+                            .setTextGravity(Gravity.LEFT)
+                            .setTextTypeface(Typeface.create("font/lexend_regular.ttf", Typeface.NORMAL))
+                            .setSelectedTextColor(Color.WHITE)
+                            .setMenuColor(Color.WHITE)
+                            .setSelectedMenuColor(ContextCompat.getColor(context, R.color.black))
+                            .setOnMenuItemClickListener((posit, item) -> {
+                                CharSequence title = item.getTitle();
+                                if ("Share".equals(title)) {
+                                    shareFile(context,new File(videoList.get(posit).getPath()));
+                                    powerMenu.dismiss();
+                                } else if ("Rename".equals(title)) {
+                                    onClickOptionListener.onRename(position);
+                                    powerMenu.dismiss();
+                                } else if ("Delete".equals(title)) {
+                                    onClickOptionListener.onDelete(position);
+//                                    dialogDelete(position);
+                                    powerMenu.dismiss();
+                                } else if ("Info".equals(title)) {
+                                    dialogInfo(videoList.get(position).getPath());
+                                    powerMenu.dismiss();
+                                }
+                            }).build();
+                    powerMenu.showAsDropDown(view);
+                }
+
+            });
+        }
+    }
+
+
+
+    @Override
+    public int getItemViewType(int position) {
+        if(videoList.get(position)==null){
+            return ADS_TYPE;
+        }else return ITEM_TYPE;
+    }
+
+
+    @Override
+    public int getItemCount() {
+        Utils.listSize = videoList.size();
+        return videoList.size();
+    }
+
+
+    public static class ListViewHolder extends RecyclerView.ViewHolder {
+        final TextView filename;
+        final TextView txtDuration;
+        final TextView txtSize;
+        final TextView txtTime;
+        final ImageView imgFile;
+        final View bt_more;
+
+        public ListViewHolder(@NonNull View itemView) {
+            super(itemView);
+            filename = itemView.findViewById(R.id.filename);
+            txtDuration = itemView.findViewById(R.id.txtDuration);
+            txtSize = itemView.findViewById(R.id.txtSize);
+            txtTime = itemView.findViewById(R.id.txtTime);
+            imgFile = itemView.findViewById(R.id.imgFile);
+            bt_more = itemView.findViewById(R.id.bt_more);
+        }
+    }
+
+    public void dialogDelete(int position) {
+
+    }
+
+    public  void update(ArrayList<FileVideo> mList){
+        this.videoList = mList;
+        notifyDataSetChanged();
+    }
+    public void dialogInfo(String path) {
+        InfoDialog dialog = new InfoDialog(context, path);
+        dialog.show();
+    }
+
+
+    public void shareFile(Context context, File file) {
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+        Intent intentShareFile = new Intent(Intent.ACTION_SEND);
+        intentShareFile.setType(URLConnection.guessContentTypeFromName(file.getName()));
+        intentShareFile.putExtra(Intent.EXTRA_STREAM,Uri.fromFile(file));
+        context.startActivity(Intent.createChooser(intentShareFile, "Share File"));
+    }
+    private void showInter(int position) {
+        AdmobManager.getInstance().showInterstitial((Activity) context, interAds, new AdCallback() {
+            @Override
+            public void onAdClosed() {
+                super.onAdClosed();
+                play(context,position);
+
+
+            }
+
+            @Override
+            public void onAdFailedToShowFullScreenContent(LoadAdError errAd) {
+                super.onAdFailedToShowFullScreenContent(errAd);
+                play(context,position);
+            }
+        });
+    }
+
+    private void loadInter(int position) {
+        AdmobManager.getInstance()
+                .loadInterAds((Activity) context, BuildConfig.inter_open_app, new AdCallback() {
+                    @Override
+                    public void onResultInterstitialAd(InterstitialAd interstitialAd) {
+                        super.onResultInterstitialAd(interstitialAd);
+                        interAds = interstitialAd;
+                    }
+
+                    @Override
+                    public void onAdFailedToShowFullScreenContent(LoadAdError errAd) {
+                        super.onAdFailedToShowFullScreenContent(errAd);
+                        play(context,position);
+
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError i) {
+                        super.onAdFailedToLoad(i);
+                        play(context,position);
+
+                    }
+
+                    @Override
+                    public void onAdLoaded() {
+                        super.onAdLoaded();
+                        play(context,position);
+                    }
+
+                });
+    }
+    public void play(Context context,int position){
+        VideoPlayerActivity.Companion.setKeyPlay(0);
+        intent = new Intent(context, VideoPlayerActivity.class);
+        intent.putExtra("file", position);
+        intent.putExtra("list", videoList);
+//            intent.putExtra("rotation", rotation);
+        context.startActivity(intent);
+    }
+
+
+
+    public interface OnClickOptionListener {
+        void onRename(int position);
+        void onDelete(int position);
+    }
+}

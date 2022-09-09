@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <LinearLayout
-        android:layout_width="@dimen/_286sdp"
+        android:layout_width="@dimen/_260sdp"
         android:layout_height="wrap_content"
         android:background="#fff"
         android:gravity="center"
@@ -18,39 +18,39 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/_10sdp"
+            android:layout_marginLeft="@dimen/_16sdp"
             android:layout_marginTop="@dimen/_16sdp"
             android:layout_marginRight="@dimen/_10sdp"
             android:text="Delete"
             android:textColor="@color/black"
-            android:textSize="@dimen/_20sdp"
+            android:textSize="@dimen/_18sdp"
             android:textStyle="bold" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginRight="@dimen/_10sdp"
-            android:layout_marginLeft="@dimen/_10sdp"
-            android:layout_marginTop="@dimen/_16sdp"
-            android:text="Are you sure want to delete this file permanently?"
+            android:layout_marginLeft="@dimen/_16sdp"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:text="Are you sure want to delete this file?"
             android:textSize="@dimen/_12sdp"
             android:textColor="@color/black"/>
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/_10sdp"
+            android:layout_marginHorizontal="@dimen/_19sdp"
             android:layout_marginTop="@dimen/_4sdp"
             android:text="*Deleted file cannot be recovered?"
             android:textColor="#FF0000"
-            android:textSize="@dimen/_12sdp"/>
+            android:textSize="@dimen/_10sdp"/>
 
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="@dimen/_24sdp"
-            android:layout_marginLeft="@dimen/_38sdp"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginLeft="@dimen/_58sdp"
             android:layout_marginBottom="@dimen/_16sdp"
             android:orientation="horizontal">
 
@@ -58,7 +58,7 @@
                 android:id="@+id/bt_yes"
                 android:layout_width="@dimen/_70sdp"
                 android:layout_height="@dimen/_25sdp"
-                android:layout_marginEnd="@dimen/_20sdp"
+                android:layout_marginEnd="@dimen/_4sdp"
                 android:gravity="center"
                 android:text="YES"
                 android:textColor="#66000000"

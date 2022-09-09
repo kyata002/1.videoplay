@@ -24,11 +24,11 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/_16sdp"
             android:layout_marginTop="@dimen/_16sdp"
-            android:layout_marginRight="@dimen/_16sdp"
+            android:layout_marginRight="@dimen/_14sdp"
             android:text="Rename"
             android:textStyle="bold"
             android:textColor="@color/black"
-            android:textSize="@dimen/_20sdp"
+            android:textSize="@dimen/_18sdp"
              />
 
         <FrameLayout
@@ -37,17 +37,17 @@
             android:layout_height="wrap_content"
             android:background="#FFF"
             android:layout_marginStart="@dimen/_16sdp"
-            android:layout_marginTop="@dimen/_16sdp"
+            android:layout_marginTop="@dimen/_10sdp"
             android:layout_marginEnd="@dimen/_20sdp">
 
             <EditText
                 android:id="@+id/edt_name"
-                android:layout_width="@dimen/_222sdp"
+                android:layout_width="@dimen/_228sdp"
                 android:layout_height="@dimen/_35sdp"
                 android:layout_gravity="center"
                 android:paddingEnd="@dimen/_24sdp"
                 android:backgroundTint="#8941FF"
-                android:hint="name"
+                android:hint="Typing..."
                 android:textColorHint="#E8E5E5"
                 android:padding="@dimen/_5sdp"
                 android:paddingLeft="@dimen/_8sdp"
@@ -68,8 +68,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginLeft="@dimen/_38sdp"
-            android:layout_marginTop="@dimen/_24sdp"
+            android:layout_marginLeft="@dimen/_47sdp"
+            android:layout_marginTop="@dimen/_10sdp"
             android:layout_marginBottom="@dimen/_16sdp"
             android:orientation="horizontal">
 
