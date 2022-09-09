@@ -12,12 +12,16 @@
         <entry key="..\:/Users/doman/OneDrive/Desktop/Work/resources/videoplay/app/src/main/res/layout/activity_home.xml" value="0.10989583333333333" />
         <entry key="..\:/Users/doman/OneDrive/Desktop/Work/resources/videoplay/app/src/main/res/layout/activity_play.xml" value="0.10989583333333333" />
         <entry key="..\:/Users/doman/OneDrive/Desktop/Work/resources/videoplay/app/src/main/res/layout/activity_videolist.xml" value="0.10989583333333333" />
+        <entry key="..\:/VideoPlay/videoplay/app/src/main/res/drawable-v24/vp_dialog_progress.xml" value="0.1895" />
         <entry key="..\:/VideoPlay/videoplay/app/src/main/res/drawable/a.xml" value="0.15" />
         <entry key="..\:/VideoPlay/videoplay/app/src/main/res/drawable/aaa.xml" value="0.294" />
         <entry key="..\:/VideoPlay/videoplay/app/src/main/res/drawable/backgroud.xml" value="0.294" />
         <entry key="..\:/VideoPlay/videoplay/app/src/main/res/drawable/bg_button.xml" value="0.294" />
         <entry key="..\:/VideoPlay/videoplay/app/src/main/res/drawable/bg_dialog.xml" value="0.294" />
         <entry key="..\:/VideoPlay/videoplay/app/src/main/res/drawable/bg_item_setting.xml" value="0.294" />
+        <entry key="..\:/VideoPlay/videoplay/app/src/main/res/drawable/bg_pr.xml" value="0.1895" />
+        <entry key="..\:/VideoPlay/videoplay/app/src/main/res/drawable/bg_search.xml" value="0.1895" />
+        <entry key="..\:/VideoPlay/videoplay/app/src/main/res/drawable/bg_time_file.xml" value="0.1895" />
         <entry key="..\:/VideoPlay/videoplay/app/src/main/res/drawable/ic_back.xml" value="0.294" />
         <entry key="..\:/VideoPlay/videoplay/app/src/main/res/drawable/ic_back_play.xml" value="0.294" />
         <entry key="..\:/VideoPlay/videoplay/app/src/main/res/drawable/ic_next.xml" value="0.294" />
@@ -29,11 +33,12 @@
         <entry key="..\:/VideoPlay/videoplay/app/src/main/res/layout/activity_play.xml" value="0.33" />
         <entry key="..\:/VideoPlay/videoplay/app/src/main/res/layout/activity_setting.xml" value="0.2" />
         <entry key="..\:/VideoPlay/videoplay/app/src/main/res/layout/activity_videolist.xml" value="0.18125" />
-        <entry key="..\:/VideoPlay/videoplay/app/src/main/res/layout/dialog_brightness.xml" value="0.14010416666666667" />
+        <entry key="..\:/VideoPlay/videoplay/app/src/main/res/layout/dialog_brightness.xml" value="0.67" />
         <entry key="..\:/VideoPlay/videoplay/app/src/main/res/layout/dialog_delete.xml" value="0.5" />
         <entry key="..\:/VideoPlay/videoplay/app/src/main/res/layout/dialog_info.xml" value="0.25" />
         <entry key="..\:/VideoPlay/videoplay/app/src/main/res/layout/dialog_rename.xml" value="0.33" />
         <entry key="..\:/VideoPlay/videoplay/app/src/main/res/layout/dialog_request_allfile.xml" value="0.5" />
+        <entry key="..\:/VideoPlay/videoplay/app/src/main/res/layout/dialog_volume.xml" value="0.75" />
         <entry key="..\:/VideoPlay/videoplay/app/src/main/res/layout/fragment_folder.xml" value="0.24547101449275363" />
         <entry key="..\:/VideoPlay/videoplay/app/src/main/res/layout/fragment_video.xml" value="0.24547101449275363" />
         <entry key="..\:/VideoPlay/videoplay/app/src/main/res/layout/item_file_video.xml" value="0.9018302828618968" />

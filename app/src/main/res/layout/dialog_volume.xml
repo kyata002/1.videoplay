@@ -37,6 +37,6 @@
             android:layout_marginRight="24dp"
             android:layout_marginTop="5dp"
             android:max="100"
-            android:progressDrawable="@drawable/vp_dialog_progress" />
+            android:progressDrawable="@drawable/vp_dialog_progress"/>
     </LinearLayout>
 </LinearLayout>

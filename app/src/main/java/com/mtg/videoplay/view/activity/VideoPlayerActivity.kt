@@ -67,12 +67,15 @@ class VideoPlayerActivity : BaseActivity() {
     var Timer2: CountDownTimer? = null
     var Timer: CountDownTimer? = null
     var ck_time: Boolean = false;
-    var mAudioManager: AudioManager? = null
+    lateinit var mAudioManager: AudioManager
     override fun getLayoutId(): Int {
         return R.layout.activity_play
     }
 
     override fun initView() {
+        mScreenWidth = this.getResources().getDisplayMetrics().widthPixels
+        mScreenHeight = this.getResources().getDisplayMetrics().heightPixels
+        mAudioManager = this.getSystemService(AUDIO_SERVICE) as AudioManager
         Timer = object : CountDownTimer(5000, 1000) {
             override fun onTick(millisUntilFinished: Long) {}
             override fun onFinish() {
@@ -80,9 +83,6 @@ class VideoPlayerActivity : BaseActivity() {
             }
         }.start()
         pop();
-        mScreenWidth = this.resources.displayMetrics.widthPixels
-        mScreenHeight = this.resources.displayMetrics.heightPixels
-        mAudioManager = this.getSystemService(AUDIO_SERVICE) as AudioManager
         prepareSource(intent)
         registerListeners()
         progessbar()
@@ -127,14 +127,13 @@ class VideoPlayerActivity : BaseActivity() {
                                     }
                                 } else {
                                     mChangeVolume = true
-                                    mGestureDownVolume =
-                                        mAudioManager!!.getStreamVolume(AudioManager.STREAM_MUSIC)
+                                    mGestureDownVolume = mAudioManager!!.getStreamVolume(AudioManager.STREAM_MUSIC)
                                 }
                                 if (mChangeVolume) {
                                     deltaY = -deltaY
                                     val max: Int =
                                         mAudioManager!!.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-                                    val deltaV = (max * deltaY * 3 / mScreenHeight)
+                                    val deltaV = (max * deltaY * 3 /(mScreenHeight*10))
                                     mAudioManager!!.setStreamVolume(
                                         AudioManager.STREAM_MUSIC,
                                         (mGestureDownVolume + deltaV).roundToInt(),
@@ -142,7 +141,7 @@ class VideoPlayerActivity : BaseActivity() {
                                     )
                                     //dialog
                                     DialogChange.showVolumeDialog(
-                                        ((mGestureDownVolume * 100 / max + deltaY * 3 * 100 / mScreenHeight).toInt()),
+                                        ((mGestureDownVolume * 100 / max + deltaY * 3 * 100 / (mScreenHeight*10)).toInt()),
                                         this@VideoPlayerActivity
                                     )
                                 }
